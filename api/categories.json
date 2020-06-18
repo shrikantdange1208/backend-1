@@ -1,0 +1,148 @@
+# /api/categories
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+# Get All Categories (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories
+#Response
+{
+  "categories": [
+    {
+      "category": "food"
+      "description": "Category for food",
+      "isActive": true,
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "category": "pharmacy",
+      "description": "Category for medicines"
+      "isActive": true,
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalCategories": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get a single Category (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories/{categoryName}
+
+#Response
+{
+  "categories":"food",
+  "description": "Category for food",
+  "isActive": true,
+  "createdDate": "2020-06-12T11:16:04.060Z",
+  "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get product list of products from a category
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories/{categoryName}/products
+
+#Response
+[
+  "product1",
+  "product2",
+  "product3"
+]
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+# Get All ActiveCategories (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories/{active}/categories
+#Response
+{
+  "categories": [
+    {
+      "category": "food"
+      "description": "Category for food",
+      "isActive": true,
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "category": "pharmacy",
+      "description": "Category for medicines"
+      "isActive": true,
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalCategories": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Add Category (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories
+#Request
+{
+  "category": "food",
+  "description": "Category for food"
+}
+
+#Response
+{
+  "category": "food"
+  "description": "Category for food"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Category Description (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories/desc
+
+#Request
+{
+  "category": "food",
+  "description": "Category for food"
+}
+#Response
+{
+  {
+    "category": "food"
+    "description": "Category for food"
+  }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Category Status (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories/status
+
+#Request
+{
+  "category": "food",
+  "isActive": false
+}
+#Response
+{
+  "category": "food",
+  "isActive": false
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Delete Category (DELETE)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories/{categoryName}
+
+#Response
+{
+  "category": "food",
+  "description": "Category for food"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------

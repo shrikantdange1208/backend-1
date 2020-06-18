@@ -1,0 +1,6 @@
+{
+    "DEBUG" : {
+        "0" : "app:startup",
+        "1" : "app:http"
+    }
+}
