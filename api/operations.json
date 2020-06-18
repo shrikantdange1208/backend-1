@@ -1,0 +1,157 @@
+# /api/operations
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Operartions (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/operations
+#Response
+{
+  "operations": [
+    {
+      "operation": "transferIn",
+      "label": "Accept Product",
+      "description": "Operation to accept product from a branch",
+      "isActive": true,
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "operation": "transferOut",
+      "label": "Transfer Product",
+      "description": "Operation to transfer product to a branch",
+      "isActive": true,
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalOperations": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get a single Operation (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/operations/{operationName}
+
+#Response
+{
+  "operation": "adjustment",
+  "label": "Adjust Product Value",
+  "description": "Operation to adjust product values in case of discrepancy in the inventory",
+  "isActive": true,
+  "createdDate": "2020-06-12T11:16:04.060Z",
+  "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get a active/InActive Operations (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/operations/{active}/active
+
+#Response
+{
+  "operations": [
+    {
+      "operation": "transferIn",
+      "label": "Accept Product",
+      "description": "Operation to accept product from a branch",
+      "isActive": true,
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "operation": "transferOut",
+      "label": "Transfer Product",
+      "description": "Operation to transfer product to a branch",
+      "isActive": true,
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalOperations": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Add Operation (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/operations
+#Request
+{
+  "operation": "transferIn",
+  "label": "Accept Product"
+  "description": "Operation to accept product from a branch"
+}
+
+#Response
+{
+  "operation": "transferIn",
+  "label": "Accept Product"
+  "description": "Operation to accept product from a branch"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Operation Label (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/category
+
+#Request
+{
+  "operation": "transferIn",
+  "label": "Accept Products"
+}
+#Response
+{
+  "operation": "transferIn",
+  "label": "Accept Products"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Operation Description (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/category
+
+#Request
+{
+  "operation": "transferIn",
+  "description": "Accept Product in the branch"
+}
+#Response
+{
+  "operation": "transferIn",
+  "description": "Accept Product in the branch"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Operation status (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/category
+
+#Request
+{
+  "operation": "transferIn",
+  "isActive": false
+}
+#Response
+{
+  "operation": "transferIn",
+  "isActive": false
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Delete Operation (DELETE)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/product/{productName}
+
+#Response
+{
+  "operation": "transferIn",
+  "label": "Accept Product"
+  "description": "Operation to accept product from a branch"
+}
