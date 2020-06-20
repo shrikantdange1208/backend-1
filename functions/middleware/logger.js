@@ -1,11 +1,6 @@
 require('express-async-errors');
 const {createLogger, transports} = require('winston');
 const winston = require('winston');
-
-process.on('unhandledRejection', (err) => {
-    throw err;
-});
-
 const logger = createLogger({
     level: 'debug',
     transports: [
