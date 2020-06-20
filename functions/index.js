@@ -18,6 +18,6 @@ logger.info('Initializing Inventory Management System');
 const app = express();
 require('./startup/routes')(app);
 
-exports.app = functions.https.onRequest(app)
+exports.api = functions.https.onRequest(app)
 exports.addOrUpdateProduct = products.addOrUpdateProduct
 //exports.updateProductCategory = categories.updateProductCategory

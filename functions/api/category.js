@@ -1,5 +1,5 @@
 const constants = require('../config/constants')
-const validate = require('../validation/validation')
+const validate = require('../validation/validator')
 const logger = require('../middleware/logger');
 const config = require('config');
 const joi = require('@hapi/joi');
@@ -22,14 +22,12 @@ router.get("/", async (request, response) => {
     let categoryCollection = db.collection(constants.CATEGORY);
     let snapshot = await categoryCollection.get()
     snapshot.forEach(category => {
-        var categoryInfo = {}
         var categoryData = category.data()
-        categoryInfo[constants.CATEGORY] = category.id,
-        categoryInfo[constants.DESCRIPTION] = categoryData.description,
-        categoryInfo[constants.IS_ACTIVE] = categoryData.isActive,
-        categoryInfo[constants.CREATED_DATE] = categoryData.createdDate.toDate(),
-        categoryInfo[constants.LAST_UPDATED_DATE] = categoryData.lastUpdatedDate.toDate()
-        categories.categories.push(categoryInfo);
+        categoryData[constants.CATEGORY] = category.id
+        categoryData[constants.CREATED_DATE] = categoryData[constants.CREATED_DATE].toDate()
+        categoryData[constants.LAST_UPDATED_DATE] = categoryData[constants.LAST_UPDATED_DATE].toDate()
+        delete categoryData[constants.PRODUCTS]
+        categories.categories.push(categoryData);
     })
     categories[constants.TOTAL_CATEGORIES] = snapshot.size;
     logger.debug('Returning categories to client.');
@@ -44,7 +42,6 @@ router.get("/", async (request, response) => {
 router.get('/:category', async (request, response, next) => {
     var  requestedCategory = request.params.category.toLocaleLowerCase()
     logger.info(`Retrieving category ${requestedCategory} from firestore`)
-    var categoryInfo = {}
     const doc = db.collection(constants.CATEGORY).doc(requestedCategory);
     const category = await doc.get()
     if (!category.exists) {
@@ -54,13 +51,12 @@ router.get('/:category', async (request, response, next) => {
         return;
     }
     var categoryData = category.data()
-    categoryInfo[constants.CATEGORY] = category.id
-    categoryInfo[constants.DESCRIPTION] = categoryData.description
-    categoryInfo[constants.IS_ACTIVE] = categoryData.isActive
-    categoryInfo[constants.CREATED_DATE] = categoryData.createdDate.toDate()
-    categoryInfo[constants.LAST_UPDATED_DATE] = categoryData.lastUpdatedDate.toDate()
+    categoryData[constants.CATEGORY] = category.id
+    categoryData[constants.CREATED_DATE] = categoryData[constants.CREATED_DATE].toDate()
+    categoryData[constants.LAST_UPDATED_DATE] = categoryData[constants.LAST_UPDATED_DATE].toDate()
+    delete categoryData[constants.PRODUCTS]
     logger.debug(`Returning details for category ${requestedCategory} to client.`);
-    response.status(200).send(categoryInfo);
+    response.status(200).send(categoryData);
 });
 
 /**
@@ -70,8 +66,7 @@ router.get('/:category', async (request, response, next) => {
 router.get('/products/:category', async (request, response, next) => {
     var  requestedCategory = request.params.category.toLocaleLowerCase()
     logger.info(`Retrieving products for category ${requestedCategory}`)
-    var categoryProducts = []
-    const doc = db.collection(constants.CATEGORY).doc(requestedCategory);
+    const doc = db.collection(constants.CATEGORY).doc(requestedCategory)
     const category = await doc.get()
     if (!category.exists) {
         const error = new Error(`Requested category ${requestedCategory} is not present in Firestore.`)
@@ -80,13 +75,12 @@ router.get('/products/:category', async (request, response, next) => {
         return;
     }
     var categoryData = category.data()    
-    categoryProducts = categoryData.products;
     logger.debug(`Returning products from category ${requestedCategory} to client.`);
-    response.status(200).send(categoryProducts);    
+    response.status(200).send(categoryData[constants.PRODUCTS]);    
 });
 
 /**
- * @description Route to retireve all active/inactive categories from firestore
+ * @description Route to retrieve all active/inactive categories from firestore
  * @returns Json object containing all categories
  */
 router.get("/:active/categories", async (request, response) => {
@@ -99,18 +93,16 @@ router.get("/:active/categories", async (request, response) => {
         .where(constants.IS_ACTIVE, '==', status)
     let snapshot = await categoryCollection.get()
     snapshot.forEach(category => {
-        var categoryInfo = {}
         var categoryData = category.data()
-        categoryInfo[constants.CATEGORY] = category.id,
-        categoryInfo[constants.DESCRIPTION] = categoryData.description,
-        categoryInfo[constants.IS_ACTIVE] = categoryData.isActive,
-        categoryInfo[constants.CREATED_DATE] = categoryData.createdDate.toDate(),
-        categoryInfo[constants.LAST_UPDATED_DATE] = categoryData.lastUpdatedDate.toDate()
-        categories.categories.push(categoryInfo);
+        categoryData[constants.CATEGORY] = category.id
+        categoryData[constants.CREATED_DATE] = categoryData[constants.CREATED_DATE].toDate()
+        categoryData[constants.LAST_UPDATED_DATE] = categoryData[constants.LAST_UPDATED_DATE].toDate()
+        delete categoryData[constants.PRODUCTS]
+        categories.categories.push(categoryData)
     })
     categories[constants.TOTAL_CATEGORIES] = snapshot.size;
     logger.debug('Returning categories to client.');
-    response.status(200).send(categories);
+    response.status(200).send(categories)
 });
 
 /**
@@ -266,16 +258,6 @@ router.delete('/:category', async(request, response, next) => {
         .send(data);
 })
 
-// exports = exports.addProductToCategory =  
-//     functions.firestore
-// //.document(`constants.PRODUCT/{product}`)
-// .document('/product/{productName}')
-// .onCreate(async (snapshot, context) => {
-//     console.log("New Product Created!!!!!!!")
-// });
-
-
-
  /**
   * Validates the request body.
   * @param {*} body request body
@@ -316,71 +298,4 @@ function validateParams(body, type) {
 }
 
 module.exports = router;
-
-/**
- * Firebase trigger function
- * This function is invoked whenever a new product is added.
- * New product is also added in category collection
- */
-// module.exports.addProductToCategory = functions.firestore
-//     .document(`/${constants.PRODUCT}/{productName}`)
-//     .onCreate(async (snapshot, context) => {
-//         var newProduct = snapshot.data();
-//         var name = snapshot.id
-//         var category = newProduct.category;
-
-//         const categoryRef = db.doc(`${constants.CATEGORY}/${category}`);
-//         const categorySnapshot = await categoryRef.get()
-        
-//         // Check if category is present in the collection
-//         if(!categorySnapshot.exists) {
-//             console.log(`Category ${category} is not present in firestore!!!!`)
-//             return;
-//         }
-//         const products = categorySnapshot.data().products;
-//         products.push(name);
-//         await categoryRef.update({'products': products})
-//         logger.debug(`Product ${newProduct} has been added to category ${category}`)
-//     });
-
-//     module.exports.updateProductCategory = functions.firestore
-//     .document(`/${constants.PRODUCT}/{productName}`)
-//     .onUpdate(async (change, context) => {
-//         logger.debug(`Product ${change.before.id} has been updated. `)
-//         const before =  change.before.data()
-//         const after =  change.after.data()
-
-//         if(before.category != after.category) {
-//             productCategoryChanged(change, context)
-//         }
-
-//         if(before.isActive != after.isActive) {
-//             productStatusChanged(change, context)
-//         }
-//     });
-
-// async function productCategoryChanged(before, context) {
-//     console.log(`Previous category : ${constants.CATEGORY}/${before.before.data()[constants.CATEGORY]}`)
-//     const prevCategoryRef = db.doc(`${constants.CATEGORY}/${before.before.data()[constants.CATEGORY]}`);
-//     const categorySnapshot = await prevCategoryRef.get()
-//     const prevCategoryProducts = categorySnapshot.data()[constants.PRODUCTS];
-//     console.log(prevCategoryProducts)
-//     const index = prevCategoryProducts.indexOf(before.before.id)
-//     if(index > -1) {
-//         prevCategoryProducts.splice(index, 1)
-//     }
-//     console.log(prevCategoryProducts)
-//     await prevCategoryRef.update({'products': prevCategoryProducts})
-
-//     console.log(`New category : ${constants.CATEGORY}/${before.after.data()[constants.CATEGORY]}`)
-//     const newCategoryRef = db.doc(`${constants.CATEGORY}/${before.after.data()[constants.CATEGORY]}`);
-//     const newCategorySnapshot = await newCategoryRef.get()
-//     const newCategoryProducts = newCategorySnapshot.data()[constants.PRODUCTS];
-//     newCategoryProducts.push(before.before.id);
-//     await newCategoryRef.update({'products': newCategoryProducts})
-// }
-
-// async function productStatusChanged(change, context) {
-
-// }
 

@@ -1,5 +1,5 @@
 const constants = require('../config/constants')
-const validate = require('../validation/validation')
+const validate = require('../validation/validator')
 const logger = require('../middleware/logger');
 const config = require('config');
 const joi = require('@hapi/joi');
@@ -21,15 +21,11 @@ router.get("/", async (request, response, next) => {
     let operationCollection = db.collection(constants.OPERATION);
     let snapshot = await operationCollection.get()
     snapshot.forEach(operation => {
-        var operationInfo = {}
         var operationData = operation.data()
-        operationInfo[constants.OPERATION] = operation.id,
-        operationInfo[constants.LABEL] = operationData.label,
-        operationInfo[constants.DESCRIPTION] = operationData.description,
-        operationInfo[constants.IS_ACTIVE] = operationData.isActive,
-        operationInfo[constants.CREATED_DATE] = operationData.createdDate.toDate(),
-        operationInfo[constants.LAST_UPDATED_DATE] = operationData.lastUpdatedDate.toDate()
-        operations.operations.push(operationInfo);
+        operationData[constants.OPERATION] = operation.id
+        operationData[constants.CREATED_DATE] = operationData.createdDate.toDate()
+        operationData[constants.LAST_UPDATED_DATE] = operationData.lastUpdatedDate.toDate()
+        operations.operations.push(operationData);
     })
     operations[constants.TOTAL_OPERATIONS] = snapshot.size;
     logger.debug('Returning operation list to client.');
@@ -44,7 +40,6 @@ router.get("/", async (request, response, next) => {
 router.get('/:operation', async (request, response, next) => {
     var  requestedOperation = request.params.operation.toLocaleLowerCase()
     logger.info(`Retrieving operation ${requestedOperation} from firestore`)
-    var operationInfo = {}
     const doc = db.collection(constants.OPERATION).doc(requestedOperation);
     const operation = await doc.get()
     if (!operation.exists) {
@@ -54,14 +49,11 @@ router.get('/:operation', async (request, response, next) => {
         return;
     }
     var operationData = operation.data()
-    operationInfo[constants.OPERATION] = operation.id
-    operationInfo[constants.DESCRIPTION] = operationData.description
-    operationInfo[constants.LABEL] = operationData.label
-    operationInfo[constants.IS_ACTIVE] = operationData.isActive
-    operationInfo[constants.CREATED_DATE] = operationData.createdDate.toDate()
-    operationInfo[constants.LAST_UPDATED_DATE] = operationData.lastUpdatedDate.toDate()
+    operationData[constants.OPERATION] = operation.id
+    operationData[constants.CREATED_DATE] = operationData.createdDate.toDate()
+    operationData[constants.LAST_UPDATED_DATE] = operationData.lastUpdatedDate.toDate()
     logger.debug(`Returning details for operation ${requestedOperation} to client.`);
-    response.status(200).send(operationInfo);
+    response.status(200).send(operationData);
 });
 
 /**
@@ -79,15 +71,11 @@ router.get('/:active/active', async (request, response, next) => {
         .where(constants.IS_ACTIVE, '==', status);
     const operationSnapshot = await operationRef.get()
     operationSnapshot.forEach(operation => {
-        var operationInfo = {}
         var operationData = operation.data()
-        operationInfo[constants.OPERATION] = operation.id
-        operationInfo[constants.LABEL] = operationData.label
-        operationInfo[constants.DESCRIPTION] = operationData.description
-        operationInfo[constants.IS_ACTIVE] = operationData.isActive
-        operationInfo[constants.CREATED_DATE] = operationData.createdDate.toDate()
-        operationInfo[constants.LAST_UPDATED_DATE] = operationData.lastUpdatedDate.toDate()
-        operations.operations.push(operationInfo);
+        operationData[constants.OPERATION] = operation.id
+        operationData[constants.CREATED_DATE] = operationData.createdDate.toDate()
+        operationData[constants.LAST_UPDATED_DATE] = operationData.lastUpdatedDate.toDate()
+        operations.operations.push(operationData);
     })
     operations[constants.TOTAL_OPERATIONS] = operationSnapshot.size;
     logger.debug(`Returning operations to client.`);

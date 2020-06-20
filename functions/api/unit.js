@@ -1,5 +1,5 @@
 const constants = require('../config/constants')
-const validate = require('../validation/validation')
+const validate = require('../validation/validator')
 const logger = require('../middleware/logger');
 const config = require('config');
 const joi = require('@hapi/joi');
@@ -21,13 +21,11 @@ router.get("/", async (request, response, next) => {
     let unitCollection = db.collection(constants.UNIT);
     let snapshot = await unitCollection.get()
     snapshot.forEach(unit => {
-        var unitInfo = {}
         var unitData = unit.data()
-        unitInfo[constants.UNIT] = unit.id
-        unitInfo[constants.DESCRIPTION] = unitData.description
-        unitInfo[constants.CREATED_DATE] = unitData.createdDate.toDate()
-        unitInfo[constants.LAST_UPDATED_DATE] = unitData.lastUpdatedDate.toDate()
-        units.units.push(unitInfo);
+        unitData[constants.UNIT] = unit.id
+        unitData[constants.CREATED_DATE] = unitData.createdDate.toDate()
+        unitData[constants.LAST_UPDATED_DATE] = unitData.lastUpdatedDate.toDate()
+        units.units.push(unitData);
     })
     units[constants.TOTAL_UNITS] = snapshot.size;
     logger.debug('Returning all units to client.');

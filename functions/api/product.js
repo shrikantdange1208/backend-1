@@ -1,10 +1,10 @@
 const constants = require('../config/constants')
-const validate = require('../validation/validation')
+const validate = require('../validation/validator')
 const logger = require('../middleware/logger');
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-const authentication = require('./auth/authenticated')
+const auth = require('./auth/auth')
 const functions = require('firebase-functions');
 const express = require('express');
 const router = express.Router();
@@ -23,15 +23,11 @@ router.get("/", async (request, response, next) => {
     let productCollection = db.collection(constants.PRODUCT);
     let snapshot = await productCollection.get()
     snapshot.forEach(product => {
-        var productInfo = {}
         var productData = product.data()
-        productInfo[constants.PRODUCT] = product.id,
-            productInfo[constants.CATEGORY] = productData.category,
-            productInfo[constants.UNIT] = productData.unit,
-            productInfo[constants.IS_ACTIVE] = productData.isActive,
-            productInfo[constants.CREATED_DATE] = productData.createdDate.toDate(),
-            productInfo[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
-        products.products.push(productInfo);
+        productData[constants.PRODUCT] = product.id,
+        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
+        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = snapshot.size;
     logger.debug('Returning product list to client.');
@@ -44,20 +40,8 @@ router.get("/", async (request, response, next) => {
  * @throws 400 if the product does not exists in firestore
  */
 router.get('/:product', async (request, response, next) => {
-
-    //console.log('Before', response)
-    if(!authentication.isAuthenticated(request, response)) {
-        const err = new Error(`Unauthorized`)
-        err.statusCode = 400
-        next(err)
-        return;
-    } else {
-        console.log('After', response)
-    }
-
     var requestedProduct = request.params.product.toLocaleLowerCase()
     logger.info(`Retrieving product ${requestedProduct} from firestore`)
-    var productInfo = {}
     const doc = db.collection(constants.PRODUCT).doc(requestedProduct);
     const product = await doc.get()
     if (!product.exists) {
@@ -67,15 +51,11 @@ router.get('/:product', async (request, response, next) => {
         return;
     }
     var productData = product.data()
-    productInfo[constants.PRODUCT] = product.id
-    productInfo[constants.CATEGORY] = productData.category
-    productInfo[constants.UNIT] = productData.unit
-    productInfo[constants.THRESHOLDS] = productData.thresholds
-    productInfo[constants.IS_ACTIVE] = productData.isActive
-    productInfo[constants.CREATED_DATE] = productData.createdDate.toDate()
-    productInfo[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+    productData[constants.PRODUCT] = product.id,
+    productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
+    productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
     logger.debug(`Returning details for product ${requestedProduct} to client.`);
-    response.status(200).send(productInfo);
+    response.status(200).send(productData);
 });
 
 /**
@@ -92,15 +72,11 @@ router.get('/category/:category', async (request, response, next) => {
     const productSnapshot = await productRef.get()
 
     productSnapshot.forEach(product => {
-        var productInfo = {}
         var productData = product.data()
-        productInfo[constants.PRODUCT] = product.id
-        productInfo[constants.CATEGORY] = productData.category
-        productInfo[constants.UNIT] = productData.unit
-        productInfo[constants.IS_ACTIVE] = productData.isActive
-        productInfo[constants.CREATED_DATE] = productData.createdDate.toDate()
-        productInfo[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
-        products.products.push(productInfo);
+        productData[constants.PRODUCT] = product.id,
+        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
+        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
     logger.debug(`Returning products of category ${requestedCategory} to client.`);
@@ -122,15 +98,11 @@ router.get('/:active/active', async (request, response, next) => {
         .where(constants.IS_ACTIVE, '==', status);
     const productSnapshot = await productRef.get()
     productSnapshot.forEach(product => {
-        var productInfo = {}
         var productData = product.data()
-        productInfo[constants.PRODUCT] = product.id
-        productInfo[constants.CATEGORY] = productData.category
-        productInfo[constants.UNIT] = productData.unit
-        productInfo[constants.IS_ACTIVE] = productData.isActive
-        productInfo[constants.CREATED_DATE] = productData.createdDate.toDate()
-        productInfo[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
-        products.products.push(productInfo);
+        productData[constants.PRODUCT] = product.id,
+        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
+        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
     logger.debug(`Returning products to client.`);
@@ -153,15 +125,11 @@ router.get('/:active/:category', async (request, response, next) => {
         .where(constants.CATEGORY, '==', category)
     const productSnapshot = await productRef.get()
     productSnapshot.forEach(product => {
-        var productInfo = {}
         var productData = product.data()
-        productInfo[constants.PRODUCT] = product.id
-        productInfo[constants.CATEGORY] = productData.category
-        productInfo[constants.UNIT] = productData.unit
-        productInfo[constants.IS_ACTIVE] = productData.isActive
-        productInfo[constants.CREATED_DATE] = productData.createdDate.toDate()
-        productInfo[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
-        products.products.push(productInfo);
+        productData[constants.PRODUCT] = product.id,
+        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
+        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
     logger.debug(`Returning products to client.`);
@@ -174,6 +142,16 @@ router.get('/:active/:category', async (request, response, next) => {
  * @throws 400 if product already exists or if required params are missing
  */
 router.post('/', async (request, response, next) => {
+    if(!auth.isAuthenticated(request, response) 
+        || !auth.isAdmin(response)) {
+        const err = new Error(`Unauthorized`)
+        err.statusCode = 400
+        next(err)
+        return;
+    } else {
+        console.log('user is authorized')
+    }
+
     logger.info(`Creating product in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -212,7 +190,7 @@ router.post('/', async (request, response, next) => {
     result[constants.PRODUCT] = productName
     result[constants.CATEGORY] = data.category
     result[constants.UNIT] = data.unit
-    response.status(200).send(result);
+    response.status(200).send('result');
 });
 
 /**
@@ -374,7 +352,6 @@ router.put('/threshold', async (request, response, next) => {
     console.log('thresholds', thresholdsToUpdate)
     let data = {}
     for (var branch in thresholdsToUpdate) {
-        console.log('branch', branch)
         productThreshold[branch.toLocaleLowerCase()] = thresholdsToUpdate[branch]
     }
     data[constants.THRESHOLDS] = productThreshold
@@ -501,6 +478,7 @@ module.exports = router;
 module.exports.addOrUpdateProduct = functions.firestore
     .document(`/${constants.PRODUCT}/{productName}`)
     .onWrite(async (change, context) => {
+        const productName = context.params.productName
         if (!change.before._fieldsProto) {
             logger.debug(`New product ${change.after.id} has been created`)
             addProductToCategory(change.after)
@@ -511,11 +489,11 @@ module.exports.addOrUpdateProduct = functions.firestore
             logger.debug(`Product ${change.before.id} has been updated`)
             var oldData = change.before.data()
             var newData = change.after.data()
-            if(oldData.category != newData.category) {
+            if(oldData.category !== newData.category) {
                 logger.debug(`Category of product ${productName} changed from ${oldData.category} to ${newData.category}`)
                 deleteProductFromCategory(change.before)
                 addProductToCategory(change.after)
-            } else if(oldData.isActive != newData.isActive) {
+            } else if(oldData.isActive !== newData.isActive) {
                 logger.debug(`Status of product ${productName} changed from ${oldData.isActive} to ${newData.isActive}`)
                 if(newData.isActive) {
                     addProductToCategory(change.after)  
@@ -538,8 +516,8 @@ async function addProductToCategory(newProduct) {
     }
     const products = categorySnapshot.data().products;
     products.push(productName);
-    await categoryRef.update({ 'products': products })
-    logger.debug(`Product ${productName} has been added to category ${category}`)
+    return categoryRef.update({ 'products': products })
+    //logger.debug(`Product ${productName} has been added to category ${category}`)
 }
 
 async function deleteProductFromCategory(deletedProduct) {
@@ -555,6 +533,6 @@ async function deleteProductFromCategory(deletedProduct) {
     const products = categorySnapshot.data().products;
     var index = products.indexOf(productName)
     products.splice(index, 1);
-    await categoryRef.update({ 'products': products })
-    logger.debug(`Product ${productName} has been deleted from category ${category}`)
+    return categoryRef.update({ 'products': products })
+    //logger.debug(`Product ${productName} has been deleted from category ${category}`)
 }

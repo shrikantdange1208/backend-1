@@ -26,5 +26,5 @@ define("UNIT", "unit");
 define("UNITS", "units");
 define("ADD", "add");
 define("UPDATE", "update");
-//define("FOOD", "food");
-
+define("ADMIN", "admin");
+define("SYSTEM", "system");
