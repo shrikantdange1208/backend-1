@@ -41,7 +41,7 @@ router.post('/', async (request, response, next) => {
     logger.info(`Creating unit in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
-    const { error } = validateParams(request.body, constants.ADD)
+    const { error } = validateParams(request.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -61,17 +61,12 @@ router.post('/', async (request, response, next) => {
         return;
     }
     let data = {}
-    data[constants.UNIT] = request.body.unit.toLocaleLowerCase()
     data[constants.DESCRIPTION] = request.body.description
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
     await db.collection(constants.UNIT).doc(unitName).set(data)
-    
-    delete data[constants.CREATED_DATE]
-    delete data[constants.LAST_UPDATED_DATE]
-
     logger.debug(`${unitName} document created`)
-    response.status(200).send(data);    
+    response.sendStatus(201)
 });
 
 /**
@@ -98,23 +93,18 @@ router.delete('/:unit', async(request, response, next) => {
     await unitRef.delete()
     logger.debug(`Deleted unit ${unitName}`)
     response
-        .status(200)
-        .send(data);
+        .sendStatus(200)
 })
 
 /**
   * Validates the request body.
   * @param {*} body request body
   * @param {*} type identifier to determine which request is to be validated
-  *         product for create product
-  *         description for updating description
-  *         status for updating status
-  *         status for updating unit
   */
  function validateParams(body, type) {
     let schema;
     switch(type) {
-        case constants.ADD:
+        case constants.CREATE:
             schema = joi.object({
                 unit: joi.string()
                     .min(1)

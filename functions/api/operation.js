@@ -57,18 +57,42 @@ router.get('/:operation', async (request, response, next) => {
 });
 
 /**
- * @description Route to retrieve all active/inActive operations
+ * @description Route to retrieve all active operations
  * @returns Json object containing requested operations
  */
-router.get('/:active/active', async (request, response, next) => {
-    var status = JSON.parse(request.params.active.toLocaleLowerCase());
-    logger.info(`Retrieving all active/inActive operations from firestore`)
+router.get('/all/active', async (request, response, next) => {
+    logger.info(`Retrieving all active operations from firestore`)
     const operations = {
         "operations": []
     }
 
     const operationRef = db.collection(constants.OPERATION)
-        .where(constants.IS_ACTIVE, '==', status);
+        .where(constants.IS_ACTIVE, '==', true);
+    const operationSnapshot = await operationRef.get()
+    operationSnapshot.forEach(operation => {
+        var operationData = operation.data()
+        operationData[constants.OPERATION] = operation.id
+        operationData[constants.CREATED_DATE] = operationData.createdDate.toDate()
+        operationData[constants.LAST_UPDATED_DATE] = operationData.lastUpdatedDate.toDate()
+        operations.operations.push(operationData);
+    })
+    operations[constants.TOTAL_OPERATIONS] = operationSnapshot.size;
+    logger.debug(`Returning operations to client.`);
+    response.status(200).send(operations);
+});
+
+/**
+ * @description Route to retrieve all inActive operations
+ * @returns Json object containing requested operations
+ */
+router.get('/all/inactive', async (request, response, next) => {
+    logger.info(`Retrieving all inActive operations from firestore`)
+    const operations = {
+        "operations": []
+    }
+
+    const operationRef = db.collection(constants.OPERATION)
+        .where(constants.IS_ACTIVE, '==', false);
     const operationSnapshot = await operationRef.get()
     operationSnapshot.forEach(operation => {
         var operationData = operation.data()
@@ -84,14 +108,14 @@ router.get('/:active/active', async (request, response, next) => {
 
 /**
  * @description Route to add operations in Firestore
- * @returns Created operation
- * @throws 400 if operation already exists or if required params are missing
+ * @returns 201 - Created 
+ * @throws 400 if operation already exists or 404 if required params are missing
  */
 router.post('/', async (request, response, next) => {
     logger.info(`Creating operation in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
-    const { error } = validateParams(request.body, constants.OPERATION)
+    const { error } = validateParams(request.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -110,32 +134,27 @@ router.post('/', async (request, response, next) => {
         next(err)
         return;
     }
-
-    let data = {}
-    data[constants.LABEL] = request.body.label
-    data[constants.DESCRIPTION] = request.body.description
+    let data = request.body
     data[constants.IS_ACTIVE] = true
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await db.collection(constants.OPERATION).doc(operationName).set(data)
+    await db.collection(constants.OPERATION)
+        .doc(operationName)
+        .set(data)
     logger.debug(`${operationName} document Created`)
-    var result = {}
-    result[constants.OPERATION] = operationName
-    result[constants.LABEL] = data.label
-    result[constants.DESCRIPTION] = data.description
-    response.status(200).send(result);    
+    response.sendStatus(201)
 });
 
 /**
- * @description Route to update status of operation
- * @returns  updated operation
- * @throws 400 if operation does not exist or has wrong params
+ * @description Route to update operation
+ * @returns  204 - No Content
+ * @throws 404 if operation does not exist or 400 has wrong params
  */
-router.put('/status', async (request, response, next) => {
+router.put('/', async (request, response, next) => {
     logger.info(`Updating status for operation in firestore....`);
     
     // Validate parameters
-    const { error } = validateParams(request.body, constants.STATUS)
+    const { error } = validateParams(request.body, constants.UPDATE)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -154,99 +173,13 @@ router.put('/status', async (request, response, next) => {
         next(err)
         return;
     }
-    let data = {}
-    data[constants.IS_ACTIVE] = request.body.isActive
+    let data = request.body
+    delete data[constants.OPERATION]
     data[constants.LAST_UPDATED_DATE] = new Date()
     await operationRef.update(data)
-    delete data[constants.LAST_UPDATED_DATE]
-    data[constants.OPERATION] = operationName
-    data = JSON.parse(JSON.stringify( data, [constants.OPERATION,constants.IS_ACTIVE]));
-    logger.debug(`Updated status of operation ${operationName} to ${request.body.isActive}`)
+    logger.debug(`Updated operation ${operationName}`)
     response
-        .status(200)
-        .send(data);
-})
-
-/**
- * @description Route to update label of operation
- * @returns  updated operation
- * @throws 400 if operation does not exist or has wrong params
- */
-router.put('/label', async (request, response, next) => {
-    logger.info(`Updating label for operation in firestore....`);
-    
-    // Validate parameters
-    const { error } = validateParams(request.body, constants.LABEL)
-    if (error) {
-        const err = new Error(error.details[0].message)
-        err.statusCode = 400
-        next(err)
-        return;
-    }
-
-    // If product does not exists, return 400
-    var operationName = request.body.operation.toLocaleLowerCase()
-    logger.info(`Updating label of operation ${operationName} in firestore....`);
-    const operationRef = db.collection(constants.OPERATION).doc(operationName);
-    const operation = await operationRef.get()
-    if (!operation.exists) {
-        const err = new Error(`Requested operation ${operationName} is not present in Firestore.`)
-        err.statusCode = 404
-        next(err)
-        return;
-    }
-    let data = {}
-    data[constants.LABEL] = request.body.label
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await operationRef.update(data)
-    delete data[constants.LAST_UPDATED_DATE]
-    data[constants.OPERATION] = operationName
-    data = JSON.parse(JSON.stringify( data, [constants.OPERATION,constants.LABEL]));
-    logger.debug(`Updated label of operation ${operationName} to ${request.body.label}`)
-    response
-        .status(200)
-        .send(data);
-})
-
-/**
- * @description Route to update label of operation
- * @returns  updated operation
- * @throws 400 if operation does not exist or has wrong params
- */
-router.put('/desc', async (request, response, next) => {
-    logger.info(`Updating description for operation in firestore....`);
-    
-    // Validate parameters
-    const { error } = validateParams(request.body, constants.DESCRIPTION)
-    if (error) {
-        const err = new Error(error.details[0].message)
-        err.statusCode = 400
-        next(err)
-        return;
-    }
-
-    // If product does not exists, return 400
-    var operationName = request.body.operation.toLocaleLowerCase()
-    logger.info(`Updating description of operation ${operationName} in firestore....`);
-    const operationRef = db.collection(constants.OPERATION).doc(operationName);
-    const operation = await operationRef.get()
-    if (!operation.exists) {
-        const err = new Error(`Requested operation ${operationName} is not present in Firestore.`)
-        err.statusCode = 404
-        next(err)
-        return;
-    }
-    let data = {}
-    data[constants.DESCRIPTION] = request.body.description
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await operationRef.update(data)
-    delete data[constants.LAST_UPDATED_DATE]
-    data[constants.OPERATION] = operationName
-    data = JSON.parse(JSON.stringify( data, [constants.OPERATION,constants.DESCRIPTION]));
-    logger.debug(`Updated description of operation ${operationName} to ${request.body.description}`)
-    response
-        .status(200)
-        .send(data);
+        .sendStatus(204)
 })
 
 /**
@@ -275,23 +208,18 @@ router.delete('/:operation', async(request, response, next) => {
     await operationRef.delete()
     logger.debug(`Deleted operation ${operationName}`)
     response
-        .status(200)
-        .send(data);
+        .sendStatus(200)
 })
 
 /**
   * Validates the request body.
   * @param {*} body request body
   * @param {*} type identifier to determine which request is to be validated
-  *         product for create product
-  *         description for updating description
-  *         status for updating status
-  *         status for updating unit
   */
  function validateParams(body, type) {
     let schema;
     switch(type) {
-        case constants.OPERATION:
+        case constants.CREATE:
             schema = joi.object({
                 operation: joi.string()
                     .min(1)
@@ -307,39 +235,21 @@ router.delete('/:operation', async(request, response, next) => {
                     .required()
             })
             break
-        case  constants.STATUS:
+        case  constants.UPDATE:
             schema = joi.object({
                 operation: joi.string()
                     .min(1)
                     .max(30)
                     .required(),
-                isActive: joi.bool()
-                    .required()
-            })
-            break
-        case constants.DESCRIPTION:
-            schema = joi.object({
-                operation: joi.string()
+                isActive: joi.bool(),
+                label: joi.string()
                     .min(1)
-                    .max(30)
-                    .required(),
+                    .max(30),
                 description: joi.string()
                     .min(1)
                     .max(50)
-                    .required()
             })
             break
-        case constants.LABEL:
-                schema = joi.object({
-                    operation: joi.string()
-                        .min(1)
-                        .max(30)
-                        .required(),
-                    label: joi.string()
-                        .min(1)
-                        .max(30)
-                        .required()
-                })
     }
     return validate(schema, body)
 }
