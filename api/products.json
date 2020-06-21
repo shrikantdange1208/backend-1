@@ -4,7 +4,7 @@
 
 # Get All Products (GET)
 # Request
-  # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products
 #Response
 {
   "products": [
@@ -13,27 +13,27 @@
       "category": "food",
       "unit": "litres",
       "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
       "createdDate": "2020-06-12T11:16:04.060Z",
       "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
     },
     {
       "product": "crocin",
-      "category": "pharmacy"
-      "unit": "number"
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "bench",
-      "category": "furniture",
+      "category": "pharmacy",
       "unit": "number",
       "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
       "createdDate": "2020-06-12T11:16:04.060Z",
       "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
     }
   ],
-  "totalProducts": 3
+  "totalProducts": 2
 }
 
 
@@ -41,14 +41,18 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get a single Product (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/{productName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/{productName}
 
 #Response
 {
-  "product": "milk",
-  "category": "food",
-  "unit": "litres",
+  "product": "crocin",
+  "category": "pharmacy",
+  "unit": "number",
   "isActive": true,
+  "thresholds": {
+    "kormangala": 15,
+    "sarjapur": 10
+  },
   "createdDate": "2020-06-12T11:16:04.060Z",
   "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
 }
@@ -56,43 +60,43 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 # Get All Products for a category(GET)
-  # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/category/{categoryName}
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/category/{categoryName}
 #Response
 {
   "products": [
     {
-      "product": "milk",
-      "category": "food",
-      "unit": "litres",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "bread",
-      "category": "food",
+      "product": "anacin",
+      "category": "pharmacy",
       "unit": "number",
       "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
       "createdDate": "2020-06-12T11:16:04.060Z",
       "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
     },
     {
-      "product": "oats",
-      "category": "food",
-      "unit": "kilograms",
+      "product": "crocin",
+      "category": "pharmacy",
+      "unit": "number",
       "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
       "createdDate": "2020-06-12T11:16:04.060Z",
       "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
     }
   ],
-  "totalProducts": 3
+  "totalProducts": 2
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
-# Get All Active or InActive Products (GET)
-  # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/{active}/active
+# Get All Active Products (GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/all/active
 #Response
 {
   "products": [
@@ -101,70 +105,106 @@
       "category": "food",
       "unit": "litres",
       "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
       "createdDate": "2020-06-12T11:16:04.060Z",
       "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
     },
     {
-      "product": "bread",
-      "category": "food",
+      "product": "crocin",
+      "category": "pharmacy",
       "unit": "number",
       "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "oats",
-      "category": "food",
-      "unit": "kilograms",
-      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
       "createdDate": "2020-06-12T11:16:04.060Z",
       "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
     }
   ],
-  "totalProducts": 3
+  "totalProducts": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All InActive Products (GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/all/inactive
+#Response
+{
+  "products": [
+    {
+      "product": "milk",
+      "category": "food",
+      "unit": "litres",
+      "isActive": false,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "product": "crocin",
+      "category": "pharmacy",
+      "unit": "number",
+      "isActive": false,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalProducts": 2
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get All Active or InActive Products for a category(GET)
-  # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/{active}/{category}
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/{active}/{category}
 #Response
 {
   "products": [
     {
-      "product": "milk",
-      "category": "food",
-      "unit": "litres",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "bread",
-      "category": "food",
+      "product": "anacin",
+      "category": "pharmacy",
       "unit": "number",
       "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
       "createdDate": "2020-06-12T11:16:04.060Z",
       "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
     },
     {
-      "product": "oats",
-      "category": "food",
-      "unit": "kilograms",
+      "product": "crocin",
+      "category": "pharmacy",
+      "unit": "number",
       "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
       "createdDate": "2020-06-12T11:16:04.060Z",
       "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
     }
   ],
-  "totalProducts": 3
+  "totalProducts": 2
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Add Product (POST)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products
 #Request
 {
   "product": "bench",
@@ -172,63 +212,38 @@
   "unit": "number"
 }
 
-#Response
+OR
+
 {
-  "product": "bench":
+  "product": "bench",
   "category": "furniture",
-  "unit": "number"
+  "unit": "number",
+  "thresholds": {
+    "kormangala": 15,
+    "sarjapur": 10
+  }
 }
+
+#Response - 201 Created
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Update Product Category (PUT)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/category
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products
 
 #Request
 {
   "product": "bread",
-  "category": "food"
+  "category": "food",
+  "isActive": false,
+  "unit": "litres",
+  "thresholds": {
+    "kormangala": 15,
+    "sarjapur": 10
+  }
 }
-#Response
-{
-  "product": "bread",
-  "category": "food"
-}
-
------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------
-
-# Update Product Status (PUT)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/status
-
-#Request
-{
-  "product": "bread",
-  "isActive": false
-}
-#Response
-{
-  "product": "bread",
-  "isActive": false
-}
-
------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------
-
-# Update Product Unit (PUT)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products/status
-
-#Request
-{
-  "product": "bread",
-  "unit": "number"
-}
-#Response
-{
-  "product": "bread",
-  "unit": "number"
-}
+#Response - 204 (No Content)
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -236,12 +251,7 @@
 # Delete Product (DELETE)
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/product/{productName}
 
-#Response
-{
-  "product": "milk",
-  "category": "Food"
-  "unit": "litres"
-}
+#Response - 200 OK
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------

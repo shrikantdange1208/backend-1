@@ -84,18 +84,17 @@ router.get('/category/:category', async (request, response, next) => {
 });
 
 /**
- * @description Route to retrieve all active/inActive products
+ * @description Route to retrieve all active products
  * @returns Json object containing requested products
  */
-router.get('/:active/active', async (request, response, next) => {
-    var status = JSON.parse(request.params.active.toLocaleLowerCase());
-    logger.info(`Retrieving all active/inActive products from firestore`)
+router.get('/all/active', async (request, response, next) => {
+    logger.info(`Retrieving all active products from firestore`)
     const products = {
         "products": []
     }
 
     const productRef = db.collection(constants.PRODUCT)
-        .where(constants.IS_ACTIVE, '==', status);
+        .where(constants.IS_ACTIVE, '==', true);
     const productSnapshot = await productRef.get()
     productSnapshot.forEach(product => {
         var productData = product.data()
@@ -105,7 +104,32 @@ router.get('/:active/active', async (request, response, next) => {
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
-    logger.debug(`Returning products to client.`);
+    logger.debug(`Returning active products to client.`);
+    response.status(200).send(products);
+});
+
+/**
+ * @description Route to retrieve all inActive products
+ * @returns Json object containing requested products
+ */
+router.get('/all/inactive', async (request, response, next) => {
+    logger.info(`Retrieving all inactive products from firestore`)
+    const products = {
+        "products": []
+    }
+
+    const productRef = db.collection(constants.PRODUCT)
+        .where(constants.IS_ACTIVE, '==', false);
+    const productSnapshot = await productRef.get()
+    productSnapshot.forEach(product => {
+        var productData = product.data()
+        productData[constants.PRODUCT] = product.id,
+        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
+        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        products.products.push(productData);
+    })
+    products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
+    logger.debug(`Returning inactive products to client.`);
     response.status(200).send(products);
 });
 
@@ -138,24 +162,25 @@ router.get('/:active/:category', async (request, response, next) => {
 
 /**
  * @description Route to add products in Firestore
- * @returns Created product
- * @throws 400 if product already exists or if required params are missing
+ * @returns 201 - Created
+ * @throws 400 if product already exists or 404 if required params are missing
  */
 router.post('/', async (request, response, next) => {
     if(!auth.isAuthenticated(request, response) 
         || !auth.isAdmin(response)) {
         const err = new Error(`Unauthorized`)
-        err.statusCode = 400
+        err.statusCode = 401
         next(err)
         return;
-    } else {
+    } else { 
+        // Still working on this module. Ignore for this PR
         console.log('user is authorized')
     }
 
     logger.info(`Creating product in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
-    const { error } = validateParams(request.body, constants.ADD)
+    const { error } = validateParams(request.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -186,23 +211,19 @@ router.post('/', async (request, response, next) => {
     data[constants.LAST_UPDATED_DATE] = new Date()
     await db.collection(constants.PRODUCT).doc(productName).set(data)
     logger.debug(`${productName} document Created`)
-    var result = {}
-    result[constants.PRODUCT] = productName
-    result[constants.CATEGORY] = data.category
-    result[constants.UNIT] = data.unit
-    response.status(200).send('result');
+    response.sendStatus(201)
 });
 
 /**
- * @description Route to update status of product
- * @returns  updated product
- * @throws 400 if product does not exist or has wrong params
+ * @description Route to update product
+ * @returns  204 - No Content
+ * @throws 404 if product does not exist or 400 if request has wrong params
  */
-router.put('/status', async (request, response, next) => {
+router.put('/', async (request, response, next) => {
     logger.info(`Updating status for product in firestore....`);
 
     // Validate parameters
-    const { error } = validateParams(request.body, constants.STATUS)
+    const { error } = validateParams(request.body, constants.UPDATE)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -221,150 +242,27 @@ router.put('/status', async (request, response, next) => {
         next(err)
         return;
     }
-    let data = {}
-    data[constants.IS_ACTIVE] = request.body.isActive
+    let data = request.body
+    delete data[constants.PRODUCT]
+    // Check if user wants to update the thresholds.
+    if(data[constants.THRESHOLDS]) {
+        let productThreshold = product.data().thresholds;
+        if (!productThreshold) {
+            productThreshold = {}
+        }
+        let thresholdsToUpdate = data[constants.THRESHOLDS]
+        logger.debug('thresholds', thresholdsToUpdate)
+        for (var branch in thresholdsToUpdate) {
+            productThreshold[branch.toLocaleLowerCase()] = thresholdsToUpdate[branch]
+        }
+        data[constants.THRESHOLDS] = productThreshold
+    }
+
     data[constants.LAST_UPDATED_DATE] = new Date()
     await productRef.update(data)
-    delete data[constants.LAST_UPDATED_DATE]
-    data[constants.PRODUCT] = productName
-    data = JSON.parse(JSON.stringify(data, [constants.PRODUCT, constants.IS_ACTIVE]));
-    logger.debug(`Updated status of product ${productName} to ${request.body.isActive}`)
+    logger.debug(`Updated product ${productName}`)
     response
-        .status(200)
-        .send(data);
-})
-
-/**
- * @description Route to update category of product
- * @returns  updated product
- * @throws 400 if product does not exist or has wrong params
- */
-router.put('/category', async (request, response, next) => {
-    logger.info(`Updating category for product in firestore....`);
-
-    // Validate parameters
-    const { error } = validateParams(request.body, constants.CATEGORY)
-    if (error) {
-        const err = new Error(error.details[0].message)
-        err.statusCode = 400
-        next(err)
-        return;
-    }
-
-    // If product does not exists, return 400
-    var productName = request.body.product.toLocaleLowerCase()
-    logger.info(`Updating category of product ${productName} in firestore....`);
-    const productRef = db.collection(constants.PRODUCT).doc(productName);
-    const product = await productRef.get()
-    if (!product.exists) {
-        const err = new Error(`Requested product ${productName} is not present in Firestore.`)
-        err.statusCode = 404
-        next(err)
-        return;
-    }
-    let data = {}
-    data[constants.CATEGORY] = request.body.category.toLocaleLowerCase()
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await productRef.update(data)
-    delete data[constants.LAST_UPDATED_DATE]
-    data[constants.PRODUCT] = productName
-    data = JSON.parse(JSON.stringify(data, [constants.PRODUCT, constants.CATEGORY]));
-    logger.debug(`Updated category of product ${productName} to ${request.body.category}`)
-    response
-        .status(200)
-        .send(data);
-})
-
-/**
- * @description Route to update unit of product
- * @returns  updated product
- * @throws 400 if product does not exist or has wrong params
- */
-router.put('/unit', async (request, response, next) => {
-    logger.info(`Updating unit for product in firestore....`);
-
-    // Validate parameters
-    const { error } = validateParams(request.body, constants.UNIT)
-    if (error) {
-        const err = new Error(error.details[0].message)
-        err.statusCode = 400
-        next(err)
-        return;
-    }
-
-    // If product does not exists, return 400
-    var productName = request.body.product.toLocaleLowerCase()
-    logger.info(`Updating unit of product ${productName} in firestore....`);
-    const productRef = db.collection(constants.PRODUCT).doc(productName);
-    const product = await productRef.get()
-    if (!product.exists) {
-        const err = new Error(`Requested product ${productName} is not present in Firestore.`)
-        err.statusCode = 404
-        next(err)
-        return;
-    }
-    let data = {}
-    data[constants.UNIT] = request.body.unit.toLocaleLowerCase()
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await productRef.update(data)
-    delete data[constants.LAST_UPDATED_DATE]
-    data[constants.PRODUCT] = productName
-    data = JSON.parse(JSON.stringify(data, [constants.PRODUCT, constants.UNIT]));
-    logger.debug(`Updated unit of product ${productName} to ${request.body.unit}`)
-    response
-        .status(200)
-        .send(data);
-})
-
-/**
- * @description Route to update/add thresholds for a product
- * @returns  updated product
- * @throws 400 if product does not exist or has wrong params
- */
-router.put('/threshold', async (request, response, next) => {
-    logger.info(`Updating threshold for product in firestore....`);
-
-    // Validate parameters
-    const { error } = validateParams(request.body, constants.THRESHOLD)
-    if (error) {
-        const err = new Error(error.details[0].message)
-        err.statusCode = 400
-        next(err)
-        return;
-    }
-
-    // If product does not exists, return 400
-    var productName = request.body.product.toLocaleLowerCase()
-    logger.info(`Updating threshold of product ${productName} in firestore....`);
-    const productRef = db.collection(constants.PRODUCT).doc(productName);
-    const product = await productRef.get()
-    if (!product.exists) {
-        const err = new Error(`Requested product ${productName} is not present in Firestore.`)
-        err.statusCode = 404
-        next(err)
-        return;
-    }
-    let productThreshold = product.data().thresholds;
-    if (!productThreshold) {
-        productThreshold = {}
-    }
-    let thresholdsToUpdate = request.body.thresholds
-    console.log('thresholds', thresholdsToUpdate)
-    let data = {}
-    for (var branch in thresholdsToUpdate) {
-        productThreshold[branch.toLocaleLowerCase()] = thresholdsToUpdate[branch]
-    }
-    data[constants.THRESHOLDS] = productThreshold
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await productRef.update(data)
-    delete data[constants.LAST_UPDATED_DATE]
-    delete data[constants.THRESHOLDS]
-    data[constants.PRODUCT] = productName
-    data[constants.THRESHOLDS] = productThreshold
-    logger.debug(`Updated thresholds of product ${productName} to ${thresholdsToUpdate}`)
-    response
-        .status(200)
-        .send(data);
+        .sendStatus(204)
 })
 
 /**
@@ -393,23 +291,18 @@ router.delete('/:product', async (request, response, next) => {
     await productRef.delete()
     logger.debug(`Deleted product ${productName}`)
     response
-        .status(200)
-        .send(data);
+        .sendStatus(200)
 })
 
 /**
   * Validates the request body.
   * @param {*} body request body
   * @param {*} type identifier to determine which request is to be validated
-  *         product for create product
-  *         description for updating description
-  *         status for updating status
-  *         status for updating unit
   */
 function validateParams(body, type) {
     let schema;
     switch (type) {
-        case constants.ADD:
+        case constants.CREATE:
             schema = joi.object({
                 product: joi.string()
                     .min(1)
@@ -426,48 +319,19 @@ function validateParams(body, type) {
                 thresholds: joi.object()
             })
             break
-        case constants.STATUS:
+        case constants.UPDATE:
             schema = joi.object({
                 product: joi.string()
                     .min(1)
-                    .max(30)
-                    .required(),
+                    .max(30),
+                category: joi.string()
+                    .min(1)
+                    .max(30),
+                unit: joi.string()
+                    .min(1)
+                    .max(30),
+                thresholds: joi.object(),
                 isActive: joi.bool()
-                    .required()
-            })
-            break
-        case constants.CATEGORY:
-            schema = joi.object({
-                product: joi.string()
-                    .min(1)
-                    .max(30)
-                    .required(),
-                category: joi.string()
-                    .min(1)
-                    .max(30)
-                    .required()
-            })
-            break
-        case constants.UNIT:
-            schema = joi.object({
-                product: joi.string()
-                    .min(1)
-                    .max(30)
-                    .required(),
-                unit: joi.string()
-                    .min(1)
-                    .max(30)
-                    .required()
-            })
-            break
-        case constants.THRESHOLD:
-            schema = joi.object({
-                product: joi.string()
-                    .min(1)
-                    .max(30)
-                    .required(),
-                thresholds: joi.object()
-                    .required()
             })
             break
     }
