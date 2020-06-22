@@ -66,7 +66,7 @@ router.post('/', async (request, response, next) => {
     data[constants.LAST_UPDATED_DATE] = new Date()
     await db.collection(constants.UNIT).doc(unitName).set(data)
     logger.debug(`${unitName} document created`)
-    response.sendStatus(201)
+    response.status(201).json({"message": "created successfully"})
 });
 
 /**
@@ -92,8 +92,7 @@ router.delete('/:unit', async(request, response, next) => {
     data[constants.DESCRIPTION] = unitData.description
     await unitRef.delete()
     logger.debug(`Deleted unit ${unitName}`)
-    response
-        .sendStatus(200)
+    response.status(200).json({"message": "deleted successfully"})
 })
 
 /**

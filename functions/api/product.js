@@ -211,7 +211,7 @@ router.post('/', async (request, response, next) => {
     data[constants.LAST_UPDATED_DATE] = new Date()
     await db.collection(constants.PRODUCT).doc(productName).set(data)
     logger.debug(`${productName} document Created`)
-    response.sendStatus(201)
+    response.status(201).json({"message": "created successfully"})
 });
 
 /**
@@ -261,8 +261,8 @@ router.put('/', async (request, response, next) => {
     data[constants.LAST_UPDATED_DATE] = new Date()
     await productRef.update(data)
     logger.debug(`Updated product ${productName}`)
-    response
-        .sendStatus(204)
+    console.log('In New Update MEhtod')
+    response.sendStatus(204)
 })
 
 /**
@@ -290,8 +290,7 @@ router.delete('/:product', async (request, response, next) => {
 
     await productRef.delete()
     logger.debug(`Deleted product ${productName}`)
-    response
-        .sendStatus(200)
+    response.status(200).json({"message": "deleted successfully"})
 })
 
 /**
@@ -316,7 +315,11 @@ function validateParams(body, type) {
                     .min(1)
                     .max(30)
                     .required(),
-                thresholds: joi.object()
+                thresholds: joi.object().pattern(
+                    joi.string()
+                    .regex(/^[a-zA-Z]+$/).required(),
+                     joi.number().required()
+                )
             })
             break
         case constants.UPDATE:
@@ -330,7 +333,10 @@ function validateParams(body, type) {
                 unit: joi.string()
                     .min(1)
                     .max(30),
-                thresholds: joi.object(),
+                thresholds: joi.object().pattern(
+                    joi.string()
+                    .regex(/^[a-zA-Z]+$/).required(),
+                    joi.number().required()),
                 isActive: joi.bool()
             })
             break
