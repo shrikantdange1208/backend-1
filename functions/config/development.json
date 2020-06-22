@@ -1,0 +1,10 @@
+{
+    "DEBUG" : {
+        "0" : "app:startup",
+        "1" : "app:http"
+    },
+
+    "create" : "created successfully",
+    "update" : "updated successfully",
+    "delete" : "deleted successfully"
+}

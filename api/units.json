@@ -1,0 +1,61 @@
+# /api/units
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Units (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/units
+#Response
+{
+    "units": [
+        {
+            "unit": "kilograms",
+            "description": "Unit to measure products in kilograms",
+            "createdDate": "2020-06-16T10:02:48.095Z",
+            "lastUpdatedDate": "2020-06-16T10:02:48.095Z"
+        },
+        {
+            "unit": "litres",
+            "description": "Unit to measure products in litres",
+            "createdDate": "2020-06-16T10:06:25.211Z",
+            "lastUpdatedDate": "2020-06-16T10:06:25.211Z"
+        },
+        {
+            "unit": "number",
+            "description": "Unit to measure products in numbers",
+            "createdDate": "2020-06-16T10:06:33.989Z",
+            "lastUpdatedDate": "2020-06-16T10:06:33.989Z"
+        }
+    ],
+    "totalUnits": 3
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+# Add Unit (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/units
+#Request
+{
+  "unit": "litres",
+  "description": "Unit to measure products in litres"
+}
+
+#Response 201 
+{
+    "message": "created successfully"
+}
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Delete delete (DELETE)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/units/{unitName}
+
+#Response - 200 OK 
+{
+    "message": "deleted successfully"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------

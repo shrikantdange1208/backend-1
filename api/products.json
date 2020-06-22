@@ -1,0 +1,263 @@
+# /api/products
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Products (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products
+#Response
+{
+  "products": [
+    {
+      "product": "milk",
+      "category": "food",
+      "unit": "litres",
+      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "product": "crocin",
+      "category": "pharmacy",
+      "unit": "number",
+      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalProducts": 2
+}
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get a single Product (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/{productName}
+
+#Response
+{
+  "product": "crocin",
+  "category": "pharmacy",
+  "unit": "number",
+  "isActive": true,
+  "thresholds": {
+    "kormangala": 15,
+    "sarjapur": 10
+  },
+  "createdDate": "2020-06-12T11:16:04.060Z",
+  "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+# Get All Products for a category(GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/category/{categoryName}
+#Response
+{
+  "products": [
+    {
+      "product": "anacin",
+      "category": "pharmacy",
+      "unit": "number",
+      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "product": "crocin",
+      "category": "pharmacy",
+      "unit": "number",
+      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalProducts": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Active Products (GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/all/active
+#Response
+{
+  "products": [
+    {
+      "product": "milk",
+      "category": "food",
+      "unit": "litres",
+      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "product": "crocin",
+      "category": "pharmacy",
+      "unit": "number",
+      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalProducts": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All InActive Products (GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/all/inactive
+#Response
+{
+  "products": [
+    {
+      "product": "milk",
+      "category": "food",
+      "unit": "litres",
+      "isActive": false,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "product": "crocin",
+      "category": "pharmacy",
+      "unit": "number",
+      "isActive": false,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalProducts": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Active or InActive Products for a category(GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/{active}/{category}
+#Response
+{
+  "products": [
+    {
+      "product": "anacin",
+      "category": "pharmacy",
+      "unit": "number",
+      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    },
+    {
+      "product": "crocin",
+      "category": "pharmacy",
+      "unit": "number",
+      "isActive": true,
+      "thresholds": {
+        "kormangala": 15,
+        "sarjapur": 10
+      },
+      "createdDate": "2020-06-12T11:16:04.060Z",
+      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+    }
+  ],
+  "totalProducts": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Add Product (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products
+#Request
+{
+  "product": "bench",
+  "category": "furniture",
+  "unit": "number"
+}
+
+OR
+
+{
+  "product": "bench",
+  "category": "furniture",
+  "unit": "number",
+  "thresholds": {
+    "kormangala": 15,
+    "sarjapur": 10
+  }
+}
+
+#Response - 201 Created
+{
+  "message": "created successfully"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Product Category (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/products
+
+#Request
+{
+  "product": "bread",
+  "category": "food",
+  "isActive": false,
+  "unit": "litres",
+  "thresholds": {
+    "kormangala": 15,
+    "sarjapur": 10
+  }
+}
+#Response - 204 (No Content)
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Delete Product (DELETE)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/product/{productName}
+
+#Response - 200 OK
+{
+  "message": "deleted successfully"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
