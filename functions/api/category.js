@@ -166,7 +166,7 @@ router.post('/', async (request, response, next) => {
     data[constants.PRODUCTS] = []
     await db.collection(constants.CATEGORY).doc(categoryName).set(data)
     logger.debug(`${categoryName} document Created`)
-    response.sendStatus(201)
+    response.status(201).json({"message": "created successfully"})
 });
 
 /**
@@ -229,8 +229,7 @@ router.delete('/:category', async(request, response, next) => {
     
     await categoryRef.delete()
     logger.debug(`Deleted category ${categoryName}`)
-    response
-        .sendStatus(200)
+    response.status(200).json({"message": "deleted successfully"})
 })
 
  /**

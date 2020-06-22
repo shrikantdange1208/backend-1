@@ -142,7 +142,7 @@ router.post('/', async (request, response, next) => {
         .doc(operationName)
         .set(data)
     logger.debug(`${operationName} document Created`)
-    response.sendStatus(201)
+    response.status(201).json({"message": "created successfully"})
 });
 
 /**
@@ -178,8 +178,7 @@ router.put('/', async (request, response, next) => {
     data[constants.LAST_UPDATED_DATE] = new Date()
     await operationRef.update(data)
     logger.debug(`Updated operation ${operationName}`)
-    response
-        .sendStatus(204)
+    response.sendStatus(204)
 })
 
 /**
@@ -207,8 +206,7 @@ router.delete('/:operation', async(request, response, next) => {
     
     await operationRef.delete()
     logger.debug(`Deleted operation ${operationName}`)
-    response
-        .sendStatus(200)
+    response.status(200).json({"message": "deleted successfully"})
 })
 
 /**

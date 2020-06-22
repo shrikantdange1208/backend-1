@@ -40,7 +40,10 @@
   "description": "Unit to measure products in litres"
 }
 
-#Response 201 - Created
+#Response 201 
+{
+    "message": "created successfully"
+}
 
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -49,7 +52,10 @@
 # Delete delete (DELETE)
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/units/{unitName}
 
-#Response - 200 OK
+#Response - 200 OK 
+{
+    "message": "deleted successfully"
+}
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
