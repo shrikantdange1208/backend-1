@@ -5,11 +5,12 @@ const db = admin.firestore()
 const joi = require('@hapi/joi')
 const validate = require('../common/validator')
 const formatDate = require('../common/dateFormatter')
+const constants = require('../common/constants')
 /*
 1.Creates a new role along with its permissions, status and description
 */
 router.post('/', async (req, res, next) => {
-    const { error } = validateInput(req.body, 'CREATE')
+    const { error } = validateInput(req.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -18,7 +19,15 @@ router.post('/', async (req, res, next) => {
     }
     const { id } = req.body
     delete req.body.id
-    await db.collection('roles').doc(id).set({
+    let rolesRef = db.collection(constants.ROLES).doc(id)
+    const doc = await rolesRef.get()
+    if (doc.exists) {
+        const err = new Error(`Role ${id} already exists. Please update if needed.`)
+        err.statusCode = 404
+        next(err)
+        return
+    }
+    await db.collection(constants.ROLES).doc(id).set({
         ...req.body,
         createdDate: new Date(),
         lastUpdatedDate: new Date(),
@@ -32,7 +41,7 @@ router.post('/', async (req, res, next) => {
 2.Admin and System are the roles supported currently.
 */
 router.get('/', async (req, res, next) => {
-    let rolesRef = db.collection('roles')
+    let rolesRef = db.collection(constants.ROLES)
     const snapshot = await rolesRef.get()
     const allRoles = []
     snapshot.forEach(doc => {
@@ -50,7 +59,7 @@ router.get('/', async (req, res, next) => {
 1.Returns a specific role and its permissions, description, status
 */
 router.get('/:role', async (req, res, next) => {
-    let rolesRef = db.collection('roles').doc(req.params.role)
+    let rolesRef = db.collection(constants.ROLES).doc(req.params.role)
     const doc = await rolesRef.get()
     if (!doc.exists) {
         const error = new Error(`${req.params.role} not found in firestore`)
@@ -71,7 +80,7 @@ router.put('/', async (req, res, next) => {
     if(req.body.createdDate){
         delete req.body.createdDate
     }
-    const { error } = validateInput(req.body, 'UPDATE')
+    const { error } = validateInput(req.body, constants.UPDATE)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -80,11 +89,19 @@ router.put('/', async (req, res, next) => {
     }
     const { id } = req.body
     delete req.body.id
-    await db.collection('roles').doc(id).update({
+    let rolesRef = db.collection(constants.ROLES).doc(id)
+    const doc = await rolesRef.get()
+    if (!doc.exists) {
+        const error = new Error(`Requested ${id} is not present in firestore`)
+        error.statusCode = 404
+        next(error)
+        return
+    }
+    await rolesRef.update({
         ...req.body,
         lastUpdatedDate: new Date()
     })
-    res.status(204).send({ 'message': 'updated successfully' })
+    res.sendStatus(204)
 
 })
 
@@ -92,14 +109,15 @@ router.put('/', async (req, res, next) => {
 1.Deletes the role record
 */
 router.delete('/:role', async (req, res, next) => {
-    const { error } = validateInput({ id: req.params.role }, 'DELETE')
-    if (error) {
-        const err = new Error(error.details[0].message)
-        err.statusCode = 400
-        next(err)
+    let rolesRef = db.collection(constants.ROLES).doc(req.params.role)
+    const doc = await rolesRef.get()
+    if (!doc.exists) {
+        const error = new Error(`${req.params.role} not found in firestore`)
+        error.statusCode = 404
+        next(error)
         return
     }
-    await db.collection('roles').doc(req.params.role).delete()
+    await db.collection(constants.ROLES).doc(req.params.role).delete()
     res.status(200).send({ 'message': 'deleted successfully' })
 })
 
@@ -123,11 +141,6 @@ function validateInput(body, type) {
                 isActive: joi.bool(),
                 label: joi.string().regex(/^[A-Z]{5,10}$/),
                 lastUpdatedDate: joi.date()
-            })
-            break
-        case 'DELETE':
-            schema = joi.object().keys({
-                id: joi.string().regex(/^[a-z]{5,10}$/).required(),
             })
             break
     }

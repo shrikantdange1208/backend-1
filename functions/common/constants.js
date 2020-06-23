@@ -29,3 +29,6 @@ define("UPDATE", "update");
 define("DELETE", "delete");
 define("ADMIN", "admin");
 define("SYSTEM", "system");
+define("USERS", "users");
+define("ROLES", "roles");
+define("PERMISSIONS", "permissions");

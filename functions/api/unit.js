@@ -1,4 +1,4 @@
-const constants = require('../config/constants')
+const constants = require('../common/constants')
 const validate = require('../common/validator')
 const logger = require('../middleware/logger');
 const config = require('config');
