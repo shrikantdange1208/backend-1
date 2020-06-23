@@ -1,5 +1,5 @@
 const constants = require('../config/constants')
-const validate = require('../validation/validator')
+const validate = require('../common/validator')
 const logger = require('../middleware/logger');
 const config = require('config');
 const joi = require('@hapi/joi');
