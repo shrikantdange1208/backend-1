@@ -31,13 +31,10 @@ define("UPDATE", "update");
 define("DELETE", "delete");
 define("ADMIN", "admin");
 define("SYSTEM", "system");
-<<<<<<< HEAD:functions/config/constants.js
 define("ENTITY", "entity");
 define("USER", "user");
 define("TIMESTAMP", "timestamp");
 define("PROPERTY", "property");
-=======
 define("USERS", "users");
 define("ROLES", "roles");
 define("PERMISSIONS", "permissions");
->>>>>>> 188ad94082cbe88e37601a4dd9eefe5fa7f6b8e4:functions/common/constants.js

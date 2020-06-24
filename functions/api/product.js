@@ -4,12 +4,8 @@ const logger = require('../middleware/logger');
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-<<<<<<< HEAD
 const auth = require('./auth/auth')
 const audit = require('./audit')
-=======
-//const auth = require('./auth/auth')
->>>>>>> 188ad94082cbe88e37601a4dd9eefe5fa7f6b8e4
 const functions = require('firebase-functions');
 const express = require('express');
 const router = express.Router();
