@@ -20,4 +20,4 @@ require('./startup/routes')(app);
 
 exports.api = functions.https.onRequest(app)
 exports.addOrUpdateProduct = products.addOrUpdateProduct
-//exports.updateProductCategory = categories.updateProductCategory
+exports.addOrUpdateCategory = categories.addOrUpdateCategory

@@ -5,6 +5,7 @@ const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const auth = require('./auth/auth')
+const audit = require('./audit')
 const functions = require('firebase-functions');
 const express = require('express');
 const router = express.Router();
@@ -167,7 +168,7 @@ router.get('/:active/:category', async (request, response, next) => {
  */
 router.post('/', async (request, response, next) => {
     if(!auth.isAuthenticated(request, response) 
-        || !auth.isAdmin(response)) {
+        || !auth.isAdmin(request)) {
         const err = new Error(`Unauthorized`)
         err.statusCode = 401
         next(err)
@@ -282,12 +283,6 @@ router.delete('/:product', async (request, response, next) => {
         next(error)
         return;
     }
-    let data = {}
-    const productData = product.data()
-    data[constants.PRODUCT] = productName
-    data[constants.CATEGORY] = productData.category
-    data[constants.UNIT] = productData.unit
-
     await productRef.delete()
     logger.debug(`Deleted product ${productName}`)
     response.status(200).json({"message": "deleted successfully"})
@@ -348,23 +343,35 @@ module.exports = router;
 module.exports.addOrUpdateProduct = functions.firestore
     .document(`/${constants.PRODUCT}/{productName}`)
     .onWrite(async (change, context) => {
+        
+        const auditData = {}
+        auditData[constants.ENTITY] = constants.PRODUCT
+        auditData[constants.USER] = "To be resolved"
+        auditData[constants.TIMESTAMP] = context.timestamp
+        auditData[constants.NAME] = context.params.productName
+
         const productName = context.params.productName
         if (!change.before._fieldsProto) {
             logger.debug(`New product ${change.after.id} has been created`)
+            auditData[constants.OPERATION] = constants.CREATE;
             addProductToCategory(change.after)
         } else if (!change.after._fieldsProto) {
             logger.debug(`Product ${change.before.id} has been deleted`)
+            auditData[constants.OPERATION] = constants.DELETE;
             deleteProductFromCategory(change.before)
         } else {
             logger.debug(`Product ${change.before.id} has been updated`)
+            auditData[constants.OPERATION] = constants.UPDATE;
             var oldData = change.before.data()
             var newData = change.after.data()
             if(oldData.category !== newData.category) {
                 logger.debug(`Category of product ${productName} changed from ${oldData.category} to ${newData.category}`)
+                auditData[constants.PROPERTY] = constants.CATEGORY;
                 deleteProductFromCategory(change.before)
                 addProductToCategory(change.after)
             } else if(oldData.isActive !== newData.isActive) {
                 logger.debug(`Status of product ${productName} changed from ${oldData.isActive} to ${newData.isActive}`)
+                auditData[constants.PROPERTY] = constants.IS_ACTIVE;
                 if(newData.isActive) {
                     addProductToCategory(change.after)  
                 } else {
@@ -372,6 +379,7 @@ module.exports.addOrUpdateProduct = functions.firestore
                 }
             }
         }
+        audit.logInAuditCollection(auditData)
     });
 
 async function addProductToCategory(newProduct) {
@@ -382,12 +390,11 @@ async function addProductToCategory(newProduct) {
     // Check if category is present in the collection
     if (!categorySnapshot.exists) {
         console.log(`Category ${category} is not present in firestore!!!!`)
-        return;
+        return `Category ${category} is not present in firestore!!!!`;
     }
     const products = categorySnapshot.data().products;
     products.push(productName);
-    return categoryRef.update({ 'products': products })
-    //logger.debug(`Product ${productName} has been added to category ${category}`)
+    await categoryRef.update({ 'products': products })
 }
 
 async function deleteProductFromCategory(deletedProduct) {
@@ -398,11 +405,10 @@ async function deleteProductFromCategory(deletedProduct) {
     // Check if category is present in the collection
     if (!categorySnapshot.exists) {
         console.log(`Category ${category} is not present in firestore!!!!`)
-        return;
+        return `Category ${category} is not present in firestore!!!!`;
     }
     const products = categorySnapshot.data().products;
     var index = products.indexOf(productName)
     products.splice(index, 1);
-    return categoryRef.update({ 'products': products })
-    //logger.debug(`Product ${productName} has been deleted from category ${category}`)
+    await categoryRef.update({ 'products': products })
 }

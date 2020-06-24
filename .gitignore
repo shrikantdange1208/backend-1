@@ -71,8 +71,6 @@ functions/*.log
 functions/package-lock.json
 functions/.eslintrc.json
 .firebaserc
-	
-firebase.json
 firestore.indexes.json
 firestore.rules
 package-lock.json

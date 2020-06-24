@@ -198,12 +198,6 @@ router.delete('/:operation', async(request, response, next) => {
         next(error)
         return;
     }
-    let data = {}
-    const operationData = operation.data()
-    data[constants.OPERATION] = operationName
-    data[constants.LABEL] = operationData.label
-    data[constants.DESCRIPTION] = operationData.description
-    
     await operationRef.delete()
     logger.debug(`Deleted operation ${operationName}`)
     response.status(200).json({"message": "deleted successfully"})

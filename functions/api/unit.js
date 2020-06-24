@@ -86,10 +86,6 @@ router.delete('/:unit', async(request, response, next) => {
         next(error)
         return;
     }
-    let data = {}
-    const unitData = unit.data()
-    data[constants.UNIT] = unitName
-    data[constants.DESCRIPTION] = unitData.description
     await unitRef.delete()
     logger.debug(`Deleted unit ${unitName}`)
     response.status(200).json({"message": "deleted successfully"})
