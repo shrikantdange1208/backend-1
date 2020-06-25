@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')({origin: true});
 const categories = require('../api/category');
 const products = require('../api/product');
 const operations = require('../api/operation');
@@ -9,6 +10,7 @@ const permissions = require('../api/permissions');
 const httperror = require('../middleware/error');
 
 module.exports = function(app) {
+    app.use(cors);
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
     app.use('/api/categories', categories);
