@@ -138,7 +138,7 @@ router.get('/all/inactive', async (request, response, next) => {
  * @description Route to retrieve all active/inActive products data from a given category
  * @returns Json object containing requested products
  */
-router.get('/:active/:category', async (request, response, next) => {
+router.get('/category/:category/:active', async (request, response, next) => {
     var status = JSON.parse(request.params.active.toLocaleLowerCase());
     var category = request.params.category.toLocaleLowerCase();
     logger.info(`Retrieving all active/inActive products from a given category from firestore`)

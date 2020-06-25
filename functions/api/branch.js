@@ -269,6 +269,27 @@ router.put('/', async (request, response, next) => {
 })
 
 /**
+ * @description Route to delete a branch
+ * @throws 400 if branch does not exist
+ */
+router.delete('/:branch', async (request, response, next) => {
+    var branchName = request.params.branch.toLocaleLowerCase()
+    logger.info(`Deleting branch ${branchName} from firestore`)
+
+    const branchRef = db.collection(constants.BRANCHES).doc(branchName);
+    const branch = await branchRef.get()
+    if (!branch.exists) {
+        const error = new Error(`Branch ${branchName} is not present in Firestore.`)
+        error.statusCode = 404
+        next(error)
+        return;
+    }
+    await branchRef.delete()
+    logger.debug(`Deleted branch ${branchName}`)
+    response.status(200).json({ "message": "deleted successfully" })
+})
+
+/**
  * Validates the request body.
  * @param {*} body request body
  * @param {*} type identifier to determine which request is to be validated

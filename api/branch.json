@@ -1,0 +1,22 @@
+# Add Product (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products
+#Request
+{
+  "branch": "kormangala",
+  "isHeadOffice": true,
+  "address": {
+      "street": "someStreet",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "country": "India",
+      "zipcode": 560035
+  }
+}
+
+#Response - 201 Created
+{
+  "message": "created successfully"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
