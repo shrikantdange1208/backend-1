@@ -18,7 +18,7 @@ router.get("/", async (request, response, next) => {
     const units = {
         "units": []
     }
-    let unitCollection = db.collection(constants.UNIT);
+    let unitCollection = db.collection(constants.UNITS);
     let snapshot = await unitCollection.get()
     snapshot.forEach(unit => {
         var unitData = unit.data()
@@ -52,7 +52,7 @@ router.post('/', async (request, response, next) => {
     // If unit already exists, return 400
     var unitName = request.body.unit.toLocaleLowerCase()
     logger.info(`Creating unit ${unitName} in firestore....`);
-    const doc = db.collection(constants.UNIT).doc(unitName);
+    const doc = db.collection(constants.UNITS).doc(unitName);
     const unit = await doc.get()
     if (unit.exists) {
         const err = new Error(`The unit ${unitName} already exists. Please update if needed.`)
@@ -64,7 +64,7 @@ router.post('/', async (request, response, next) => {
     data[constants.DESCRIPTION] = request.body.description
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await db.collection(constants.UNIT).doc(unitName).set(data)
+    await db.collection(constants.UNITS).doc(unitName).set(data)
     logger.debug(`${unitName} document created`)
     response.status(201).json({"message": "created successfully"})
 });
@@ -78,7 +78,7 @@ router.delete('/:unit', async(request, response, next) => {
     var  unitName = request.params.unit.toLocaleLowerCase()
     logger.info(`Deleting unit ${unitName} from firestore`)
     
-    const unitRef = db.collection(constants.UNIT).doc(unitName);
+    const unitRef = db.collection(constants.UNITS).doc(unitName);
     const unit = await unitRef.get()
     if (!unit.exists) {
         const error = new Error(`Unit ${unitName} is not present in Firestore.`)

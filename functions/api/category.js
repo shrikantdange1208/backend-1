@@ -20,7 +20,7 @@ router.get("/", async (request, response) => {
     const categories = {
         "categories": []
     }
-    let categoryCollection = db.collection(constants.CATEGORY);
+    let categoryCollection = db.collection(constants.CATEGORIES);
     let snapshot = await categoryCollection.get()
     snapshot.forEach(category => {
         var categoryData = category.data()
@@ -38,12 +38,12 @@ router.get("/", async (request, response) => {
 /**
  * @description Route to retrieve single category data from firestore
  * @returns Json object containing requested category
- * @throws 400 if the product does not exists in firestore
+ * @throws 400 if the branch does not exists in firestore
  */
 router.get('/:category', async (request, response, next) => {
     var requestedCategory = request.params.category.toLocaleLowerCase()
     logger.info(`Retrieving category ${requestedCategory} from firestore`)
-    const doc = db.collection(constants.CATEGORY).doc(requestedCategory);
+    const doc = db.collection(constants.CATEGORIES).doc(requestedCategory);
     const category = await doc.get()
     if (!category.exists) {
         const error = new Error(`Requested category ${requestedCategory} is not present in Firestore.`)
@@ -67,7 +67,7 @@ router.get('/:category', async (request, response, next) => {
 router.get('/products/:category', async (request, response, next) => {
     var requestedCategory = request.params.category.toLocaleLowerCase()
     logger.info(`Retrieving products for category ${requestedCategory}`)
-    const doc = db.collection(constants.CATEGORY).doc(requestedCategory)
+    const doc = db.collection(constants.CATEGORIES).doc(requestedCategory)
     const category = await doc.get()
     if (!category.exists) {
         const error = new Error(`Requested category ${requestedCategory} is not present in Firestore.`)
@@ -89,7 +89,7 @@ router.get("/all/active", async (request, response) => {
     const categories = {
         "categories": []
     }
-    let categoryCollection = db.collection(constants.CATEGORY)
+    let categoryCollection = db.collection(constants.CATEGORIES)
         .where(constants.IS_ACTIVE, '==', true)
     let snapshot = await categoryCollection.get()
     snapshot.forEach(category => {
@@ -114,7 +114,7 @@ router.get("/all/inactive", async (request, response) => {
     const categories = {
         "categories": []
     }
-    let categoryCollection = db.collection(constants.CATEGORY)
+    let categoryCollection = db.collection(constants.CATEGORIES)
         .where(constants.IS_ACTIVE, '==', false)
     let snapshot = await categoryCollection.get()
     snapshot.forEach(category => {
@@ -136,7 +136,7 @@ router.get("/all/inactive", async (request, response) => {
  * @throws 400 if category already exists or 404 if required params are missing
  */
 router.post('/', async (request, response, next) => {
-    logger.info(`Creating category in firestore....`);
+    logger.info(`Creating category in firestore New MEHTOD....`);
     // Validate parameters
     logger.debug('Validating params.')
     const { error } = validateParams(request.body, constants.CREATE)
@@ -150,7 +150,7 @@ router.post('/', async (request, response, next) => {
     // If category already exists, return 400
     var categoryName = request.body.category.toLocaleLowerCase()
     logger.info(`Creating category ${categoryName} in firestore....`);
-    const doc = db.collection(constants.CATEGORY).doc(categoryName);
+    const doc = db.collection(constants.CATEGORIES).doc(categoryName);
     const category = await doc.get()
     if (category.exists) {
         const err = new Error(`The category ${categoryName} already exists. Please update if needed.`)
@@ -165,7 +165,7 @@ router.post('/', async (request, response, next) => {
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
     data[constants.PRODUCTS] = []
-    await db.collection(constants.CATEGORY).doc(categoryName).set(data)
+    await db.collection(constants.CATEGORIES).doc(categoryName).set(data)
     logger.debug(`${categoryName} document Created`)
     response.status(201).json({ "message": "created successfully" })
 });
@@ -190,7 +190,7 @@ router.put('/', async (request, response, next) => {
     // If category does not exists, return 404
     var categoryName = request.body.category
     logger.info(`Updating category ${categoryName} in firestore....`);
-    const categoryRef = db.collection(constants.CATEGORY).doc(categoryName);
+    const categoryRef = db.collection(constants.CATEGORIES).doc(categoryName);
     const category = await categoryRef.get()
     if (!category.exists) {
         const err = new Error(`Requested category ${categoryName} is not present in Firestore.`)
@@ -206,7 +206,6 @@ router.put('/', async (request, response, next) => {
     response.sendStatus(204)
 })
 
-
 /**
  * @description Route to delete categories
  * @returns  deleted category
@@ -216,7 +215,7 @@ router.delete('/:category', async (request, response, next) => {
     var categoryName = request.params.category.toLocaleLowerCase()
     logger.info(`Deleting category ${categoryName} from firestore`)
 
-    const categoryRef = db.collection(constants.CATEGORY).doc(categoryName);
+    const categoryRef = db.collection(constants.CATEGORIES).doc(categoryName);
     const category = await categoryRef.get()
     if (!category.exists) {
         const error = new Error(`Category ${categoryName} is not present in Firestore.`)
@@ -267,7 +266,7 @@ function validateParams(body, type) {
 
 module.exports = router;
 module.exports.addOrUpdateCategory = functions.firestore
-    .document(`/${constants.CATEGORY}/{categoryName}`)
+    .document(`/${constants.CATEGORIES}/{categoryName}`)
     .onWrite(async (change, context) => {
 
         const auditData = {}
@@ -306,7 +305,7 @@ async function changeStatusOfAllProducts(updatedCategory) {
     var categoryName = updatedCategory.id
     var status = updatedCategory.data().isActive;
     console.log(`Updating status of all products in category ${categoryName} to ${status}`)
-    const productCollection = db.collection(constants.PRODUCT)
+    const productCollection = db.collection(constants.PRODUCTS)
         .where(constants.CATEGORY, '==', categoryName)
     const productSnapshot = await productCollection.get()
     let batch = db.batch()
@@ -323,7 +322,7 @@ async function changeStatusOfAllProducts(updatedCategory) {
 
 async function deleteAllProductsFromCategory(deletedCategory) {
     var categoryName = deletedCategory.id
-    const productCollection = db.collection(constants.PRODUCT)
+    const productCollection = db.collection(constants.PRODUCTS)
         .where(constants.CATEGORY, '==', categoryName)
     const productSnapshots = await productCollection.get()
     let batch = db.batch()

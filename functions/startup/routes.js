@@ -4,7 +4,7 @@ const products = require('../api/product');
 const operations = require('../api/operation');
 const units = require('../api/unit');
 const audits = require('../api/audit');
-const branch = require('../api/branch');
+const branches = require('../api/branch');
 const users = require('../api/users');
 const roles = require('../api/roles');
 const permissions = require('../api/permissions');
@@ -18,7 +18,7 @@ module.exports = function(app) {
     app.use('/api/operations', operations);
     app.use('/api/units', units);
     app.use('/api/audits', audits);
-    app.use('/api/branch', branch);
+    app.use('/api/branches', branches);
     app.use('/api/users', users);
     app.use('/api/roles', roles);
     app.use('/api/permissions', permissions);

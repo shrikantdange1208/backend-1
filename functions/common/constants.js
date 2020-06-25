@@ -7,9 +7,13 @@ function define(name, value) {
 
 define("NAME", "name");
 define("CATEGORY", "category");
+define("CATEGORIES", "categories");
+define("BRANCHES", "branches");
+define("BRANCH", "branch");
 define("PRODUCT", "product");
 define("PRODUCTS", "products");
 define("OPERATION", "operation");
+define("OPERATIONS", "operations");
 define("AUDIT", "audit");
 define("THRESHOLD", "threshold");
 define("THRESHOLDS", "thresholds");
@@ -19,6 +23,7 @@ define("IS_ACTIVE", "isActive");
 define("CREATED_DATE", "createdDate");
 define("LAST_UPDATED_DATE", "lastUpdatedDate");
 define("TOTAL_CATEGORIES", "totalCategories");
+define("TOTAL_BRANCHES", "totalBranches");
 define("TOTAL_PRODUCTS", "totalProducts");
 define("TOTAL_OPERATIONS", "totalOperations");
 define("TOTAL_UNITS", "totalUnits");
@@ -38,3 +43,5 @@ define("PROPERTY", "property");
 define("USERS", "users");
 define("ROLES", "roles");
 define("PERMISSIONS", "permissions");
+define("INVENTORY", "inventory");
+define("IS_BELOW_THRESHOLD", "isBelowThreshold");

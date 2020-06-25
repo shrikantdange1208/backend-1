@@ -4,7 +4,7 @@ const logger = require('../middleware/logger');
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-const auth = require('./auth/auth')
+// const auth = require('./auth/auth')
 const audit = require('./audit')
 const functions = require('firebase-functions');
 const express = require('express');
@@ -21,7 +21,7 @@ router.get("/", async (request, response, next) => {
     const products = {
         "products": []
     }
-    let productCollection = db.collection(constants.PRODUCT);
+    let productCollection = db.collection(constants.PRODUCTS);
     let snapshot = await productCollection.get()
     snapshot.forEach(product => {
         var productData = product.data()
@@ -43,7 +43,7 @@ router.get("/", async (request, response, next) => {
 router.get('/:product', async (request, response, next) => {
     var requestedProduct = request.params.product.toLocaleLowerCase()
     logger.info(`Retrieving product ${requestedProduct} from firestore`)
-    const doc = db.collection(constants.PRODUCT).doc(requestedProduct);
+    const doc = db.collection(constants.PRODUCTS).doc(requestedProduct);
     const product = await doc.get()
     if (!product.exists) {
         const error = new Error(`Requested product ${requestedProduct} is not present in Firestore.`)
@@ -69,7 +69,7 @@ router.get('/category/:category', async (request, response, next) => {
     const products = {
         "products": []
     }
-    const productRef = db.collection(constants.PRODUCT).where(constants.CATEGORY, '==', requestedCategory);
+    const productRef = db.collection(constants.PRODUCTS).where(constants.CATEGORY, '==', requestedCategory);
     const productSnapshot = await productRef.get()
 
     productSnapshot.forEach(product => {
@@ -94,7 +94,7 @@ router.get('/all/active', async (request, response, next) => {
         "products": []
     }
 
-    const productRef = db.collection(constants.PRODUCT)
+    const productRef = db.collection(constants.PRODUCTS)
         .where(constants.IS_ACTIVE, '==', true);
     const productSnapshot = await productRef.get()
     productSnapshot.forEach(product => {
@@ -119,7 +119,7 @@ router.get('/all/inactive', async (request, response, next) => {
         "products": []
     }
 
-    const productRef = db.collection(constants.PRODUCT)
+    const productRef = db.collection(constants.PRODUCTS)
         .where(constants.IS_ACTIVE, '==', false);
     const productSnapshot = await productRef.get()
     productSnapshot.forEach(product => {
@@ -145,7 +145,7 @@ router.get('/:active/:category', async (request, response, next) => {
     const products = {
         "products": []
     }
-    const productRef = db.collection(constants.PRODUCT)
+    const productRef = db.collection(constants.PRODUCTS)
         .where(constants.IS_ACTIVE, '==', status)
         .where(constants.CATEGORY, '==', category)
     const productSnapshot = await productRef.get()
@@ -167,16 +167,16 @@ router.get('/:active/:category', async (request, response, next) => {
  * @throws 400 if product already exists or 404 if required params are missing
  */
 router.post('/', async (request, response, next) => {
-    if(!auth.isAuthenticated(request, response) 
-        || !auth.isAdmin(request)) {
-        const err = new Error(`Unauthorized`)
-        err.statusCode = 401
-        next(err)
-        return;
-    } else { 
-        // Still working on this module. Ignore for this PR
-        console.log('user is authorized')
-    }
+///    if(!auth.isAuthenticated(request, response)
+///        || !auth.isAdmin(request)) {
+///        const err = new Error(`Unauthorized`)
+///        err.statusCode = 401
+///        next(err)
+///        return;
+///    } else {
+///        // Still working on this module. Ignore for this PR
+///        console.log('user is authorized')
+///   }
 
     logger.info(`Creating product in firestore....`);
     // Validate parameters
@@ -192,7 +192,7 @@ router.post('/', async (request, response, next) => {
     // If product already exists, return 400
     var productName = request.body.product.toLocaleLowerCase()
     logger.info(`Creating product ${productName} in firestore....`);
-    const doc = db.collection(constants.PRODUCT).doc(productName);
+    const doc = db.collection(constants.PRODUCTS).doc(productName);
     const product = await doc.get()
     if (product.exists) {
         const err = new Error(`The product ${productName} already exists. Please update if needed.`)
@@ -210,7 +210,7 @@ router.post('/', async (request, response, next) => {
     data[constants.IS_ACTIVE] = true
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await db.collection(constants.PRODUCT).doc(productName).set(data)
+    await db.collection(constants.PRODUCTS).doc(productName).set(data)
     logger.debug(`${productName} document Created`)
     response.status(201).json({"message": "created successfully"})
 });
@@ -235,7 +235,7 @@ router.put('/', async (request, response, next) => {
     // If product does not exists, return 400
     var productName = request.body.product.toLocaleLowerCase()
     logger.info(`Updating status of product ${productName} in firestore....`);
-    const productRef = db.collection(constants.PRODUCT).doc(productName);
+    const productRef = db.collection(constants.PRODUCTS).doc(productName);
     const product = await productRef.get()
     if (!product.exists) {
         const err = new Error(`Requested product ${productName} is not present in Firestore.`)
@@ -275,7 +275,7 @@ router.delete('/:product', async (request, response, next) => {
     var productName = request.params.product.toLocaleLowerCase()
     logger.info(`Deleting product ${productName} from firestore`)
 
-    const productRef = db.collection(constants.PRODUCT).doc(productName);
+    const productRef = db.collection(constants.PRODUCTS).doc(productName);
     const product = await productRef.get()
     if (!product.exists) {
         const error = new Error(`Product ${productName} is not present in Firestore.`)
@@ -341,9 +341,8 @@ function validateParams(body, type) {
 
 module.exports = router;
 module.exports.addOrUpdateProduct = functions.firestore
-    .document(`/${constants.PRODUCT}/{productName}`)
+    .document(`/${constants.PRODUCTS}/{productName}`)
     .onWrite(async (change, context) => {
-        
         const auditData = {}
         auditData[constants.ENTITY] = constants.PRODUCT
         auditData[constants.USER] = "To be resolved"
@@ -385,7 +384,7 @@ module.exports.addOrUpdateProduct = functions.firestore
 async function addProductToCategory(newProduct) {
     var productName = newProduct.id
     var category = newProduct.data().category;
-    const categoryRef = db.doc(`${constants.CATEGORY}/${category}`);
+    const categoryRef = db.doc(`${constants.CATEGORIES}/${category}`);
     const categorySnapshot = await categoryRef.get()
     // Check if category is present in the collection
     if (!categorySnapshot.exists) {
@@ -400,7 +399,7 @@ async function addProductToCategory(newProduct) {
 async function deleteProductFromCategory(deletedProduct) {
     var productName = deletedProduct.id
     var category = deletedProduct.data().category;
-    const categoryRef = db.doc(`${constants.CATEGORY}/${category}`);
+    const categoryRef = db.doc(`${constants.CATEGORIES}/${category}`);
     const categorySnapshot = await categoryRef.get()
     // Check if category is present in the collection
     if (!categorySnapshot.exists) {

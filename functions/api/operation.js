@@ -18,7 +18,7 @@ router.get("/", async (request, response, next) => {
     const operations = {
         "operations": []
     }
-    let operationCollection = db.collection(constants.OPERATION);
+    let operationCollection = db.collection(constants.OPERATIONS);
     let snapshot = await operationCollection.get()
     snapshot.forEach(operation => {
         var operationData = operation.data()
@@ -40,7 +40,7 @@ router.get("/", async (request, response, next) => {
 router.get('/:operation', async (request, response, next) => {
     var  requestedOperation = request.params.operation.toLocaleLowerCase()
     logger.info(`Retrieving operation ${requestedOperation} from firestore`)
-    const doc = db.collection(constants.OPERATION).doc(requestedOperation);
+    const doc = db.collection(constants.OPERATIONS).doc(requestedOperation);
     const operation = await doc.get()
     if (!operation.exists) {
         const error = new Error(`Requested operation ${requestedOperation} is not present in Firestore.`)
@@ -66,7 +66,7 @@ router.get('/all/active', async (request, response, next) => {
         "operations": []
     }
 
-    const operationRef = db.collection(constants.OPERATION)
+    const operationRef = db.collection(constants.OPERATIONS)
         .where(constants.IS_ACTIVE, '==', true);
     const operationSnapshot = await operationRef.get()
     operationSnapshot.forEach(operation => {
@@ -91,7 +91,7 @@ router.get('/all/inactive', async (request, response, next) => {
         "operations": []
     }
 
-    const operationRef = db.collection(constants.OPERATION)
+    const operationRef = db.collection(constants.OPERATIONS)
         .where(constants.IS_ACTIVE, '==', false);
     const operationSnapshot = await operationRef.get()
     operationSnapshot.forEach(operation => {
@@ -126,7 +126,7 @@ router.post('/', async (request, response, next) => {
     // If category already exists, return 400
     var operationName = request.body.operation.toLocaleLowerCase()
     logger.info(`Creating operation ${operationName} in firestore....`);
-    const doc = db.collection(constants.OPERATION).doc(operationName);
+    const doc = db.collection(constants.OPERATIONS).doc(operationName);
     const operation = await doc.get()
     if (operation.exists) {
         const err = new Error(`The operation ${operationName} already exists. Please update if needed.`)
@@ -138,7 +138,7 @@ router.post('/', async (request, response, next) => {
     data[constants.IS_ACTIVE] = true
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await db.collection(constants.OPERATION)
+    await db.collection(constants.OPERATIONS)
         .doc(operationName)
         .set(data)
     logger.debug(`${operationName} document Created`)
@@ -165,7 +165,7 @@ router.put('/', async (request, response, next) => {
     // If product does not exists, return 400
     var operationName = request.body.operation.toLocaleLowerCase()
     logger.info(`Updating status of operation ${operationName} in firestore....`);
-    const operationRef = db.collection(constants.OPERATION).doc(operationName);
+    const operationRef = db.collection(constants.OPERATIONS).doc(operationName);
     const operation = await operationRef.get()
     if (!operation.exists) {
         const err = new Error(`Requested operation ${operationName} is not present in Firestore.`)
@@ -190,7 +190,7 @@ router.delete('/:operation', async(request, response, next) => {
     var  operationName = request.params.operation.toLocaleLowerCase()
     logger.info(`Deleting operation ${operationName} from firestore`)
     
-    const operationRef = db.collection(constants.OPERATION).doc(operationName);
+    const operationRef = db.collection(constants.OPERATIONS).doc(operationName);
     const operation = await operationRef.get()
     if (!operation.exists) {
         const error = new Error(`Operation ${operationName} is not present in Firestore.`)

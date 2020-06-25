@@ -9,7 +9,6 @@ module.exports = function(err, request, response, next) {
     if(err.statusCode === 500) {
        err.status =  'Internal Server Error'
        logger.error(err.stack);
-       console.log(err.stack);
     } else {
         err.status = err.message || 'Internal Server Error';
     }
