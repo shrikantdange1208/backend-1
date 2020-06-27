@@ -1,6 +1,8 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const logger = require('../middleware/logger');
+const { isAdmin, isAuthenticated } = require('../middleware/auth');
+const audit = require('./audit')
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
@@ -18,7 +20,7 @@ router.get("/", async (request, response, next) => {
     const units = {
         "units": []
     }
-    let unitCollection = db.collection(constants.UNIT);
+    let unitCollection = db.collection(constants.UNITS);
     let snapshot = await unitCollection.get()
     snapshot.forEach(unit => {
         var unitData = unit.data()
@@ -37,7 +39,7 @@ router.get("/", async (request, response, next) => {
  * @returns Created unit
  * @throws 400 if unit already exists or if required params are missing
  */
-router.post('/', async (request, response, next) => {
+router.post('/', isAdmin, async (request, response, next) => {
     logger.info(`Creating unit in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -52,7 +54,7 @@ router.post('/', async (request, response, next) => {
     // If unit already exists, return 400
     var unitName = request.body.unit.toLocaleLowerCase()
     logger.info(`Creating unit ${unitName} in firestore....`);
-    const doc = db.collection(constants.UNIT).doc(unitName);
+    const doc = db.collection(constants.UNITS).doc(unitName);
     const unit = await doc.get()
     if (unit.exists) {
         const err = new Error(`The unit ${unitName} already exists. Please update if needed.`)
@@ -64,7 +66,12 @@ router.post('/', async (request, response, next) => {
     data[constants.DESCRIPTION] = request.body.description
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await db.collection(constants.UNIT).doc(unitName).set(data)
+    await db.collection(constants.UNITS).doc(unitName).set(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} created new unit ${unitName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`${unitName} document created`)
     response.status(201).json({"message": "created successfully"})
 });
@@ -74,11 +81,11 @@ router.post('/', async (request, response, next) => {
  * @returns  deleted unit
  * @throws 400 if unit for product does not exist
  */
-router.delete('/:unit', async(request, response, next) => {
+router.delete('/:unit', isAdmin, async(request, response, next) => {
     var  unitName = request.params.unit.toLocaleLowerCase()
     logger.info(`Deleting unit ${unitName} from firestore`)
     
-    const unitRef = db.collection(constants.UNIT).doc(unitName);
+    const unitRef = db.collection(constants.UNITS).doc(unitName);
     const unit = await unitRef.get()
     if (!unit.exists) {
         const error = new Error(`Unit ${unitName} is not present in Firestore.`)
@@ -86,11 +93,12 @@ router.delete('/:unit', async(request, response, next) => {
         next(error)
         return;
     }
-    let data = {}
-    const unitData = unit.data()
-    data[constants.UNIT] = unitName
-    data[constants.DESCRIPTION] = unitData.description
     await unitRef.delete()
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} deleted unit ${unitName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Deleted unit ${unitName}`)
     response.status(200).json({"message": "deleted successfully"})
 })

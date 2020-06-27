@@ -2,7 +2,6 @@ const logger = require('./middleware/logger');
 const express = require('express');
 const config = require('config');
 
-
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 // Initialize Firebase App
@@ -20,4 +19,4 @@ require('./startup/routes')(app);
 
 exports.api = functions.https.onRequest(app)
 exports.addOrUpdateProduct = products.addOrUpdateProduct
-//exports.updateProductCategory = categories.updateProductCategory
+exports.addOrUpdateCategory = categories.addOrUpdateCategory
