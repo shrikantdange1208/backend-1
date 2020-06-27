@@ -1,11 +1,12 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const logger = require('../middleware/logger');
+const { isAdmin, isAuthenticated } = require('../middleware/auth');
+const audit = require('./audit')
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
-const audit = require('./audit')
 const express = require('express');
 const router = express.Router();
 const cors = require('cors');
@@ -135,7 +136,7 @@ router.get("/all/inactive", async (request, response) => {
  * @returns 201 - Created
  * @throws 400 if category already exists or 404 if required params are missing
  */
-router.post('/', async (request, response, next) => {
+router.post('/', isAdmin, async (request, response, next) => {
     logger.info(`Creating category in firestore New MEHTOD....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -166,6 +167,11 @@ router.post('/', async (request, response, next) => {
     data[constants.LAST_UPDATED_DATE] = new Date()
     data[constants.PRODUCTS] = []
     await db.collection(constants.CATEGORIES).doc(categoryName).set(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} added new category ${categoryName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`${categoryName} document Created`)
     response.status(201).json({ "message": "created successfully" })
 });
@@ -175,7 +181,7 @@ router.post('/', async (request, response, next) => {
  * @returns 204, No Content
  * @throws 404/400 if category does not exist or has wrong params resp.
  */
-router.put('/', async (request, response, next) => {
+router.put('/', isAdmin, async (request, response, next) => {
     logger.debug(`Updating category in firestore....`);
 
     // Validate parameters
@@ -202,6 +208,11 @@ router.put('/', async (request, response, next) => {
     delete data[constants.CATEGORY]
     data[constants.LAST_UPDATED_DATE] = new Date()
     await categoryRef.update(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} updated category ${categoryName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Updated category ${categoryName}`)
     response.sendStatus(204)
 })
@@ -211,7 +222,7 @@ router.put('/', async (request, response, next) => {
  * @returns  deleted category
  * @throws 400 if category does not exist
  */
-router.delete('/:category', async (request, response, next) => {
+router.delete('/:category', isAdmin, async (request, response, next) => {
     var categoryName = request.params.category.toLocaleLowerCase()
     logger.info(`Deleting category ${categoryName} from firestore`)
 
@@ -224,6 +235,11 @@ router.delete('/:category', async (request, response, next) => {
         return;
     }
     await categoryRef.delete()
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} deleted category ${categoryName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Deleted category ${categoryName}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
@@ -268,37 +284,23 @@ module.exports = router;
 module.exports.addOrUpdateCategory = functions.firestore
     .document(`/${constants.CATEGORIES}/{categoryName}`)
     .onWrite(async (change, context) => {
-
-        const auditData = {}
-        auditData[constants.ENTITY] = constants.CATEGORY
-        auditData[constants.USER] = "To be resolved"
-        auditData[constants.TIMESTAMP] = context.timestamp
-        auditData[constants.NAME] = context.params.categoryName
-
         const categoryName = context.params.categoryName
         if (!change.before._fieldsProto) {
             logger.debug(`New category ${change.after.id} has been created`)
-            auditData[constants.OPERATION] = constants.CREATE;
         } else if (!change.after._fieldsProto) {
             logger.debug(`Category ${change.before.id} has been deleted`)
-            auditData[constants.OPERATION] = constants.DELETE;
             deleteAllProductsFromCategory(change.before)
         } else {
             logger.debug(`Category ${change.before.id} has been updated`)
-            auditData[constants.OPERATION] = constants.UPDATE;
             var oldData = change.before.data()
             var newData = change.after.data()
             if(oldData.isActive !== newData.isActive) {
                 logger.debug(`Status of category ${categoryName} changed from ${oldData.isActive} to ${newData.isActive}`)
-                auditData[constants.PROPERTY] = constants.IS_ACTIVE;
                 changeStatusOfAllProducts(change.after)
-            } else if(oldData.description !== newData.description) {
-                auditData[constants.PROPERTY] = constants.DESCRIPTION;
             } else {
                 return
             }
         }
-        audit.logInAuditCollection(auditData)
     });
 
 async function changeStatusOfAllProducts(updatedCategory) {

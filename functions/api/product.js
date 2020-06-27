@@ -1,13 +1,13 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const logger = require('../middleware/logger');
+const { isAdmin, isAuthenticated } = require('../middleware/auth')
+const audit = require('./audit')
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-const audit = require('./audit')
 const functions = require('firebase-functions');
 const express = require('express');
-const { isAdmin, isAuthenticated } = require('../middleware/auth');
 const router = express.Router();
 const db = admin.firestore();
 
@@ -200,6 +200,11 @@ router.post('/', isAdmin, async (request, response, next) => {
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
     await db.collection(constants.PRODUCTS).doc(productName).set(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} added new product ${productName} to catalog`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`${productName} document Created`)
     response.status(201).json({ "message": "created successfully" })
 });
@@ -209,7 +214,7 @@ router.post('/', isAdmin, async (request, response, next) => {
  * @returns  204 - No Content
  * @throws 404 if product does not exist or 400 if request has wrong params
  */
-router.put('/', async (request, response, next) => {
+router.put('/', isAdmin, async (request, response, next) => {
     logger.info(`Updating status for product in firestore....`);
 
     // Validate parameters
@@ -250,6 +255,11 @@ router.put('/', async (request, response, next) => {
 
     data[constants.LAST_UPDATED_DATE] = new Date()
     await productRef.update(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} updated product ${productName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Updated product ${productName}`)
     response.sendStatus(204)
 })
@@ -259,7 +269,7 @@ router.put('/', async (request, response, next) => {
  * @returns  deleted product
  * @throws 400 if product does not exist
  */
-router.delete('/:product', async (request, response, next) => {
+router.delete('/:product', isAdmin, async (request, response, next) => {
     var productName = request.params.product.toLocaleLowerCase()
     logger.info(`Deleting product ${productName} from firestore`)
 
@@ -272,6 +282,11 @@ router.delete('/:product', async (request, response, next) => {
         return;
     }
     await productRef.delete()
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} deleted product ${productName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Deleted product ${productName}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
@@ -331,34 +346,23 @@ module.exports = router;
 module.exports.addOrUpdateProduct = functions.firestore
     .document(`/${constants.PRODUCTS}/{productName}`)
     .onWrite(async (change, context) => {
-        const auditData = {}
-        auditData[constants.ENTITY] = constants.PRODUCT
-        auditData[constants.USER] = "To be resolved"
-        auditData[constants.TIMESTAMP] = context.timestamp
-        auditData[constants.NAME] = context.params.productName
-
         const productName = context.params.productName
         if (!change.before._fieldsProto) {
             logger.debug(`New product ${change.after.id} has been created`)
-            auditData[constants.OPERATION] = constants.CREATE;
             addProductToCategory(change.after)
         } else if (!change.after._fieldsProto) {
             logger.debug(`Product ${change.before.id} has been deleted`)
-            auditData[constants.OPERATION] = constants.DELETE;
             deleteProductFromCategory(change.before)
         } else {
             logger.debug(`Product ${change.before.id} has been updated`)
-            auditData[constants.OPERATION] = constants.UPDATE;
             var oldData = change.before.data()
             var newData = change.after.data()
             if (oldData.category !== newData.category) {
                 logger.debug(`Category of product ${productName} changed from ${oldData.category} to ${newData.category}`)
-                auditData[constants.PROPERTY] = constants.CATEGORY;
                 deleteProductFromCategory(change.before)
                 addProductToCategory(change.after)
             } else if (oldData.isActive !== newData.isActive) {
                 logger.debug(`Status of product ${productName} changed from ${oldData.isActive} to ${newData.isActive}`)
-                auditData[constants.PROPERTY] = constants.IS_ACTIVE;
                 if (newData.isActive) {
                     addProductToCategory(change.after)
                 } else {
@@ -366,7 +370,6 @@ module.exports.addOrUpdateProduct = functions.firestore
                 }
             }
         }
-        audit.logInAuditCollection(auditData)
     });
 
 async function addProductToCategory(newProduct) {

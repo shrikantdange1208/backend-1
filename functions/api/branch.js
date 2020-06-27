@@ -236,6 +236,7 @@ router.post('/', isAdmin, async (request, response, next) => {
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} created new branch ${branchName}`
     audit.logEvent(eventMessage, request)
+
     logger.debug(`${branchName} document Created`)
     response.status(201).json({ "message": "created successfully" })
 });
@@ -245,7 +246,7 @@ router.post('/', isAdmin, async (request, response, next) => {
  * @returns 204, No Content
  * @throws 404/400 if branch does not exist or has wrong params resp.
  */
-router.put('/', async (request, response, next) => {
+router.put('/', isAdmin, async (request, response, next) => {
     logger.debug(`Updating branch in firestore....`);
 
     // Validate parameters
@@ -272,6 +273,11 @@ router.put('/', async (request, response, next) => {
     delete data[constants.BRANCH]
     data[constants.LAST_UPDATED_DATE] = new Date()
     await branchRef.set(data, { merge: true })
+     
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} updated branch ${branchName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Updated branch ${branchName}`)
     response.sendStatus(204)
 })
@@ -280,7 +286,7 @@ router.put('/', async (request, response, next) => {
  * @description Route to delete a branch
  * @throws 400 if branch does not exist
  */
-router.delete('/:branch', async (request, response, next) => {
+router.delete('/:branch', isAdmin, async (request, response, next) => {
     var branchName = request.params.branch.toLocaleLowerCase()
     logger.info(`Deleting branch ${branchName} from firestore`)
 
@@ -293,6 +299,11 @@ router.delete('/:branch', async (request, response, next) => {
         return;
     }
     await branchRef.delete()
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} deleted branch ${branchName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Deleted branch ${branchName}`)
     response.status(200).json({ "message": "deleted successfully" })
 })

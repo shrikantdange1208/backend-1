@@ -1,6 +1,8 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const logger = require('../middleware/logger');
+const { isAdmin, isAuthenticated } = require('../middleware/auth');
+const audit = require('./audit')
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
@@ -111,7 +113,7 @@ router.get('/all/inactive', async (request, response, next) => {
  * @returns 201 - Created 
  * @throws 400 if operation already exists or 404 if required params are missing
  */
-router.post('/', async (request, response, next) => {
+router.post('/', isAdmin, async (request, response, next) => {
     logger.info(`Creating operation in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -141,6 +143,11 @@ router.post('/', async (request, response, next) => {
     await db.collection(constants.OPERATIONS)
         .doc(operationName)
         .set(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} created new operation ${operationName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`${operationName} document Created`)
     response.status(201).json({"message": "created successfully"})
 });
@@ -150,7 +157,7 @@ router.post('/', async (request, response, next) => {
  * @returns  204 - No Content
  * @throws 404 if operation does not exist or 400 has wrong params
  */
-router.put('/', async (request, response, next) => {
+router.put('/', isAdmin, async (request, response, next) => {
     logger.info(`Updating status for operation in firestore....`);
     
     // Validate parameters
@@ -177,6 +184,11 @@ router.put('/', async (request, response, next) => {
     delete data[constants.OPERATION]
     data[constants.LAST_UPDATED_DATE] = new Date()
     await operationRef.update(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} updated operation ${operationName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Updated operation ${operationName}`)
     response.sendStatus(204)
 })
@@ -186,7 +198,7 @@ router.put('/', async (request, response, next) => {
  * @returns  deleted operation
  * @throws 400 if product does not exist
  */
-router.delete('/:operation', async(request, response, next) => {
+router.delete('/:operation', isAdmin, async(request, response, next) => {
     var  operationName = request.params.operation.toLocaleLowerCase()
     logger.info(`Deleting operation ${operationName} from firestore`)
     
@@ -199,6 +211,11 @@ router.delete('/:operation', async(request, response, next) => {
         return;
     }
     await operationRef.delete()
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} deleted operation ${operationName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Deleted operation ${operationName}`)
     response.status(200).json({"message": "deleted successfully"})
 })
