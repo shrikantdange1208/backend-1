@@ -2,11 +2,10 @@ const constants = require('../common/constants')
 const logger = require('../middleware/logger');
 const config = require('config');
 const admin = require('firebase-admin');
-const auth = require('./auth/auth')
+const auth = require('../middleware/auth')
 const functions = require('firebase-functions');
 const express = require('express');
 const router = express.Router();
-const cors = require('cors');
 const db = admin.firestore();
 
 /**
@@ -29,7 +28,18 @@ router.get("/", async (request, response, next) => {
 });
 
 module.exports = router;
-module.exports.logInAuditCollection = async function(data) {
-    logger.info('Writing log to audit Collection')
-    await db.collection(constants.AUDIT).add(data)    
+
+/**
+ * Async funciton to log data in audit collection
+ * @param {Event Log} data 
+ */
+module.exports.logEvent = function(eventMessage, request) {
+    const eventData = {}
+    eventData[constants.EVENT] = eventMessage
+    eventData[constants.USER] = `${request.user.firstName} ${request.user.lastName}`
+    // eventData[constants.EMAIL] = `${request.user.email}`
+    eventData[constants.UID] = `${request.user.uid}`
+    eventData[constants.DATE] = new Date()
+    logger.info('Writing event to audit')
+    return db.collection(constants.AUDIT).add(eventData) 
 }

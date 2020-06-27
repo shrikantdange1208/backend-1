@@ -1,12 +1,14 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
+const utils = require('../common/utils')
 const logger = require('../middleware/logger');
 const formatDate = require('../common/dateFormatter')
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-const auth = require('./auth/auth')
+const { isAdmin, isAuthenticated } = require('../middleware/auth');
 const audit = require('./audit')
+const firebase = require('firebase/functions');
 const functions = require('firebase-functions');
 const express = require('express');
 const router = express.Router();
@@ -26,7 +28,7 @@ router.get("/", async (request, response) => {
     let snapshot = await branchCollection.get()
     snapshot.forEach(branch => {
         var branchData = branch.data()
-        branchData[constants.BRANCH] = branch.id
+        branchData[constants.BRANCH] = utils.capitalize(branch.id)
         delete branchData[constants.INVENTORY]
         branchData = formatDate(branchData)
         branches.branches.push(branchData);
@@ -53,7 +55,7 @@ router.get('/:branch', async (request, response, next) => {
         return;
     }
     var branchData = branch.data()
-    branchData[constants.BRANCH] = branch.id
+    branchData[constants.BRANCH] = utils.capitalize(branch.id)
     branchData = formatDate(branchData)
     delete branchData[constants.INVENTORY]
     logger.debug(`Returning details for branch ${requestedBranch} to client.`);
@@ -66,10 +68,6 @@ router.get('/:branch', async (request, response, next) => {
  * @throws 400 if the branch does not exists in firestore
  */
 router.get('/inventory/:branch', async (request, response, next) => {
-    const inventory = {
-        "inventory": []
-    }
-
     var requestedBranch = request.params.branch.toLocaleLowerCase()
     logger.info(`Retrieving inventory for a branch ${requestedBranch} from firestore`)
     const doc = db.collection(constants.BRANCHES).doc(requestedBranch);
@@ -80,14 +78,7 @@ router.get('/inventory/:branch', async (request, response, next) => {
         next(error)
         return;
     }
-    const inventoryData = branch.data()[constants.INVENTORY];
-    var size = 0
-    for (let [product, value] of Object.entries(inventoryData)) {
-        value[constants.PRODUCT] = product;
-        inventory.inventory.push(value) 
-        size++;   
-    }
-    inventory[constants.TOTAL_PRODUCTS] = size
+    const inventory = await getInventory(branch, false)
     logger.debug(`Returning inventory for branch ${requestedBranch} to client.`);
     response.status(200).send(inventory);
 });
@@ -98,10 +89,6 @@ router.get('/inventory/:branch', async (request, response, next) => {
  * @throws 400 if the branch does not exists in firestore
  */
 router.get('/inventory/belowthreshold/:branch', async (request, response, next) => {
-    const inventory = {
-        "inventory": []
-    }
-
     var requestedBranch = request.params.branch.toLocaleLowerCase()
     logger.info(`Retrieving inventory of products below threshold for branch ${requestedBranch} from firestore`)
     const doc = db.collection(constants.BRANCHES).doc(requestedBranch);
@@ -112,23 +99,13 @@ router.get('/inventory/belowthreshold/:branch', async (request, response, next) 
         next(error)
         return;
     }
-    const inventoryData = branch.data()[constants.INVENTORY];
-    var size = 0
-    for (let [product, value] of Object.entries(inventoryData)) {
-        if(value[constants.IS_BELOW_THRESHOLD]) {
-            value[constants.PRODUCT] = product;
-            inventory.inventory.push(value) 
-            size++;
-        }
-    }
-    inventory[constants.TOTAL_PRODUCTS] = size
+    const inventory = await getInventory(branch, true)
     logger.debug(`Returning inventory of products below threshold for branch ${requestedBranch} to client.`);
     response.status(200).send(inventory);
 });
 
-
 /**
- * @description Route to retrieve inventory for all products below threshold for all branches
+ * @description Route to retrieve inventory for all branches from firestore
  * @returns Json object containing inventory for all branches
  */
 router.get('/all/inventory', async (request, response, next) => {
@@ -138,28 +115,26 @@ router.get('/all/inventory', async (request, response, next) => {
     logger.info(`Retrieving inventory for all branch from firestore`)
     const doc = db.collection(constants.BRANCHES)
     const branchSnapshots = await doc.get()
-    branchSnapshots.forEach(branch => {
-        var inventory = {
-            "inventory": []
-        }
-        const inventoryData = branch.data()[constants.INVENTORY];
-        var size = 0
-        for (let [product, value] of Object.entries(inventoryData)) {
-            value[constants.PRODUCT] = product;
-            inventory.inventory.push(value) 
-            size++;   
-        }
-        inventory[constants.TOTAL_PRODUCTS] = size
-        inventory[constants.BRANCH] = branch.id
-        inventories.inventories.push(inventory);
+    const inventoryArray = []
+    branchSnapshots.forEach(async branch => {
+        const p1 = getInventory(branch, false)
+        inventoryArray.push(p1)
     })
-    inventories[constants.TOTAL_BRANCHES] = branchSnapshots.size
-    logger.debug(`Returning inventory for all branches to client.`);
-    response.status(200).send(inventories);
+
+    Promise.all(inventoryArray).then(inv => {
+        inventories.inventories.push(inv)
+        inventories[constants.TOTAL_BRANCHES] = branchSnapshots.size
+        logger.debug(`Returning inventory for all products for all branches.`);
+        return response.status(200).send(inventories);
+    }).catch(err => {
+        err.statusCode = 400
+        next(err)
+        return;
+    })
 });
 
 /**
- * @description Route to retrieve inventory for all branches from firestore
+ * @description Route to retrieve inventory for all products below threshold for all branches
  * @returns Json object containing inventory for all branches
  */
 router.get('/all/inventory/belowthreshold', async (request, response, next) => {
@@ -169,34 +144,63 @@ router.get('/all/inventory/belowthreshold', async (request, response, next) => {
     logger.info(`Retrieving inventory for all products below threshold for all branches`)
     const doc = db.collection(constants.BRANCHES)
     const branchSnapshots = await doc.get()
-    branchSnapshots.forEach(branch => {
-        var inventory = {
-            "inventory": []
-        }
-        const inventoryData = branch.data()[constants.INVENTORY];
-        var size = 0
-        for (let [product, value] of Object.entries(inventoryData)) {
-            if(value[constants.IS_BELOW_THRESHOLD]) {
-                value[constants.PRODUCT] = product;
-                inventory.inventory.push(value) 
-                size++;
-            }   
-        }
-        inventory[constants.TOTAL_PRODUCTS] = size
-        inventory[constants.BRANCH] = branch.id
-        inventories.inventories.push(inventory);
+    const inventoryArray = []
+    branchSnapshots.forEach(async branch => {
+        const p1 = getInventory(branch, true)
+        inventoryArray.push(p1)
     })
-    inventories[constants.TOTAL_BRANCHES] = branchSnapshots.size
-    logger.debug(`Returning inventory for all products below threshold for all branches.`);
-    response.status(200).send(inventories);
+
+    Promise.all(inventoryArray).then(inv => {
+        inventories.inventories.push(inv)
+        inventories[constants.TOTAL_BRANCHES] = branchSnapshots.size
+        logger.debug(`Returning inventory for all products below threshold for all branches.`);
+        return response.status(200).send(inventories);
+    }).catch(err => {
+        err.statusCode = 400
+        next(err)
+        return;
+    })
 });
+
+/**
+ * Utility method to format inventory json
+ * @param {*} branchName branchName
+ * @param {*} inventoryData inventoryData
+ * @param {*} inventoryData true or false
+ */
+async function getInventory(branch, belowthreshold) {
+    const inventory = {
+        "inventory": []
+    }
+    const inventoryData = branch.data()[constants.INVENTORY];
+    var size = 0
+    if (belowthreshold) {
+        for (let [product, value] of Object.entries(inventoryData)) {
+            if (value[constants.IS_BELOW_THRESHOLD]) {
+                value[constants.PRODUCT] = product;
+                inventory.inventory.push(value)
+                size++;
+            }
+        }
+    } else {
+        for (let [product, value] of Object.entries(inventoryData)) {
+            value[constants.PRODUCT] = product;
+            inventory.inventory.push(value)
+            size++;
+        }
+    }
+    inventory[constants.TOTAL_PRODUCTS] = size
+    inventory[constants.BRANCH] = utils.capitalize(branch.id)
+    return inventory
+}
+
 
 /**
  * @description Route to add new branch in Firestore
  * @returns 201 - Created
  * @throws 400 if branch already exists or 404 if required params are missing
  */
-router.post('/', async (request, response, next) => {
+router.post('/', isAdmin, async (request, response, next) => {
     logger.info(`Creating branch in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -228,6 +232,10 @@ router.post('/', async (request, response, next) => {
     data[constants.USERS] = []
     data[constants.INVENTORY] = {}
     await db.collection(constants.BRANCHES).doc(branchName).set(data)
+    
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} created new branch ${branchName}`
+    audit.logEvent(eventMessage, request)
     logger.debug(`${branchName} document Created`)
     response.status(201).json({ "message": "created successfully" })
 });
@@ -263,7 +271,7 @@ router.put('/', async (request, response, next) => {
     let data = request.body
     delete data[constants.BRANCH]
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await branchRef.set(data, {merge: true})
+    await branchRef.set(data, { merge: true })
     logger.debug(`Updated branch ${branchName}`)
     response.sendStatus(204)
 })
@@ -323,7 +331,7 @@ function validateParams(body, type) {
                     zipcode: joi.number()
                 }).required(),
                 isHeadOffice: joi.bool()
-                        .required()
+                    .required()
             })
             break
         case constants.UPDATE:

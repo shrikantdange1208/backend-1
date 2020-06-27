@@ -2,7 +2,6 @@ const logger = require('./middleware/logger');
 const express = require('express');
 const config = require('config');
 
-
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 // Initialize Firebase App

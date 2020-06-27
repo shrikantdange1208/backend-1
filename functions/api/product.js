@@ -4,12 +4,11 @@ const logger = require('../middleware/logger');
 const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-// const auth = require('./auth/auth')
 const audit = require('./audit')
 const functions = require('firebase-functions');
 const express = require('express');
+const { isAdmin, isAuthenticated } = require('../middleware/auth');
 const router = express.Router();
-const cors = require('cors');
 const db = admin.firestore();
 
 /**
@@ -166,17 +165,7 @@ router.get('/category/:category/:active', async (request, response, next) => {
  * @returns 201 - Created
  * @throws 400 if product already exists or 404 if required params are missing
  */
-router.post('/', async (request, response, next) => {
-///    if(!auth.isAuthenticated(request, response)
-///        || !auth.isAdmin(request)) {
-///        const err = new Error(`Unauthorized`)
-///        err.statusCode = 401
-///        next(err)
-///        return;
-///    } else {
-///        // Still working on this module. Ignore for this PR
-///        console.log('user is authorized')
-///   }
+router.post('/', isAdmin, async (request, response, next) => {
 
     logger.info(`Creating product in firestore....`);
     // Validate parameters
@@ -212,7 +201,7 @@ router.post('/', async (request, response, next) => {
     data[constants.LAST_UPDATED_DATE] = new Date()
     await db.collection(constants.PRODUCTS).doc(productName).set(data)
     logger.debug(`${productName} document Created`)
-    response.status(201).json({"message": "created successfully"})
+    response.status(201).json({ "message": "created successfully" })
 });
 
 /**
@@ -234,7 +223,7 @@ router.put('/', async (request, response, next) => {
 
     // If product does not exists, return 400
     var productName = request.body.product.toLocaleLowerCase()
-    logger.info(`Updating status of product ${productName} in firestore....`);
+    logger.info(`Updating product ${productName} in firestore....`);
     const productRef = db.collection(constants.PRODUCTS).doc(productName);
     const product = await productRef.get()
     if (!product.exists) {
@@ -246,7 +235,7 @@ router.put('/', async (request, response, next) => {
     let data = request.body
     delete data[constants.PRODUCT]
     // Check if user wants to update the thresholds.
-    if(data[constants.THRESHOLDS]) {
+    if (data[constants.THRESHOLDS]) {
         let productThreshold = product.data().thresholds;
         if (!productThreshold) {
             productThreshold = {}
@@ -262,7 +251,6 @@ router.put('/', async (request, response, next) => {
     data[constants.LAST_UPDATED_DATE] = new Date()
     await productRef.update(data)
     logger.debug(`Updated product ${productName}`)
-    console.log('In New Update MEhtod')
     response.sendStatus(204)
 })
 
@@ -285,7 +273,7 @@ router.delete('/:product', async (request, response, next) => {
     }
     await productRef.delete()
     logger.debug(`Deleted product ${productName}`)
-    response.status(200).json({"message": "deleted successfully"})
+    response.status(200).json({ "message": "deleted successfully" })
 })
 
 /**
@@ -312,8 +300,8 @@ function validateParams(body, type) {
                     .required(),
                 thresholds: joi.object().pattern(
                     joi.string()
-                    .regex(/^[a-zA-Z]+$/).required(),
-                     joi.number().required()
+                        .regex(/^[a-zA-Z]+$/).required(),
+                    joi.number().required()
                 )
             })
             break
@@ -330,7 +318,7 @@ function validateParams(body, type) {
                     .max(30),
                 thresholds: joi.object().pattern(
                     joi.string()
-                    .regex(/^[a-zA-Z]+$/).required(),
+                        .regex(/^[a-zA-Z]+$/).required(),
                     joi.number().required()),
                 isActive: joi.bool()
             })
@@ -363,16 +351,16 @@ module.exports.addOrUpdateProduct = functions.firestore
             auditData[constants.OPERATION] = constants.UPDATE;
             var oldData = change.before.data()
             var newData = change.after.data()
-            if(oldData.category !== newData.category) {
+            if (oldData.category !== newData.category) {
                 logger.debug(`Category of product ${productName} changed from ${oldData.category} to ${newData.category}`)
                 auditData[constants.PROPERTY] = constants.CATEGORY;
                 deleteProductFromCategory(change.before)
                 addProductToCategory(change.after)
-            } else if(oldData.isActive !== newData.isActive) {
+            } else if (oldData.isActive !== newData.isActive) {
                 logger.debug(`Status of product ${productName} changed from ${oldData.isActive} to ${newData.isActive}`)
                 auditData[constants.PROPERTY] = constants.IS_ACTIVE;
-                if(newData.isActive) {
-                    addProductToCategory(change.after)  
+                if (newData.isActive) {
+                    addProductToCategory(change.after)
                 } else {
                     deleteProductFromCategory(change.after)
                 }
