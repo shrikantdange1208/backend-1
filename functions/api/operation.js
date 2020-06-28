@@ -1,12 +1,12 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const logger = require('../middleware/logger');
-const config = require('config');
+const { isAdmin } = require('../middleware/auth');
+const audit = require('./audit')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const express = require('express');
 const router = express.Router();
-const cors = require('cors');
 const db = admin.firestore();
 
 /**
@@ -18,7 +18,7 @@ router.get("/", async (request, response, next) => {
     const operations = {
         "operations": []
     }
-    let operationCollection = db.collection(constants.OPERATION);
+    let operationCollection = db.collection(constants.OPERATIONS);
     let snapshot = await operationCollection.get()
     snapshot.forEach(operation => {
         var operationData = operation.data()
@@ -40,7 +40,7 @@ router.get("/", async (request, response, next) => {
 router.get('/:operation', async (request, response, next) => {
     var  requestedOperation = request.params.operation.toLocaleLowerCase()
     logger.info(`Retrieving operation ${requestedOperation} from firestore`)
-    const doc = db.collection(constants.OPERATION).doc(requestedOperation);
+    const doc = db.collection(constants.OPERATIONS).doc(requestedOperation);
     const operation = await doc.get()
     if (!operation.exists) {
         const error = new Error(`Requested operation ${requestedOperation} is not present in Firestore.`)
@@ -66,7 +66,7 @@ router.get('/all/active', async (request, response, next) => {
         "operations": []
     }
 
-    const operationRef = db.collection(constants.OPERATION)
+    const operationRef = db.collection(constants.OPERATIONS)
         .where(constants.IS_ACTIVE, '==', true);
     const operationSnapshot = await operationRef.get()
     operationSnapshot.forEach(operation => {
@@ -91,7 +91,7 @@ router.get('/all/inactive', async (request, response, next) => {
         "operations": []
     }
 
-    const operationRef = db.collection(constants.OPERATION)
+    const operationRef = db.collection(constants.OPERATIONS)
         .where(constants.IS_ACTIVE, '==', false);
     const operationSnapshot = await operationRef.get()
     operationSnapshot.forEach(operation => {
@@ -111,7 +111,7 @@ router.get('/all/inactive', async (request, response, next) => {
  * @returns 201 - Created 
  * @throws 400 if operation already exists or 404 if required params are missing
  */
-router.post('/', async (request, response, next) => {
+router.post('/', isAdmin, async (request, response, next) => {
     logger.info(`Creating operation in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -126,7 +126,7 @@ router.post('/', async (request, response, next) => {
     // If category already exists, return 400
     var operationName = request.body.operation.toLocaleLowerCase()
     logger.info(`Creating operation ${operationName} in firestore....`);
-    const doc = db.collection(constants.OPERATION).doc(operationName);
+    const doc = db.collection(constants.OPERATIONS).doc(operationName);
     const operation = await doc.get()
     if (operation.exists) {
         const err = new Error(`The operation ${operationName} already exists. Please update if needed.`)
@@ -138,9 +138,14 @@ router.post('/', async (request, response, next) => {
     data[constants.IS_ACTIVE] = true
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await db.collection(constants.OPERATION)
+    await db.collection(constants.OPERATIONS)
         .doc(operationName)
         .set(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} created new operation ${operationName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`${operationName} document Created`)
     response.status(201).json({"message": "created successfully"})
 });
@@ -150,7 +155,7 @@ router.post('/', async (request, response, next) => {
  * @returns  204 - No Content
  * @throws 404 if operation does not exist or 400 has wrong params
  */
-router.put('/', async (request, response, next) => {
+router.put('/', isAdmin, async (request, response, next) => {
     logger.info(`Updating status for operation in firestore....`);
     
     // Validate parameters
@@ -165,7 +170,7 @@ router.put('/', async (request, response, next) => {
     // If product does not exists, return 400
     var operationName = request.body.operation.toLocaleLowerCase()
     logger.info(`Updating status of operation ${operationName} in firestore....`);
-    const operationRef = db.collection(constants.OPERATION).doc(operationName);
+    const operationRef = db.collection(constants.OPERATIONS).doc(operationName);
     const operation = await operationRef.get()
     if (!operation.exists) {
         const err = new Error(`Requested operation ${operationName} is not present in Firestore.`)
@@ -177,6 +182,11 @@ router.put('/', async (request, response, next) => {
     delete data[constants.OPERATION]
     data[constants.LAST_UPDATED_DATE] = new Date()
     await operationRef.update(data)
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} updated operation ${operationName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Updated operation ${operationName}`)
     response.sendStatus(204)
 })
@@ -186,11 +196,11 @@ router.put('/', async (request, response, next) => {
  * @returns  deleted operation
  * @throws 400 if product does not exist
  */
-router.delete('/:operation', async(request, response, next) => {
+router.delete('/:operation', isAdmin, async(request, response, next) => {
     var  operationName = request.params.operation.toLocaleLowerCase()
     logger.info(`Deleting operation ${operationName} from firestore`)
     
-    const operationRef = db.collection(constants.OPERATION).doc(operationName);
+    const operationRef = db.collection(constants.OPERATIONS).doc(operationName);
     const operation = await operationRef.get()
     if (!operation.exists) {
         const error = new Error(`Operation ${operationName} is not present in Firestore.`)
@@ -198,13 +208,12 @@ router.delete('/:operation', async(request, response, next) => {
         next(error)
         return;
     }
-    let data = {}
-    const operationData = operation.data()
-    data[constants.OPERATION] = operationName
-    data[constants.LABEL] = operationData.label
-    data[constants.DESCRIPTION] = operationData.description
-    
     await operationRef.delete()
+
+    // Add event in Audit
+    const eventMessage = `User ${request.user.firstName} deleted operation ${operationName}`
+    audit.logEvent(eventMessage, request)
+
     logger.debug(`Deleted operation ${operationName}`)
     response.status(200).json({"message": "deleted successfully"})
 })
