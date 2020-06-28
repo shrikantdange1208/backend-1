@@ -43,6 +43,7 @@ define("PERMISSIONS", "permissions");
 define("INVENTORY", "inventory");
 define("IS_BELOW_THRESHOLD", "isBelowThreshold");
 define("UNAUTHORIZED", "Unauthorized");
+define("UNAUTHENTICATED", "Unauthenticated");
 
 // Audit constants
 define("AUDIT", "audit");

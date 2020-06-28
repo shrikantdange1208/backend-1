@@ -23,7 +23,7 @@ const isAuthenticated = async function (request, response, next) {
             throw new Error(constants.UNAUTHORIZED)
         }
         const authToken = split[1]
-        //const decodedToken = await admin.auth().verifyIdToken(authToken)
+        // const decodedToken = await admin.auth().verifyIdToken(authToken)
         //logger.info(`User ${decodedToken.firstName} is authenticated`)
         // request.user = { 
         //     uid: decodedToken.uid, 
@@ -52,14 +52,14 @@ const isAuthenticated = async function (request, response, next) {
             lastName: 'Pinkman',
             email: 'jesse@pinkman.com'
         }
+        next()
     } catch (err) {
         // logger.error(`In Catch of IsAuthenticated`)
         // logger.error(`${err.message}`)
-        // err.message = constants.UNAUTHORIZED
-        // err.statusCode = 401
-        // next(err)
-        // return;
-        throw err
+        err.message = constants.UNAUTHENTICATED
+        err.statusCode = 401
+        next(err)
+        return;
     }
 };
 
@@ -69,21 +69,19 @@ const isAuthenticated = async function (request, response, next) {
  * @param {response} response 
  * @param {function to pass control} next
  */
+
 const isAdmin = async function (request, response, next) {
-    isAuthenticated(request, response, next).then(() => {
-        const role = request.user.role
-        logger.debug(`Current user has role ${role}`)
-        if (!role || role !== constants.ADMIN) {
-            logger.warn(`Current user is not a admin and has role ${role}`);
-            throw new Error(`Unauthorized`)
-        } else {
-            next()
-        }
-    }).catch(err => {
-        err.statusCode = 401
+    const role = request.user.role
+    logger.debug(`Current user has role ${role}`)
+    if (!role || role !== constants.ADMIN) {
+        logger.warn(`Current user is not a admin and has role ${role}`);
+        const err =  new Error(`Unauthorized`)
+        err.statusCode = 403
         next(err)
-        return;
-    })
+        return
+    } else {
+        next()
+    }
 };
 
 module.exports = {
