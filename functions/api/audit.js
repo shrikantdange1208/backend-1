@@ -1,6 +1,6 @@
 const constants = require('../common/constants')
 const logger = require('../middleware/logger');
-const config = require('config');
+const { isAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
 const auth = require('../middleware/auth')
 const functions = require('firebase-functions');
@@ -12,7 +12,7 @@ const db = admin.firestore();
  * @description Route to retireve audit logs from firestore
  * @returns Json object containing all audit logs
  */
-router.get("/", async (request, response, next) => {
+router.get("/", isAdmin, async (request, response, next) => {
     logger.info("Retrieving audit logs from firestore");
     const audits = {
         "audit": []
@@ -20,7 +20,9 @@ router.get("/", async (request, response, next) => {
     let auditCollection = db.collection(constants.AUDIT);
     let snapshot = await auditCollection.get()
     snapshot.forEach(audit => {
-        audits.audit.push(audit.data());
+        var auditData = audit.data()
+        auditData[constants.DATE] = auditData[constants.DATE].toDate() 
+        audits.audit.push(auditData);
     })
     audits[constants.TOTAL] = snapshot.size;
     logger.debug('Returning audit log to client.');
@@ -37,9 +39,14 @@ module.exports.logEvent = function(eventMessage, request) {
     const eventData = {}
     eventData[constants.EVENT] = eventMessage
     eventData[constants.USER] = `${request.user.firstName} ${request.user.lastName}`
-    // eventData[constants.EMAIL] = `${request.user.email}`
     eventData[constants.UID] = `${request.user.uid}`
     eventData[constants.DATE] = new Date()
     logger.info('Writing event to audit')
-    return db.collection(constants.AUDIT).add(eventData) 
+    db.collection(constants.AUDIT).add(eventData)
+        .then(() => {
+            logger.info(`Successfully logged event in audit.`)
+        })
+        .catch((err) => {
+            logger.error(`Error occurred while writing audit log \n ${err}`)
+        })
 }

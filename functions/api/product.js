@@ -1,9 +1,8 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const logger = require('../middleware/logger');
-const { isAdmin, isAuthenticated } = require('../middleware/auth')
+const { isAdmin } = require('../middleware/auth')
 const audit = require('./audit')
-const config = require('config');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');

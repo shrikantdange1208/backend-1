@@ -9,10 +9,12 @@ const branches = require('../api/branch');
 const users = require('../api/users');
 const roles = require('../api/roles');
 const permissions = require('../api/permissions');
+const { isAuthenticated } = require('../middleware/auth');
 const httperror = require('../middleware/error');
 
 module.exports = function(app) {
     app.use(cors);
+    app.use(isAuthenticated)
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
     app.use('/api/categories', categories);
