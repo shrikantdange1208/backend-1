@@ -7,13 +7,16 @@ const joi = require('@hapi/joi')
 const validate = require('../common/validator')
 const formatDate = require('../common/dateFormatter')
 const constants = require('../common/constants')
+const functions = require('firebase-functions')
+const audit = require('./audit')
+const { isAdmin } = require('../middleware/auth')
 /*
 This rest api is invoked during signup of users
 1.Gets the user uid using email
 2.Saves the user record in users collection
 3.Sets the custom claims for the uid
 */
-router.post('/', async (req, res, next) => {
+router.post('/', isAdmin, async (req, res, next) => {
     const { error } = validateInput(req.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -26,21 +29,26 @@ router.post('/', async (req, res, next) => {
     const { uid } = user
     let usersRef = db.collection(constants.USERS).doc(uid)
     const doc = await usersRef.get()
-    if(doc.exists){
+    if (doc.exists) {
         const err = new Error(`${req.body.email} already exists. Please update if needed.`)
         err.statusCode = 400
         next(err)
-        return;
+        return
     }
     await usersRef.set({
         ...req.body,
         createdDate: new Date(),
         lastUpdatedDate: new Date()
-    },)
+    })
     await admin.auth().setCustomUserClaims(uid, {
-        role, branch
+        role: role.toLocaleLowerCase(), branch
     })
     logger.info(`${req.body.email} added to users list and claims have been set`)
+
+    // Fire and forget audit log
+    const eventMessage = `User ${req.user.firstName} created new user ${req.body.firstName}`
+    audit.logEvent(eventMessage, req)
+
     res.status(201).send({ 'message': 'created successfully' })
 })
 
@@ -84,8 +92,8 @@ router.get('/:id', async (req, res, next) => {
 2.Updates the user record in users collection - only role and branch can be updated
 3.Sets/updates the custom claims for the uid
 */
-router.put('/', async (req, res, next) => {
-    if(req.body.createdDate){
+router.put('/', isAdmin, async (req, res, next) => {
+    if (req.body.createdDate) {
         delete req.body.createdDate
     }
     const { error } = validateInput(req.body, constants.UPDATE)
@@ -111,17 +119,21 @@ router.put('/', async (req, res, next) => {
     })
     if (role && branch) {
         await admin.auth().setCustomUserClaims(id, {
-            role,
+            role: role.toLocaleLowerCase(),
             branch
         })
     }
+    // Fire and forget audit log
+    const eventMessage = `User ${req.user.firstName} updated user ${req.body.firstName}`
+    audit.logEvent(eventMessage, req)
+
     res.sendStatus(204)
 })
 
 /*
 1.Deletes the user record
 */
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', isAdmin, async (req, res, next) => {
     let usersRef = db.collection(constants.USERS).doc(req.params.id)
     const doc = await usersRef.get()
 
@@ -130,8 +142,13 @@ router.delete('/:id', async (req, res, next) => {
         error.statusCode = 404
         next(error)
         return
-    } 
+    }
     await db.collection(constants.USERS).doc(req.params.id).delete()
+
+    // Fire and forget audit log
+    const eventMessage = `User ${req.user.firstName} deleted user ${req.body.firstName}`
+    audit.logEvent(eventMessage, req)
+
     res.status(200).send({ 'message': 'deleted successfully' })
 })
 
@@ -167,3 +184,39 @@ function validateInput(body, type) {
 }
 
 module.exports = router
+
+
+module.exports.modifyUsers = functions.firestore
+    .document(`/${constants.USERS}/{userId}`)
+    .onWrite(async (change, context) => {
+        if (!change.before._fieldsProto) {
+            addUserToBranch(change.after)
+        } else if (!change.after._fieldsProto) {
+            deleteUserFromBranch(change.before)
+        } else {
+            var oldData = change.before.data()
+            var newData = change.after.data()
+            if (oldData.branch !== newData.branch) {
+                deleteUserFromBranch(change.before)
+                addUserToBranch(change.after)
+            }
+        }
+    })
+
+async function addUserToBranch(user) {
+    try {
+        var { email, branch } = user.data()
+        const branchRef = db.doc(`branch/${branch.toLocaleLowerCase()}`)
+        const doc = await branchRef.get()
+        // Check if category is present in the collection
+        if (!doc.exists) {
+            throw new Error(`Branch ${branch} is not present in firestore!!!!`)
+        }
+        const users = doc.data().users
+        users.push(email)
+        await branchRef.update({ users })
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
