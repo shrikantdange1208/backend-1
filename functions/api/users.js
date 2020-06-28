@@ -35,10 +35,13 @@ router.post('/', isAdmin, async (req, res, next) => {
         next(err)
         return
     }
-    await usersRef.set({
+    const response = {
         ...req.body,
         createdDate: new Date(),
         lastUpdatedDate: new Date()
+    }
+    await usersRef.set({
+        ...response
     })
     await admin.auth().setCustomUserClaims(uid, {
         role: role.toLocaleLowerCase(), branch
@@ -49,7 +52,7 @@ router.post('/', isAdmin, async (req, res, next) => {
     const eventMessage = `User ${req.user.firstName} created new user ${req.body.firstName}`
     audit.logEvent(eventMessage, req)
 
-    res.status(201).send({ 'message': 'created successfully' })
+    res.status(201).send({ id: uid, ...response })
 })
 
 /*
@@ -190,15 +193,15 @@ module.exports.modifyUsers = functions.firestore
     .document(`/${constants.USERS}/{userId}`)
     .onWrite(async (change, context) => {
         if (!change.before._fieldsProto) {
-            addUserToBranch(change.after)
+            await addUserToBranch(change.after)
         } else if (!change.after._fieldsProto) {
-            deleteUserFromBranch(change.before)
+            await deleteUserFromBranch(change.before)
         } else {
             var oldData = change.before.data()
             var newData = change.after.data()
             if (oldData.branch !== newData.branch) {
-                deleteUserFromBranch(change.before)
-                addUserToBranch(change.after)
+                await deleteUserFromBranch(change.before)
+                await addUserToBranch(change.after)
             }
         }
     })
@@ -206,15 +209,38 @@ module.exports.modifyUsers = functions.firestore
 async function addUserToBranch(user) {
     try {
         var { email, branch } = user.data()
-        const branchRef = db.doc(`branch/${branch.toLocaleLowerCase()}`)
+        const branchRef = db.doc(`${constants.BRANCHES}/${branch.toLocaleLowerCase()}`)
         const doc = await branchRef.get()
-        // Check if category is present in the collection
+        // Check if branch is present in the collection
         if (!doc.exists) {
             throw new Error(`Branch ${branch} is not present in firestore!!!!`)
         }
         const users = doc.data().users
         users.push(email)
         await branchRef.update({ users })
+        console.log(`Added ${email} from ${branch}`)
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
+async function deleteUserFromBranch(user) {
+    try {
+        var { email, branch } = user.data()
+        const branchRef = db.doc(`${constants.BRANCHES}/${branch.toLocaleLowerCase()}`)
+        const doc = await branchRef.get()
+        // Check if branch is present in the collection
+        if (!doc.exists) {
+            throw new Error(`Branch ${branch} is not present in firestore!!!!`)
+        }
+        const users = doc.data().users
+        var index = users.indexOf(email)
+        if (index > -1) {
+            users.splice(index, 1)
+            await branchRef.update({ users })
+            console.log(`Deleted ${email} from ${branch}`)
+        }
     }
     catch (error) {
         console.log(error)

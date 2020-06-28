@@ -29,16 +29,19 @@ router.post('/', isAdmin, async (req, res, next) => {
         next(err)
         return
     }
-    await rolesRef.set({
+    const response = {
         ...req.body,
         createdDate: new Date(),
         lastUpdatedDate: new Date()
+    }
+    await rolesRef.set({
+        ...response
     })
     // Fire and forget audit log
     const eventMessage = `User ${req.user.firstName} created new role ${id}`
     audit.logEvent(eventMessage, req)
 
-    res.status(201).send({ 'message': 'created successfully' })
+    res.status(201).send({ id, ...response })
 })
 
 /*
