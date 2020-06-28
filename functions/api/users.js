@@ -208,17 +208,18 @@ module.exports.modifyUsers = functions.firestore
 
 async function addUserToBranch(user) {
     try {
-        var { email, branch } = user.data()
+        var { firstName, lastName, branch } = user.data()
         const branchRef = db.doc(`${constants.BRANCHES}/${branch.toLocaleLowerCase()}`)
         const doc = await branchRef.get()
         // Check if branch is present in the collection
         if (!doc.exists) {
             throw new Error(`Branch ${branch} is not present in firestore!!!!`)
         }
+        const user = `${firstName} ${lastName}`
         const users = doc.data().users
-        users.push(email)
+        users.push(user)
         await branchRef.update({ users })
-        console.log(`Added ${email} from ${branch}`)
+        console.log(`Added ${user} to ${branch}`)
     }
     catch (error) {
         console.log(error)
@@ -227,19 +228,20 @@ async function addUserToBranch(user) {
 
 async function deleteUserFromBranch(user) {
     try {
-        var { email, branch } = user.data()
+        var { firstName, lastName, branch } = user.data()
         const branchRef = db.doc(`${constants.BRANCHES}/${branch.toLocaleLowerCase()}`)
         const doc = await branchRef.get()
         // Check if branch is present in the collection
         if (!doc.exists) {
             throw new Error(`Branch ${branch} is not present in firestore!!!!`)
         }
+        const user = `${firstName} ${lastName}`
         const users = doc.data().users
-        var index = users.indexOf(email)
+        var index = users.indexOf(user)
         if (index > -1) {
             users.splice(index, 1)
             await branchRef.update({ users })
-            console.log(`Deleted ${email} from ${branch}`)
+            console.log(`Deleted ${user} from ${branch}`)
         }
     }
     catch (error) {
