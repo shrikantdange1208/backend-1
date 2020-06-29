@@ -71,7 +71,8 @@ router.post('/', isAdmin, async (request, response, next) => {
     audit.logEvent(eventMessage, request)
 
     logger.debug(`${unitName} document created`)
-    response.status(201).json({"message": "created successfully"})
+    data[constants.UNIT] = unitName
+    response.status(201).json(data)
 });
 
 /**
