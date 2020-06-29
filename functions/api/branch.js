@@ -236,7 +236,9 @@ router.post('/', isAdmin, async (request, response, next) => {
     audit.logEvent(eventMessage, request)
 
     logger.debug(`${branchName} document Created`)
-    response.status(201).json({ "message": "created successfully" })
+    data[constants.BRANCH] = branchName
+    delete data[constants.INVENTORY]
+    response.status(201).json(data)
 });
 
 /**
