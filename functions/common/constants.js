@@ -53,3 +53,11 @@ define("EMAIL", "email");
 define("TIMESTAMP", "timestamp");
 define("DATE", "date");
 define("EVENT", "event");
+
+// Action constants
+define("ADD_PRODUCT", "addProduct");
+define("AVAILABLE_QUANTITY", "availableQuantity");
+define("INITIAL_QUANTITY", "initialQuantity");
+define("CLOSING_QUANTITY", "closingQuantity");
+define("OPERATIONAL_QUANTITY", "operationalQuantity");
+

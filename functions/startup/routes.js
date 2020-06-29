@@ -9,6 +9,7 @@ const branches = require('../api/branch');
 const users = require('../api/users');
 const roles = require('../api/roles');
 const permissions = require('../api/permissions');
+const actions = require('../api/action');
 const { isAuthenticated } = require('../middleware/auth');
 const httperror = require('../middleware/error');
 
@@ -26,5 +27,6 @@ module.exports = function(app) {
     app.use('/api/users', users);
     app.use('/api/roles', roles);
     app.use('/api/permissions', permissions);
+    app.use('/api/actions', actions);
     app.use(httperror);
 }
