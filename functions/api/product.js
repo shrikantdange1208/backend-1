@@ -189,11 +189,10 @@ router.post('/', isAdmin, async (request, response, next) => {
         return;
     }
 
-    let data = {}
-    data[constants.UNIT] = request.body.unit.toLocaleLowerCase()
-    data[constants.CATEGORY] = request.body.category.toLocaleLowerCase()
-    if (request.body.thresholds) {
-        data[constants.THRESHOLDS] = request.body.thresholds
+    let data = request.body
+    delete data[constants.PRODUCT]
+    if (!request.body.thresholds) {
+        data[constants.THRESHOLDS] = {}
     }
     data[constants.IS_ACTIVE] = true
     data[constants.CREATED_DATE] = new Date()
@@ -205,7 +204,8 @@ router.post('/', isAdmin, async (request, response, next) => {
     audit.logEvent(eventMessage, request)
 
     logger.debug(`${productName} document Created`)
-    response.status(201).json({ "message": "created successfully" })
+    data[constants.PRODUCT] = productName
+    response.status(201).json(data)
 });
 
 /**
@@ -238,22 +238,8 @@ router.put('/', isAdmin, async (request, response, next) => {
     }
     let data = request.body
     delete data[constants.PRODUCT]
-    // Check if user wants to update the thresholds.
-    if (data[constants.THRESHOLDS]) {
-        let productThreshold = product.data().thresholds;
-        if (!productThreshold) {
-            productThreshold = {}
-        }
-        let thresholdsToUpdate = data[constants.THRESHOLDS]
-        logger.debug('thresholds', thresholdsToUpdate)
-        for (var branch in thresholdsToUpdate) {
-            productThreshold[branch.toLocaleLowerCase()] = thresholdsToUpdate[branch]
-        }
-        data[constants.THRESHOLDS] = productThreshold
-    }
-
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await productRef.update(data)
+    await productRef.set(data, { merge: true })
 
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} updated product ${productName}`
