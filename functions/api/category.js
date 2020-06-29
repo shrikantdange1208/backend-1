@@ -135,7 +135,7 @@ router.get("/all/inactive", async (request, response) => {
  * @throws 400 if category already exists or 404 if required params are missing
  */
 router.post('/', isAdmin, async (request, response, next) => {
-    logger.info(`Creating category in firestore New MEHTOD....`);
+    logger.info(`Creating category in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
     const { error } = validateParams(request.body, constants.CREATE)
@@ -171,7 +171,8 @@ router.post('/', isAdmin, async (request, response, next) => {
     audit.logEvent(eventMessage, request)
 
     logger.debug(`${categoryName} document Created`)
-    response.status(201).json({ "message": "created successfully" })
+    data[constants.CATEGORY] = categoryName
+    response.status(201).json(data)
 });
 
 /**
@@ -283,12 +284,10 @@ module.exports.addOrUpdateCategory = functions.firestore
     .document(`/${constants.CATEGORIES}/{categoryName}`)
     .onWrite(async (change, context) => {
         const categoryName = context.params.categoryName
-        if (!change.before._fieldsProto) {
-            logger.debug(`New category ${change.after.id} has been created`)
-        } else if (!change.after._fieldsProto) {
+        if (!change.after._fieldsProto) {
             logger.debug(`Category ${change.before.id} has been deleted`)
             deleteAllProductsFromCategory(change.before)
-        } else {
+        } else if(change.before._fieldsProto && change.after._fieldsProto) {
             logger.debug(`Category ${change.before.id} has been updated`)
             var oldData = change.before.data()
             var newData = change.after.data()

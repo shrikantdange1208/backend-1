@@ -7,8 +7,8 @@ const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const { isAdmin } = require('../middleware/auth');
 const audit = require('./audit')
-const firebase = require('firebase/functions');
-const functions = require('firebase-functions');
+//const firebase = require('firebase/functions');
+//const functions = require('firebase-functions');
 const express = require('express');
 const router = express.Router();
 const db = admin.firestore();
@@ -236,7 +236,9 @@ router.post('/', isAdmin, async (request, response, next) => {
     audit.logEvent(eventMessage, request)
 
     logger.debug(`${branchName} document Created`)
-    response.status(201).json({ "message": "created successfully" })
+    data[constants.BRANCH] = branchName
+    delete data[constants.INVENTORY]
+    response.status(201).json(data)
 });
 
 /**
