@@ -53,9 +53,15 @@ define("EMAIL", "email");
 define("TIMESTAMP", "timestamp");
 define("DATE", "date");
 define("EVENT", "event");
+define("TRANSACTIONS", "transactions");
 
 // Action constants
+define("TRANSACTIONID", "transactionID");
 define("ADD_PRODUCT", "addProduct");
+define("ISSUE_PRODUCT", "issueProduct");
+define("TRANSFER_IN", "transferIn");
+define("TRANSFER_OUT", "transferOut");
+define("ADJUSTMENT", "adjustment");
 define("AVAILABLE_QUANTITY", "availableQuantity");
 define("INITIAL_QUANTITY", "initialQuantity");
 define("CLOSING_QUANTITY", "closingQuantity");

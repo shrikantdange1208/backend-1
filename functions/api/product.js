@@ -229,6 +229,7 @@ router.put('/', isAdmin, async (request, response, next) => {
     var productName = request.body.product.toLocaleLowerCase()
     logger.info(`Updating product ${productName} in firestore....`);
     const productRef = db.collection(constants.PRODUCTS).doc(productName);
+    
     const product = await productRef.get()
     if (!product.exists) {
         const err = new Error(`Requested product ${productName} is not present in Firestore.`)
@@ -364,8 +365,8 @@ async function addProductToCategory(newProduct) {
     const categorySnapshot = await categoryRef.get()
     // Check if category is present in the collection
     if (!categorySnapshot.exists) {
-        console.log(`Category ${category} is not present in firestore!!!!`)
-        return `Category ${category} is not present in firestore!!!!`;
+        logger.error(`Category ${category} is not present in firestore!!!!`)
+        throw new Error(`Category ${category} is not present in firestore!!!!`)
     }
     const products = categorySnapshot.data().products;
     products.push(productName);
@@ -379,8 +380,8 @@ async function deleteProductFromCategory(deletedProduct) {
     const categorySnapshot = await categoryRef.get()
     // Check if category is present in the collection
     if (!categorySnapshot.exists) {
-        console.log(`Category ${category} is not present in firestore!!!!`)
-        return `Category ${category} is not present in firestore!!!!`;
+        logger.error(`Category ${category} is not present in firestore!!!!`)
+        throw new Error(`Category ${category} is not present in firestore!!!!`)
     }
     const products = categorySnapshot.data().products;
     var index = products.indexOf(productName)
