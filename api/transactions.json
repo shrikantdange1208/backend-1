@@ -1,0 +1,288 @@
+# /api/branch
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Transactions performed by a branch (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchName}
+#Response
+{
+  "transactions": [
+    {
+        "operation": "add",
+        "product": "milk",
+        "user_id": "swhite",
+        "date": "2020-06-02T08:41:00.000Z",
+        "quantity": 10
+    },
+    {
+        "user_id": "swhite",
+        "date": "2020-06-02T08:46:00.000Z",
+        "quantity": 8,
+        "operation": "add",
+        "product": "chair"
+    }
+  ]
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Transactions done by an User in given branch (GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchName}?user={userId}
+#Response
+{
+  "transactions": [
+      {
+          "operationalQuantity": 2,
+          "operation": "adjustment",
+          "product": "chair",
+          "closingQuantity": 5,
+          "date": "2020-06-12T07:15:00.000Z",
+          "user": "wwhite@gmail.com",
+          "initialQuantity": 7
+      },
+      {
+          "closingQuantity": 13,
+          "date": "2020-06-12T07:15:00.000Z",
+          "user": "wwhite@gmail.com",
+          "initialQuantity": 20,
+          "operationalQuantity": 7,
+          "toBranch": "Sarjapur",
+          "operation": "transferOut",
+          "product": "milk"
+      }
+  ]
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Transactions done on a product in given branch (GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchName}?product={productName}
+#Response
+{
+  "transactions": [
+      {
+          "operationalQuantity": 7,
+          "toBranch": "Sarjapur",
+          "operation": "transferOut",
+          "product": "milk",
+          "closingQuantity": 13,
+          "date": "2020-06-12T07:15:00.000Z",
+          "user": "wwhite@gmail.com",
+          "initialQuantity": 20
+      }
+  ]
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all transactions under all branches (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions
+
+#Response
+[
+  {
+      "branch": "kormangala",
+      "transactions": [
+          {
+              "initialQuantity": 50,
+              "operationalQuantity": 15,
+              "operation": "issueProduct",
+              "product": "chairs",
+              "user_id": "jepink@gmail.com",
+              "closingQuantity": 35,
+              "date": "2020-06-02T08:30:00.000Z"
+          },
+          {
+              "closingQuantity": 13,
+              "date": "2020-06-12T07:15:00.000Z",
+              "user": "wwhite@gmail.com",
+              "initialQuantity": 20,
+              "operationalQuantity": 7,
+              "toBranch": "Sarjapur",
+              "operation": "transferOut",
+              "product": "milk"
+          }
+      ]
+  },
+  {
+      "branch": "sarjapur",
+      "transactions": [
+          {
+              "user_id": "swhite",
+              "date": "2020-06-02T08:41:00.000Z",
+              "quantity": 10,
+              "operation": "add",
+              "product": "milk"
+          },
+          {
+              "date": "2020-06-02T08:46:00.000Z",
+              "quantity": 8,
+              "operation": "add",
+              "product": "chair",
+              "user_id": "swhite"
+          }
+      ]
+  }
+]
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all transactions under all branches (GET) filter by user name
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions?user={userName}
+#Response
+
+[
+  {
+      "branch": "kormangala",
+      "transactions": [
+          {
+              "user": "wwhite@gmail.com",
+              "initialQuantity": 7,
+              "operationalQuantity": 2,
+              "operation": "adjustment",
+              "product": "chair",
+              "closingQuantity": 5,
+              "date": "2020-06-12T07:15:00.000Z"
+          }
+      ]
+  },
+  {
+      "branch": "sarjapur",
+      "transactions": [
+          {
+              "date": "2020-06-02T08:41:00.000Z",
+              "quantity": 10,
+              "user": "wwhite@gmail.com",
+              "operation": "add",
+              "product": "milk"
+          }
+      ]
+  }
+]
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all transactions under all branches (GET) filter by product name
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions?product={productName}
+#Response
+
+[
+  {
+      "branch": "kormangala",
+      "transactions": [
+          {
+              "operation": "transferOut",
+              "product": "milk",
+              "closingQuantity": 13,
+              "date": "2020-06-12T07:15:00.000Z",
+              "user": "wwhite@gmail.com",
+              "initialQuantity": 20,
+              "operationalQuantity": 7,
+              "toBranch": "Sarjapur"
+          }
+      ]
+  },
+  {
+      "branch": "sarjapur",
+      "transactions": [
+          {
+              "operation": "add",
+              "product": "milk",
+              "date": "2020-06-02T08:41:00.000Z",
+              "quantity": 10,
+              "user": "wwhite@gmail.com"
+          }
+      ]
+  }
+]
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all transactions under all branches (GET) filter by date range
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions?fromDate=2020-06-12&toDate=2020-06-27
+
+#Response
+
+[
+  {
+      "branch": "kormangala",
+      "transactions": [
+          {
+              "date": "2020-06-12T07:15:00.000Z",
+              "user": "wwhite@gmail.com",
+              "initialQuantity": 7,
+              "operationalQuantity": 2,
+              "operation": "adjustment",
+              "product": "chair",
+              "closingQuantity": 5
+          }
+      ]
+  },
+  {
+      "branch": "sarjapur",
+      "transactions": [
+          {
+              "date": "2020-06-15T08:41:00.000Z",
+              "quantity": 10,
+              "user": "wwhite@gmail.com",
+              "operation": "add",
+              "product": "milk"
+          }
+      ]
+  }
+]
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all transactions under all branches (GET) filter by date range ( toDate not given, will consider current time )
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions?fromDate=2020-06-12
+
+#Response
+
+[
+  {
+      "branch": "kormangala",
+      "transactions": [
+          {
+              "operation": "adjustment",
+              "product": "chair",
+              "closingQuantity": 5,
+              "date": "2020-06-12T07:15:00.000Z",
+              "user": "wwhite@gmail.com",
+              "initialQuantity": 7,
+              "operationalQuantity": 2
+          },
+          {
+              "toBranch": "Sarjapur",
+              "operationalQuantity": 7,
+              "operation": "transferOut",
+              "product": "milk",
+              "closingQuantity": 13,
+              "date": "2020-06-22T07:15:00.000Z",
+              "user": "wwhite@gmail.com",
+              "initialQuantity": 20
+          }
+      ]
+  },
+  {
+      "branch": "sarjapur",
+      "transactions": [
+          {
+              "date": "2020-06-15T08:41:00.000Z",
+              "quantity": 10,
+              "user": "wwhite@gmail.com",
+              "operation": "add",
+              "product": "milk"
+          }
+      ]
+  }
+]
+

@@ -53,3 +53,7 @@ define("EMAIL", "email");
 define("TIMESTAMP", "timestamp");
 define("DATE", "date");
 define("EVENT", "event");
+
+//Transaction constants
+define("TRANSACTIONS", "transactions");
+define("DATE", "date");
