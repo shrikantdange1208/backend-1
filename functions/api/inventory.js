@@ -38,7 +38,7 @@ router.get('/:id', async (request, response, next) => {
  * @returns Json object containing inventory of products below threshold for a branch
  * @throws 400 if the branch does not exists in firestore
  */
-router.get('/belowthreshold/:id', async (request, response, next) => {
+router.get('/:id/belowthreshold/', async (request, response, next) => {
     var branchId = request.params.id
     logger.info(`Retrieving inventory for a branch from firestore`)
 
@@ -141,39 +141,6 @@ async function getInventory(branchRef, branchId, belowthreshold) {
     })
     inventory[constants.TOTAL_PRODUCTS] = productCollection.size
     inventory[constants.BRANCH] = branchId
-    return inventory
-}
-
-/**
- * Utility method to format inventory json
- * @param {*} branchName branchName
- * @param {*} inventoryData inventoryData
- * @param {*} inventoryData true or false
- */
-async function getInventoryOld(branch, belowthreshold) {
-    const inventory = {
-        "inventory": []
-    }
-    const branchData = branch.data()
-    const inventoryData = branchData[constants.INVENTORY];
-    var size = 0
-    if (belowthreshold) {
-        for (let [productId, value] of Object.entries(inventoryData)) {
-            if (value[constants.IS_BELOW_THRESHOLD]) {
-                value[constants.PRODUCT] = productId;
-                inventory.inventory.push(value)
-                size++;
-            }
-        }
-    } else {
-        for (let [productId, value] of Object.entries(inventoryData)) {
-            value[constants.PRODUCT] = productId;
-            inventory.inventory.push(value)
-            size++;
-        }
-    }
-    inventory[constants.TOTAL_PRODUCTS] = size
-    inventory[constants.NAME] = utils.capitalize(branchData[constants.NAME])
     return inventory
 }
 

@@ -27,7 +27,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get Inventory of products below threshold for a single branch (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/inventories/belowThreshold/{branchName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/inventories/{branchId}/belowThreshold/
 
 {
     "inventory": [

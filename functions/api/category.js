@@ -272,8 +272,6 @@ function validateParams(body, type) {
         case constants.UPDATE:
             schema = joi.object({
                 id: joi.string()
-                    .min(1)
-                    .max(30)
                     .required(),
                 name: joi.string()
                     .min(1)
