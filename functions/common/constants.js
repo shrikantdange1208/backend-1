@@ -6,6 +6,7 @@ function define(name, value) {
 }
 
 define("NAME", "name");
+define("ID", "id");
 define("CATEGORY", "category");
 define("CATEGORIES", "categories");
 define("BRANCHES", "branches");
@@ -38,6 +39,7 @@ define("SYSTEM", "system");
 define("ENTITY", "entity");
 define("PROPERTY", "property");
 define("USERS", "users");
+define("USER", "user");
 define("ROLES", "roles");
 define("PERMISSIONS", "permissions");
 define("INVENTORY", "inventory");
@@ -53,7 +55,21 @@ define("EMAIL", "email");
 define("TIMESTAMP", "timestamp");
 define("DATE", "date");
 define("EVENT", "event");
+define("BEFORE", "before");
+define("AFTER", "after");
 
 //Transaction constants
 define("TRANSACTIONS", "transactions");
-define("DATE", "date");
+
+// Action constants
+define("TRANSACTIONID", "transactionID");
+define("ADD_PRODUCT", "addProduct");
+define("ISSUE_PRODUCT", "issueProduct");
+define("TRANSFER_IN", "transferIn");
+define("TRANSFER_OUT", "transferOut");
+define("ADJUSTMENT", "adjustment");
+define("AVAILABLE_QUANTITY", "availableQuantity");
+define("INITIAL_QUANTITY", "initialQuantity");
+define("CLOSING_QUANTITY", "closingQuantity");
+define("OPERATIONAL_QUANTITY", "operationalQuantity");
+
