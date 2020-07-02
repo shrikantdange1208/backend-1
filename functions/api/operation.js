@@ -242,6 +242,8 @@ router.delete('/:id', isAdmin, async(request, response, next) => {
                 description: joi.string()
                     .min(1)
                     .max(50)
+                    .required(),
+                isActive: joi.bool()
                     .required()
             })
             break
@@ -261,7 +263,7 @@ router.delete('/:id', isAdmin, async(request, response, next) => {
                     .max(50),
                 lastUpdatedDate: joi.date(),
                 createdDate: joi.date(),
-                isActive: joi.bool(),
+                isActive: joi.bool()
             })
             break
     }

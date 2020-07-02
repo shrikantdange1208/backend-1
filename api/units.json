@@ -9,25 +9,23 @@
 {
     "units": [
         {
-            "unit": "kilograms",
-            "description": "Unit to measure products in kilograms",
-            "createdDate": "2020-06-16T10:02:48.095Z",
-            "lastUpdatedDate": "2020-06-16T10:02:48.095Z"
-        },
-        {
-            "unit": "litres",
             "description": "Unit to measure products in litres",
-            "createdDate": "2020-06-16T10:06:25.211Z",
-            "lastUpdatedDate": "2020-06-16T10:06:25.211Z"
+            "isActive": true,
+            "lastUpdatedDate": "2020-07-02T03:58:38.478Z",
+            "createdDate": "2020-07-02T03:58:38.478Z",
+            "name": "Litres",
+            "id": "3do7vedVa9udu9krhjWJ"
         },
         {
-            "unit": "number",
-            "description": "Unit to measure products in numbers",
-            "createdDate": "2020-06-16T10:06:33.989Z",
-            "lastUpdatedDate": "2020-06-16T10:06:33.989Z"
+            "description": "Unit to measure products in kilograms",
+            "isActive": true,
+            "lastUpdatedDate": "2020-07-02T03:59:11.327Z",
+            "createdDate": "2020-07-02T03:59:11.327Z",
+            "name": "Kilograms",
+            "id": "Il6dg4x4LywRTEONlBWF"
         }
     ],
-    "totalUnits": 3
+    "totalUnits": 2
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -36,8 +34,9 @@
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/units
 #Request
 {
-  "unit": "litres",
-  "description": "Unit to measure products in litres"
+  "name": "litres",
+  "description": "Unit to measure products in litres",
+  "isActive":  true
 }
 
 #Response 201 
@@ -45,12 +44,29 @@
     "message": "created successfully"
 }
 
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Operation (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/units
+
+#Request
+{
+	"description": "Unit to measure products in litres",
+	"isActive": false,
+	"lastUpdatedDate": "2020-07-02T03:58:38.478Z",
+	"createdDate": "2020-07-02T03:58:38.478Z",
+	"name": "Litres",
+	"id": "3do7vedVa9udu9krhjWJ"
+}
+
+#Response - 204 - (No Content)
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Delete delete (DELETE)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/units/{unitName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/units/{unitId}
 
 #Response - 200 OK 
 {

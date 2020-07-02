@@ -129,11 +129,11 @@ router.put('/', isAdmin, async (request, response, next) => {
         return;
     }
     const oldData = unit.data()
-    let data = request.body
+    let newData = request.body
     delete newData[constants.ID]
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
-    await branchRef.set(newData, { merge: true })
+    await unitRef.set(newData, { merge: true })
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} updated unit ${oldData[constants.NAME]}`
@@ -205,6 +205,8 @@ router.delete('/:id', isAdmin, async(request, response, next) => {
                     description: joi.string()
                         .min(1)
                         .max(50),
+                    lastUpdatedDate: joi.date(),
+                    createdDate: joi.date(),
                     isActive: joi.bool()
                 })
                 break

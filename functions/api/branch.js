@@ -61,6 +61,27 @@ router.get('/:id', async (request, response, next) => {
 });
 
 /**
+ * @description Route to retrieve users in a given branch
+ * @returns Json object containing users
+ * @throws 400 if the branch does not exists in firestore
+ */
+router.get('/:id', async (request, response, next) => {
+    var branchId = request.params.id
+    logger.info(`Retrieving branch from firestore`)
+    const doc = db.collection(constants.BRANCHES).doc(branchId);
+    const branch = await doc.get()
+    if (!branch.exists) {
+        const error = new Error(`Requested branch is not present in Firestore.`)
+        error.statusCode = 404
+        next(error)
+        return;
+    }
+    var branchData = branch.data()
+    logger.debug(`Returning details for branch ${branchData[constants.NAME]} to client.`);
+    response.status(200).send(branchData[constants.USERS]);
+});
+
+/**
  * @description Route to add new branch in Firestore
  * @returns 201 - Created
  * @throws 400 if branch already exists or 404 if required params are missing

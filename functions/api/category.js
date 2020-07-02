@@ -204,8 +204,8 @@ router.put('/', isAdmin, async (request, response, next) => {
         return;
     }
     const oldData = category.data()
-    let data = request.body
-    delete data[constants.ID]
+    let newData = request.body
+    delete newData[constants.ID]
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
     await categoryRef.set(newData, { merge: true })
@@ -275,10 +275,17 @@ function validateParams(body, type) {
                     .min(1)
                     .max(30)
                     .required(),
+                name: joi.string()
+                    .min(1)
+                    .max(30),
                 description: joi.string()
                     .min(1)
                     .max(50),
-                isActive: joi.bool()
+                isActive: joi.bool(),
+                products: joi.array()
+                    .items(joi.string().allow('')),
+                lastUpdatedDate: joi.date(),
+                createdDate: joi.date()
             })
             break
     }

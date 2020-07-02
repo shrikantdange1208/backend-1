@@ -8,40 +8,34 @@
 #Response
 {
   "operations": [
-    {
-      "operation": "transferIn",
-      "label": "Accept Product",
-      "description": "Operation to accept product from a branch",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "operation": "transferOut",
-      "label": "Transfer Product",
-      "description": "Operation to transfer product to a branch",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "description": "Operation to perform Add Product",
+          "label": "Add Product",
+          "createdDate": "2020-07-02T15:17:06.628Z",
+          "name": "Addproduct",
+          "lastUpdatedDate": "2020-07-02T15:18:31.915Z",
+          "isActive": false,
+          "id": "FoYLvm3GGiGlfyTZeOt8"
+      }
   ],
-  "totalOperations": 2
+  "totalOperations": 1
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get a single Operation (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/operations/{operationName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/operations/{operationId}
 
 #Response
 {
-  "operation": "adjustment",
-  "label": "Adjust Product Value",
-  "description": "Operation to adjust product values in case of discrepancy in the inventory",
-  "isActive": true,
-  "createdDate": "2020-06-12T11:16:04.060Z",
-  "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+  "description": "Operation to perform Add Product",
+  "label": "Add Product",
+  "createdDate": "2020-07-02T15:17:06.628Z",
+  "name": "Addproduct",
+  "lastUpdatedDate": "2020-07-02T15:18:31.915Z",
+  "isActive": false,
+  "id": "FoYLvm3GGiGlfyTZeOt8"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -53,24 +47,17 @@
 #Response
 {
   "operations": [
-    {
-      "operation": "transferIn",
-      "label": "Accept Product",
-      "description": "Operation to accept product from a branch",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "operation": "transferOut",
-      "label": "Transfer Product",
-      "description": "Operation to transfer product to a branch",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "description": "Operation to perform Add Product",
+          "label": "Add Product",
+          "createdDate": "2020-07-02T15:17:06.628Z",
+          "name": "addproduct",
+          "lastUpdatedDate": "2020-07-02T15:18:31.915Z",
+          "isActive": true,
+          "operation": "FoYLvm3GGiGlfyTZeOt8"
+      }
   ],
-  "totalOperations": 2
+  "totalOperations": 1
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -82,24 +69,17 @@
 #Response
 {
   "operations": [
-    {
-      "operation": "transferIn",
-      "label": "Accept Product",
-      "description": "Operation to accept product from a branch",
-      "isActive": false,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "operation": "transferOut",
-      "label": "Transfer Product",
-      "description": "Operation to transfer product to a branch",
-      "isActive": false,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "description": "Operation to perform Add Product",
+          "label": "Add Product",
+          "createdDate": "2020-07-02T15:17:06.628Z",
+          "name": "addproduct",
+          "lastUpdatedDate": "2020-07-02T15:18:31.915Z",
+          "isActive": false,
+          "operation": "FoYLvm3GGiGlfyTZeOt8"
+      }
   ],
-  "totalOperations": 2
+  "totalOperations": 1
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -109,14 +89,21 @@
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/operations
 #Request
 {
-  "operation": "transferIn",
-  "label": "Accept Product",
-  "description": "Operation to accept product from a branch"
+  "name": "addProduct",
+  "description": "Operation to perform Add Product",
+  "label": "Add Product",
+  "isActive": true
 }
 
 #Response 201 - Created 
 {
-  "message": "created successfully"
+  "id": "FoYLvm3GGiGlfyTZeOt8",
+  "name": "addproduct",
+  "description": "Operation to perform Add Product",
+  "label": "Add Product",
+  "isActive": true,
+  "createdDate": "2020-07-02T15:17:06.628Z",
+  "lastUpdatedDate": "2020-07-02T15:17:06.628Z"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -127,10 +114,13 @@
 
 #Request
 {
-  "operation": "transferIn",
-  "label": "Accept Products",
-  "description": "Accept Product in the branch",
-  "isActive": false
+  "id": "FoYLvm3GGiGlfyTZeOt8",
+  "name": "addproduct",
+  "description": "Operation to perform Add Product",
+  "label": "Add Product",
+  "isActive": true,
+  "createdDate": "2020-07-02T15:17:06.628Z",
+  "lastUpdatedDate": "2020-07-02T15:17:06.628Z"
 }
 
 #Response - 204 - (No Content)
@@ -139,7 +129,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Delete Operation (DELETE)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/operations/{operationName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/operations/{operationId}
 
 #Response
 {
