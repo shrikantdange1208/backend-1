@@ -5,254 +5,78 @@
   # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/branches
 #Response
 {
-  "branches": [
-      {
-          "address": {
-              "country": "India",
-              "city": "Bengaluru",
-              "zipcode": 560035,
-              "street": "2nd Street",
-              "state": "Karnataka"
-          },
-          "isActive": true,
-          "users": [],
-          "lastUpdatedDate": "2020-06-25T09:12:21.367Z",
-          "createdDate": "2020-06-25T09:12:21.367Z",
-          "isHeadOffice": true,
-          "branch": "kormangala"
-      },
-      {
-          "address": {
-              "country": "India",
-              "city": "Bengaluru",
-              "zipcode": 560045,
-              "street": "someStree 2t",
-              "state": "Karnataka"
-          },
-          "isActive": true,
-          "users": [],
-          "lastUpdatedDate": "2020-06-25T09:11:55.101Z",
-          "createdDate": "2020-06-25T09:11:55.101Z",
-          "isHeadOffice": false,
-          "branch": "sarjapur"
-      }
-  ],
-  "totalBranches": 2
+    "branches": [
+        {
+            "address": {
+                "country": "India",
+                "city": "Bengaluru",
+                "zipcode": 560037,
+                "street": "25th Street",
+                "state": "Karnataka"
+            },
+            "isActive": true,
+            "users": [],
+            "lastUpdatedDate": "2020-07-02T03:51:24.971Z",
+            "createdDate": "2020-07-02T03:51:24.971Z",
+            "name": "Kormangala",
+            "isHeadOffice": true,
+            "id": "PKaItjoJdtxBhcR0VmQZ"
+        },
+        {
+            "address": {
+                "country": "India",
+                "city": "Pune",
+                "zipcode": 411043,
+                "street": "15th Street",
+                "state": "Maharashtra"
+            },
+            "isActive": true,
+            "users": [],
+            "lastUpdatedDate": "2020-07-02T03:50:56.789Z",
+            "createdDate": "2020-07-02T03:50:56.789Z",
+            "name": "Dhankawadi",
+            "isHeadOffice": false,
+            "id": "pAhsD46B6cTMUQltjmrl"
+        }
+    ],
+    "totalBranches": 2
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get a single Branch (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/branches/{branchName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/branches/{branchId}
 
 #Response
 {
-  "address": {
-      "country": "India",
-      "city": "Bengaluru",
-      "zipcode": 560045,
-      "street": "someStree 2t",
-      "state": "Karnataka"
-  },
-  "isActive": true,
-  "users": [],
-  "lastUpdatedDate": "2020-06-25T09:11:55.101Z",
-  "createdDate": "2020-06-25T09:11:55.101Z",
-  "isHeadOffice": false,
-  "branch": "sarjapur"
+    "address": {
+        "country": "India",
+        "city": "Bengaluru",
+        "zipcode": 560035,
+        "street": "5th Street",
+        "state": "Karnataka"
+    },
+    "isActive": true,
+    "users": [],
+    "lastUpdatedDate": "2020-07-02T03:50:31.135Z",
+    "createdDate": "2020-07-02T03:50:31.135Z",
+    "name": "Sarjapur",
+    "isHeadOffice": false,
+    "id": "CqeSrtSXWAM5QkAPzt5y"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
-# Get Inventory for all branches (GET)
-# Endpoint: https://localhost:5001/local-parikrama/us-central1/api/api/branches/all/inventory/
+# Get a single Branch (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/branches/users/{branchId}
 
 #Response
-{
-  "inventories": [
-      [
-          {
-              "inventory": [
-                  {
-                      "availableQuantity": 20,
-                      "threshold": 15,
-                      "unit": "litres",
-                      "category": "food",
-                      "isBelowThreshold": false,
-                      "product": "milk"
-                  },
-                  {
-                      "availableQuantity": 30,
-                      "threshold": "35",
-                      "unit": "number",
-                      "category": "furniture",
-                      "isBelowThreshold": true,
-                      "product": "bench"
-                  }
-              ],
-              "totalProducts": 2,
-              "branch": "kormangala"
-          },
-          {
-              "inventory": [
-                  {
-                      "availableQuantity": 30,
-                      "threshold": 15,
-                      "category": "food",
-                      "unit ": "number",
-                      "isBelowThreshold": false,
-                      "product": "bread"
-                  },
-                  {
-                      "availableQuantity": 10,
-                      "threshold": 15,
-                      "unit": "litres",
-                      "category": "food",
-                      "isBelowThreshold": true,
-                      "product": "milk"
-                  }
-              ],
-              "totalProducts": 2,
-              "branch": "sarjapur"
-          }
-      ]
-  ],
-  "totalBranches": 2
-}
-
------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------
-
-# Get Inventory of products below threshold for all branch (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/branches/all/inventory/belowthreshold
-
-#Response
-{
-  "inventories": [
-      [
-          {
-              "inventory": [
-                  {
-                      "availableQuantity": 30,
-                      "threshold": "35",
-                      "unit": "number",
-                      "category": "furniture",
-                      "isBelowThreshold": true,
-                      "product": "bench"
-                  },
-                  {
-                      "availableQuantity": 20,
-                      "threshold": 25,
-                      "isBelowThreshold": true,
-                      "category": "pharmacy",
-                      "unit": "number",
-                      "product": "crocin"
-                  }
-              ],
-              "totalProducts": 2,
-              "branch": "kormangala"
-          },
-          {
-              "inventory": [
-                  {
-                      "availableQuantity": 10,
-                      "threshold": 15,
-                      "unit": "litres",
-                      "category": "food",
-                      "isBelowThreshold": true,
-                      "product": "milk"
-                  },
-                  {
-                      "availableQuantity": 5,
-                      "threshold": 8,
-                      "unit": "kilograms",
-                      "isBelowThreshold": true,
-                      "category": "food",
-                      "product": "oats"
-                  }
-              ],
-              "totalProducts": 2,
-              "branch": "sarjapur"
-          }
-      ]
-  ],
-  "totalBranches": 2
-}
-
------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------
-
-# Get Inventory for a single branches (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/branches/inventory/{branchName}
-
-{
-  "inventory": [
-      {
-          "availableQuantity": 20,
-          "threshold": 15,
-          "unit": "litres",
-          "category": "food",
-          "isBelowThreshold": false,
-          "product": "milk"
-      },
-      {
-          "availableQuantity": 30,
-          "threshold": "35",
-          "unit": "number",
-          "category": "furniture",
-          "isBelowThreshold": true,
-          "product": "bench"
-      },
-      {
-          "availableQuantity": 20,
-          "threshold": 25,
-          "isBelowThreshold": true,
-          "category": "pharmacy",
-          "unit": "number",
-          "product": "crocin"
-      },
-      {
-          "availableQuantity": 5,
-          "threshold": 3,
-          "isBelowThreshold": false,
-          "category": "books",
-          "unit": "number",
-          "product": "The Zahir"
-      }
-  ],
-  "totalProducts": 4,
-  "branch": "kormangala"
-}
------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------
-
-# Get Inventory of products below threshold for a single branch (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/branches/inventory/belowthreshold/{branchName}
-
-{
-  "inventory": [
-      {
-          "availableQuantity": 30,
-          "threshold": "35",
-          "unit": "number",
-          "category": "furniture",
-          "isBelowThreshold": true,
-          "product": "bench"
-      },
-      {
-          "availableQuantity": 20,
-          "threshold": 25,
-          "isBelowThreshold": true,
-          "category": "pharmacy",
-          "unit": "number",
-          "product": "crocin"
-      }
-  ],
-  "totalProducts": 2,
-  "branch": "kormangala"
-}
+[
+    "Jesse Pink",
+    "Walter White"
+]
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -261,20 +85,34 @@
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/branches
 #Request
 {
-  "branch": "kormangala",
-  "isHeadOffice": true,
-  "address": {
-      "street": "2nd Street",
-      "city": "Bengaluru",
-      "state": "Karnataka",
-      "country": "India",
-      "zipcode": 560035
+    "name": "Katraj",
+    "isHeadOffice": false,
+    "isActive":true,
+    "address": {
+        "street": "35th Street",
+        "city": "Pune",
+        "state": "Maharashtra",
+        "country": "India",
+        "zipcode": 411046
+    }
   }
-}
 
 #Response - 201 Created
 {
-  "message": "created successfully"
+    "id": "nmnpHFEB45FtMLQzqEBj",
+    "name": "katraj",
+    "isHeadOffice": false,
+    "isActive": true,
+    "address": {
+        "street": "35th Street",
+        "city": "Pune",
+        "state": "Maharashtra",
+        "country": "India",
+        "zipcode": 411046
+    },
+    "createdDate": "2020-07-02T13:18:50.969Z",
+    "lastUpdatedDate": "2020-07-02T13:18:50.969Z",
+    "users": []
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -285,15 +123,20 @@
 
 #Request
 {
-  "branch": "kormangala",
-  "isHeadOffice": true,
-  "address": {
-      "street": "2nd Street",
-      "city": "Bengaluru",
-      "state": "Karnataka",
-      "country": "India",
-      "zipcode": 560035
-  }
+	"id": "nmnpHFEB45FtMLQzqEBj",
+    "users": [],
+	"createdDate": "2020-06-30T14:45:45.473Z",
+	"name": "Katraj",
+	"address": {
+		"street": "43rd Street",
+		"city": "Pune",
+    	"state": "Maharashtra",
+    	"country": "India",
+    	"zipcode": 411046
+	},
+	"lastUpdatedDate": "2020-06-30T16:51:57.824Z",
+	"isHeadOffice": false,
+	"isActive": false
 }
 #Response - 204 (No Content)
 
@@ -301,7 +144,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Delete Branch (DELETE)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/branches/{branchName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/branches/{branchId}
 
 #Response - 200 OK
 {

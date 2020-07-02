@@ -8,30 +8,36 @@
 #Response
 {
   "products": [
-    {
-      "product": "milk",
-      "category": "food",
-      "unit": "litres",
-      "isActive": true,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
+      {
+          "isActive": true,
+          "unit": "SZYf35oJqP992E7PdusL",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 35,
+              "pAhsD46B6cTMUQltjmrl": 30,
+              "FropnRmUAWtZGX3GZUd8": 20
+          },
+          "lastUpdatedDate": "2020-07-02T04:04:27.988Z",
+          "createdDate": "2020-07-02T04:04:27.988Z",
+          "name": "Bread",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "3V0TKHqOC2GLzzNceFKs"
       },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "crocin",
-      "category": "pharmacy",
-      "unit": "number",
-      "isActive": true,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
-      },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "isActive": true,
+          "unit": "SZYf35oJqP992E7PdusL",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 35,
+              "PKaItjoJdtxBhcR0VmQZ": 15,
+              "pAhsD46B6cTMUQltjmrl": 30,
+              "FropnRmUAWtZGX3GZUd8": 40
+          },
+          "lastUpdatedDate": "2020-07-02T04:07:10.986Z",
+          "createdDate": "2020-07-02T04:07:10.986Z",
+          "name": "Crocin",
+          "category": "HaqTU6zqgo33uqVeYe6t",
+          "id": "9UIL52tQTYwk5Hb7gkJ6"
+      }
   ],
   "totalProducts": 2
 }
@@ -41,53 +47,62 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get a single Product (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/{productName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/{productId}
 
 #Response
 {
-  "product": "crocin",
-  "category": "pharmacy",
-  "unit": "number",
   "isActive": true,
+  "unit": "SZYf35oJqP992E7PdusL",
   "thresholds": {
-    "kormangala": 15,
-    "sarjapur": 10
+      "CqeSrtSXWAM5QkAPzt5y": 15,
+      "PKaItjoJdtxBhcR0VmQZ": 35,
+      "pAhsD46B6cTMUQltjmrl": 30,
+      "FropnRmUAWtZGX3GZUd8": 20
   },
-  "createdDate": "2020-06-12T11:16:04.060Z",
-  "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+  "lastUpdatedDate": "2020-07-02T04:04:27.988Z",
+  "createdDate": "2020-07-02T04:04:27.988Z",
+  "name": "Bread",
+  "category": "miSfk8RC2935IiDzC3fx",
+  "id": "3V0TKHqOC2GLzzNceFKs"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 # Get All Products for a category(GET)
-  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/category/{categoryName}
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/category/{categoryId}
 #Response
 {
   "products": [
-    {
-      "product": "anacin",
-      "category": "pharmacy",
-      "unit": "number",
-      "isActive": true,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
+      {
+          "isActive": true,
+          "unit": "SZYf35oJqP992E7PdusL",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 35,
+              "pAhsD46B6cTMUQltjmrl": 30,
+              "FropnRmUAWtZGX3GZUd8": 20
+          },
+          "lastUpdatedDate": "2020-07-02T04:04:27.988Z",
+          "createdDate": "2020-07-02T04:04:27.988Z",
+          "name": "Bread",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "3V0TKHqOC2GLzzNceFKs"
       },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "crocin",
-      "category": "pharmacy",
-      "unit": "number",
-      "isActive": true,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
-      },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "isActive": true,
+          "unit": "3do7vedVa9udu9krhjWJ",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 25,
+              "pAhsD46B6cTMUQltjmrl": 20,
+              "FropnRmUAWtZGX3GZUd8": 10
+          },
+          "lastUpdatedDate": "2020-07-02T04:03:55.521Z",
+          "createdDate": "2020-07-02T04:03:55.521Z",
+          "name": "Milk",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "qc9PSf6PsdBTnVxiqc0D"
+      }
   ],
   "totalProducts": 2
 }
@@ -100,30 +115,36 @@
 #Response
 {
   "products": [
-    {
-      "product": "milk",
-      "category": "food",
-      "unit": "litres",
-      "isActive": true,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
+      {
+          "isActive": true,
+          "unit": "SZYf35oJqP992E7PdusL",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 35,
+              "pAhsD46B6cTMUQltjmrl": 30,
+              "FropnRmUAWtZGX3GZUd8": 20
+          },
+          "lastUpdatedDate": "2020-07-02T04:04:27.988Z",
+          "createdDate": "2020-07-02T04:04:27.988Z",
+          "name": "Bread",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "3V0TKHqOC2GLzzNceFKs"
       },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "crocin",
-      "category": "pharmacy",
-      "unit": "number",
-      "isActive": true,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
-      },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "isActive": true,
+          "unit": "3do7vedVa9udu9krhjWJ",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 25,
+              "pAhsD46B6cTMUQltjmrl": 20,
+              "FropnRmUAWtZGX3GZUd8": 10
+          },
+          "lastUpdatedDate": "2020-07-02T04:03:55.521Z",
+          "createdDate": "2020-07-02T04:03:55.521Z",
+          "name": "Milk",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "qc9PSf6PsdBTnVxiqc0D"
+      }
   ],
   "totalProducts": 2
 }
@@ -136,30 +157,36 @@
 #Response
 {
   "products": [
-    {
-      "product": "milk",
-      "category": "food",
-      "unit": "litres",
-      "isActive": false,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
+      {
+          "isActive": false,
+          "unit": "SZYf35oJqP992E7PdusL",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 35,
+              "pAhsD46B6cTMUQltjmrl": 30,
+              "FropnRmUAWtZGX3GZUd8": 20
+          },
+          "lastUpdatedDate": "2020-07-02T04:04:27.988Z",
+          "createdDate": "2020-07-02T04:04:27.988Z",
+          "name": "Bread",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "3V0TKHqOC2GLzzNceFKs"
       },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "crocin",
-      "category": "pharmacy",
-      "unit": "number",
-      "isActive": false,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
-      },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "isActive": false,
+          "unit": "3do7vedVa9udu9krhjWJ",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 25,
+              "pAhsD46B6cTMUQltjmrl": 20,
+              "FropnRmUAWtZGX3GZUd8": 10
+          },
+          "lastUpdatedDate": "2020-07-02T04:03:55.521Z",
+          "createdDate": "2020-07-02T04:03:55.521Z",
+          "name": "Milk",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "qc9PSf6PsdBTnVxiqc0D"
+      }
   ],
   "totalProducts": 2
 }
@@ -168,36 +195,81 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get All Active or InActive Products for a category(GET)
-  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/{active}/{category}
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/category/categoryid/{active}
 #Response
 {
   "products": [
-    {
-      "product": "anacin",
-      "category": "pharmacy",
-      "unit": "number",
-      "isActive": true,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
+      {
+          "isActive": true,
+          "unit": "SZYf35oJqP992E7PdusL",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 35,
+              "pAhsD46B6cTMUQltjmrl": 30,
+              "FropnRmUAWtZGX3GZUd8": 20
+          },
+          "lastUpdatedDate": "2020-07-02T04:04:27.988Z",
+          "createdDate": "2020-07-02T04:04:27.988Z",
+          "name": "Bread",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "3V0TKHqOC2GLzzNceFKs"
       },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "product": "crocin",
-      "category": "pharmacy",
-      "unit": "number",
-      "isActive": true,
-      "thresholds": {
-        "kormangala": 15,
-        "sarjapur": 10
-      },
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "isActive": true,
+          "unit": "3do7vedVa9udu9krhjWJ",
+          "thresholds": {
+              "CqeSrtSXWAM5QkAPzt5y": 15,
+              "PKaItjoJdtxBhcR0VmQZ": 25,
+              "pAhsD46B6cTMUQltjmrl": 20,
+              "FropnRmUAWtZGX3GZUd8": 10
+          },
+          "lastUpdatedDate": "2020-07-02T04:03:55.521Z",
+          "createdDate": "2020-07-02T04:03:55.521Z",
+          "name": "Milk",
+          "category": "miSfk8RC2935IiDzC3fx",
+          "id": "qc9PSf6PsdBTnVxiqc0D"
+      }
   ],
   "totalProducts": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get Thresholds for all branches for a given product(GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/thresholds/{productId}
+#Response
+{
+  "product": "bread",
+  "thresholds": {
+      "CqeSrtSXWAM5QkAPzt5y": 15,
+      "PKaItjoJdtxBhcR0VmQZ": 35,
+      "pAhsD46B6cTMUQltjmrl": 30,
+      "FropnRmUAWtZGX3GZUd8": 20
+  }
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get Thresholds for all products for a given branch(GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products/thresholds/all/{branchId}
+#Response
+{
+  "thresholds": [
+      {
+          "3V0TKHqOC2GLzzNceFKs": 20,
+          "9UIL52tQTYwk5Hb7gkJ6": 40,
+          "Hf5Ic5RFRh9RqN3l2e6f": 34,
+          "QryLWEPZwMz5okojBIZ9": 20,
+          "qc9PSf6PsdBTnVxiqc0D": 10,
+          "rylqKNiK6OBt8xxXUFvz": 30,
+          "tV90MxDDZGHoIvBkCpr9": 20,
+          "ufjGAgxFsq0FpAs864ha": 45,
+          "wNk8zObxScsXkTW54LUS": 32
+      }
+  ],
+  "branch": "madiwala"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -207,26 +279,53 @@
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/products
 #Request
 {
-  "product": "bench",
-  "category": "furniture",
-  "unit": "number"
+	"name": "SomeProduct",
+	"category": "wZI0p2Aun1T5I1fD2UWP",
+	"unit": "SZYf35oJqP992E7PdusL"
+	}
+	"isActive": true
 }
 
 OR
 
 {
-  "product": "bench",
-  "category": "furniture",
-  "unit": "number",
-  "thresholds": {
-    "kormangala": 15,
-    "sarjapur": 10
-  }
+	"name": "SomeProduct",
+	"category": "wZI0p2Aun1T5I1fD2UWP",
+	"unit": "SZYf35oJqP992E7PdusL",
+	"thresholds": {
+    "CqeSrtSXWAM5QkAPzt5y": 45,
+		"FropnRmUAWtZGX3GZUd8": 20,
+    "PKaItjoJdtxBhcR0VmQZ": 55,
+		"pAhsD46B6cTMUQltjmrl": 10
+	},
+	"isActive": true
 }
 
 #Response - 201 Created
 {
-  "message": "created successfully"
+	"name": "SomeProduct",
+	"category": "wZI0p2Aun1T5I1fD2UWP",
+	"unit": "SZYf35oJqP992E7PdusL",
+	"thresholds": {
+        "CqeSrtSXWAM5QkAPzt5y": 45,
+		"FropnRmUAWtZGX3GZUd8": 20,
+        "PKaItjoJdtxBhcR0VmQZ": 55,
+		"pAhsD46B6cTMUQltjmrl": 10
+	},
+	"isActive": true
+}
+
+OR 
+
+{
+  "id": "rDXz2KFOMTeXkltkOrmT",
+  "name": "someproduct",
+  "category": "wZI0p2Aun1T5I1fD2UWP",
+  "unit": "SZYf35oJqP992E7PdusL",
+  "isActive": true,
+  "createdDate": "2020-07-02T13:46:14.234Z",
+  "lastUpdatedDate": "2020-07-02T13:46:14.234Z",
+  "thresholds": {}
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -237,14 +336,19 @@ OR
 
 #Request
 {
-  "product": "bread",
-  "category": "food",
-  "isActive": false,
-  "unit": "litres",
-  "thresholds": {
-    "kormangala": 15,
-    "sarjapur": 10
-  }
+	"id": "rDXz2KFOMTeXkltkOrmT",
+	"name": "Paracetamol",
+	"category": "3Z3aB6jxvP1tKPHGN50n",
+	"unit": "GoXpjp72FuZXlpGzEGRS",
+	"thresholds": {
+		"F53loqvxKulMKkxF6v4U": 199,
+		"FYomDZa8xUBJvDejgFSr": 23,
+		"FYomDZa8xUBJvDeABCD": 55
+		
+	},
+	"isActive": true,
+	"createdDate": "2020-07-01T06:24:11.984Z",
+    "lastUpdatedDate": "2020-07-01T06:24:11.984Z"	
 }
 #Response - 204 (No Content)
 
@@ -252,7 +356,7 @@ OR
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Delete Product (DELETE)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/product/{productName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/product/{productid}
 
 #Response - 200 OK
 {

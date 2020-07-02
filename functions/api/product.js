@@ -162,6 +162,64 @@ router.get('/category/:categoryId/:active', async (request, response, next) => {
 });
 
 /**
+ * @description Route to retrieve all thresholds for a given product
+ * @returns Json object containing requested thresholds
+ */
+router.get('/thresholds/:id', async (request, response, next) => {
+    var productId = request.params.id
+    logger.info(`Retrieving all thresholds for a given product from firestore`)
+    const doc = db.collection(constants.PRODUCTS).doc(productId);
+    const product = await doc.get()
+    if (!product.exists) {
+        const error = new Error(`Requested product is not present in Firestore.`)
+        error.statusCode = 404
+        next(error)
+        return;
+    }
+    var productData = product.data()
+    const thresholds = {}
+    thresholds[constants.PRODUCT] = productData[constants.NAME]
+    thresholds[constants.THRESHOLDS] = productData[constants.THRESHOLDS]
+    logger.debug(`Returning details for all thresholds for a given product ${productData[constants.NAME]} to client.`);
+    response.status(200).send(thresholds);
+});
+
+/**
+ * @description Route to retrieve thresholds for all products for a branch
+ * @returns Json object containing thresholds for all products for a branch
+ */
+router.get('/thresholds/all/:branchId', async (request, response, next) => {
+    logger.info(`Retrieving thresholds for all products for a branch from firestore`)
+    var branchId = request.params.branchId
+    const doc = db.collection(constants.BRANCHES).doc(branchId);
+    const branch = await doc.get()
+    if (!branch.exists) {
+        const error = new Error(`Requested branch is not present in Firestore.`)
+        error.statusCode = 404
+        next(error)
+        return;
+    }
+
+    var branchData = branch.data()
+    const thresholds = {
+        "thresholds": []
+    }
+    var data = {}
+    const productRef = db.collection(constants.PRODUCTS)
+    const productSnapshot = await productRef.get()
+    productSnapshot.forEach(product => {
+        var productData = product.data()
+        if(productData[constants.THRESHOLDS][branchId]) {
+            data[product.id] = productData[constants.THRESHOLDS][branchId]
+        }
+    })
+    thresholds.thresholds.push(data);
+    thresholds[constants.BRANCH] = branchData[constants.NAME];
+    logger.debug(`Returning thresholds for all products for a branch to client.`);
+    response.status(200).send(thresholds);
+});
+
+/**
  * @description Route to add products in Firestore
  * @returns 201 - Created
  * @throws 400 if product already exists or 404 if required params are missing
