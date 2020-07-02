@@ -10,6 +10,7 @@ module.exports = function(err, request, response, next) {
        err.status =  'Internal Server Error'
        logger.error(err.stack);
     } else {
+        logger.error(err.stack);
         err.status = err.message || 'Internal Server Error';
     }
     logger.error(err)

@@ -7,8 +7,6 @@ const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const { isAdmin } = require('../middleware/auth');
 const audit = require('./audit')
-//const firebase = require('firebase/functions');
-//const functions = require('firebase-functions');
 const express = require('express');
 const router = express.Router();
 const db = admin.firestore();
@@ -26,9 +24,10 @@ router.get("/", async (request, response) => {
     let snapshot = await branchCollection.get()
     snapshot.forEach(branch => {
         var branchData = branch.data()
-        branchData[constants.BRANCH] = utils.capitalize(branch.id)
+        branchData[constants.NAME] = utils.capitalize(branchData[constants.NAME])
+        branchData[constants.ID] = branch.id
+        branchData = utils.formatDate(branchData)
         delete branchData[constants.INVENTORY]
-        branchData = formatDate(branchData)
         branches.branches.push(branchData);
     })
     branches[constants.TOTAL_BRANCHES] = snapshot.size;
@@ -41,22 +40,23 @@ router.get("/", async (request, response) => {
  * @returns Json object containing requested branch
  * @throws 400 if the branch does not exists in firestore
  */
-router.get('/:branch', async (request, response, next) => {
-    var requestedBranch = request.params.branch.toLocaleLowerCase()
-    logger.info(`Retrieving branch ${requestedBranch} from firestore`)
-    const doc = db.collection(constants.BRANCHES).doc(requestedBranch);
+router.get('/:id', async (request, response, next) => {
+    var branchId = request.params.id
+    logger.info(`Retrieving branch from firestore`)
+    const doc = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await doc.get()
     if (!branch.exists) {
-        const error = new Error(`Requested branch ${requestedBranch} is not present in Firestore.`)
+        const error = new Error(`Requested branch is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
     var branchData = branch.data()
-    branchData[constants.BRANCH] = utils.capitalize(branch.id)
+    branchData[constants.ID] = branchId
+    branchData[constants.NAME] = utils.capitalize(branchData[constants.NAME])
     branchData = formatDate(branchData)
     delete branchData[constants.INVENTORY]
-    logger.debug(`Returning details for branch ${requestedBranch} to client.`);
+    logger.debug(`Returning details for branch ${branchData[constants.NAME]} to client.`);
     response.status(200).send(branchData);
 });
 
@@ -65,19 +65,19 @@ router.get('/:branch', async (request, response, next) => {
  * @returns Json object containing inventory for a branch
  * @throws 400 if the branch does not exists in firestore
  */
-router.get('/inventory/:branch', async (request, response, next) => {
-    var requestedBranch = request.params.branch.toLocaleLowerCase()
-    logger.info(`Retrieving inventory for a branch ${requestedBranch} from firestore`)
-    const doc = db.collection(constants.BRANCHES).doc(requestedBranch);
+router.get('/inventory/:id', async (request, response, next) => {
+    var branchId = request.params.id
+    logger.info(`Retrieving inventory for a branch from firestore`)
+    const doc = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await doc.get()
     if (!branch.exists) {
-        const error = new Error(`Requested branch ${requestedBranch} is not present in Firestore.`)
+        const error = new Error(`Requested branch is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
     const inventory = await getInventory(branch, false)
-    logger.debug(`Returning inventory for branch ${requestedBranch} to client.`);
+    logger.debug(`Returning inventory for branch ${inventory[constants.NAME]} to client.`);
     response.status(200).send(inventory);
 });
 
@@ -86,19 +86,19 @@ router.get('/inventory/:branch', async (request, response, next) => {
  * @returns Json object containing inventory of products below threshold for a branch
  * @throws 400 if the branch does not exists in firestore
  */
-router.get('/inventory/belowthreshold/:branch', async (request, response, next) => {
-    var requestedBranch = request.params.branch.toLocaleLowerCase()
-    logger.info(`Retrieving inventory of products below threshold for branch ${requestedBranch} from firestore`)
-    const doc = db.collection(constants.BRANCHES).doc(requestedBranch);
+router.get('/inventory/belowthreshold/:id', async (request, response, next) => {
+    var branchId = request.params.id
+    logger.info(`Retrieving inventory of products below threshold from firestore`)
+    const doc = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await doc.get()
     if (!branch.exists) {
-        const error = new Error(`Requested branch ${requestedBranch} is not present in Firestore.`)
+        const error = new Error(`Requested branch is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
     const inventory = await getInventory(branch, true)
-    logger.debug(`Returning inventory of products below threshold for branch ${requestedBranch} to client.`);
+    logger.debug(`Returning inventory of products below threshold to client.`);
     response.status(200).send(inventory);
 });
 
@@ -170,28 +170,28 @@ async function getInventory(branch, belowthreshold) {
     const inventory = {
         "inventory": []
     }
-    const inventoryData = branch.data()[constants.INVENTORY];
+    const branchData = branch.data()
+    const inventoryData = branchData[constants.INVENTORY];
     var size = 0
     if (belowthreshold) {
-        for (let [product, value] of Object.entries(inventoryData)) {
+        for (let [productId, value] of Object.entries(inventoryData)) {
             if (value[constants.IS_BELOW_THRESHOLD]) {
-                value[constants.PRODUCT] = product;
+                value[constants.PRODUCT] = productId;
                 inventory.inventory.push(value)
                 size++;
             }
         }
     } else {
-        for (let [product, value] of Object.entries(inventoryData)) {
-            value[constants.PRODUCT] = product;
+        for (let [productId, value] of Object.entries(inventoryData)) {
+            value[constants.PRODUCT] = productId;
             inventory.inventory.push(value)
             size++;
         }
     }
     inventory[constants.TOTAL_PRODUCTS] = size
-    inventory[constants.BRANCH] = utils.capitalize(branch.id)
+    inventory[constants.NAME] = utils.capitalize(branchData[constants.NAME])
     return inventory
 }
-
 
 /**
  * @description Route to add new branch in Firestore
@@ -211,11 +211,12 @@ router.post('/', isAdmin, async (request, response, next) => {
     }
 
     // If category already exists, return 400
-    var branchName = request.body.branch.toLocaleLowerCase()
+    var branchName = request.body.name.toLocaleLowerCase()
     logger.info(`Creating branch ${branchName} in firestore....`);
-    const doc = db.collection(constants.BRANCHES).doc(branchName);
-    const branch = await doc.get()
-    if (branch.exists) {
+    const branchSnapshot = await db.collection(constants.BRANCHES)
+        .where(constants.NAME, '==', branchName)
+        .get()
+    if (branchSnapshot.size > 0) {
         const err = new Error(`The branch ${branchName} already exists. Please update if needed.`)
         err.statusCode = 400
         next(err)
@@ -223,22 +224,18 @@ router.post('/', isAdmin, async (request, response, next) => {
     }
 
     let data = request.body
-    delete data[constants.BRANCH];
-    data[constants.IS_ACTIVE] = true
+    data[constants.NAME] = branchName
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
     data[constants.USERS] = []
-    data[constants.INVENTORY] = {}
-    await db.collection(constants.BRANCHES).doc(branchName).set(data)
-    
+    const branchRef = await db.collection(constants.BRANCHES).add(data)
+
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} created new branch ${branchName}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`${branchName} document Created`)
-    data[constants.BRANCH] = branchName
-    delete data[constants.INVENTORY]
-    response.status(201).json(data)
+    logger.debug(`Created branch ${branchName}`)
+    response.status(201).json({ 'id': branchRef.id, ...data })
 });
 
 /**
@@ -259,26 +256,28 @@ router.put('/', isAdmin, async (request, response, next) => {
     }
 
     // If category does not exists, return 404
-    var branchName = request.body.branch
-    logger.info(`Updating branch ${branchName} in firestore....`);
-    const branchRef = db.collection(constants.BRANCHES).doc(branchName);
+    var branchId = request.body.id
+    logger.info(`Updating branch in firestore....`);
+    const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await branchRef.get()
     if (!branch.exists) {
-        const err = new Error(`Requested branch ${branchName} is not present in Firestore.`)
+        const err = new Error(`Requested branch is not present in Firestore.`)
         err.statusCode = 404
         next(err)
         return;
     }
-    let data = request.body
-    delete data[constants.BRANCH]
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await branchRef.set(data, { merge: true })
-     
+    const oldData = branch.data()
+    let newData = request.body
+    delete newData[constants.ID]
+    newData[constants.LAST_UPDATED_DATE] = new Date()
+    delete newData[constants.CREATED_DATE]
+    await branchRef.set(newData, { merge: true })
+    newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} updated branch ${branchName}`
-    audit.logEvent(eventMessage, request)
+    const eventMessage = `User ${request.user.firstName} updated branch ${oldData[constants.NAME]}`
+    audit.logEvent(eventMessage, request, oldData, newData)
 
-    logger.debug(`Updated branch ${branchName}`)
+    logger.debug(`Updated branch ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -286,25 +285,26 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @description Route to delete a branch
  * @throws 400 if branch does not exist
  */
-router.delete('/:branch', isAdmin, async (request, response, next) => {
-    var branchName = request.params.branch.toLocaleLowerCase()
-    logger.info(`Deleting branch ${branchName} from firestore`)
+router.delete('/:id', isAdmin, async (request, response, next) => {
+    var branchId = request.params.id
+    logger.info(`Deleting branch from firestore`)
 
-    const branchRef = db.collection(constants.BRANCHES).doc(branchName);
+    const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await branchRef.get()
     if (!branch.exists) {
-        const error = new Error(`Branch ${branchName} is not present in Firestore.`)
+        const error = new Error(`Branch to delete is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
+    const branchData = branch.data()
     await branchRef.delete()
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} deleted branch ${branchName}`
+    const eventMessage = `User ${request.user.firstName} deleted branch ${branchData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted branch ${branchName}`)
+    logger.debug(`Deleted branch ${branchData[constants.NAME]}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
 
@@ -318,7 +318,7 @@ function validateParams(body, type) {
     switch (type) {
         case constants.CREATE:
             schema = joi.object({
-                branch: joi.string()
+                name: joi.string()
                     .min(1)
                     .max(30)
                     .required(),
@@ -342,15 +342,18 @@ function validateParams(body, type) {
                     zipcode: joi.number()
                 }).required(),
                 isHeadOffice: joi.bool()
-                    .required()
+                    .required(),
+                isActive: joi.bool().required()
             })
             break
         case constants.UPDATE:
             schema = joi.object({
-                branch: joi.string()
+                id: joi.string()
                     .min(1)
-                    .max(30)
-                    .required(),
+                    .max(30),
+                name: joi.string()
+                    .min(1)
+                    .max(30),
                 address: joi.object({
                     street: joi.string()
                         .min(1)
@@ -367,7 +370,11 @@ function validateParams(body, type) {
                     zipcode: joi.number()
                 }),
                 isHeadOffice: joi.bool(),
-                isActive: joi.bool()
+                isActive: joi.bool(),
+                users: joi.array()
+                    .items(joi.string().allow('')),
+                lastUpdatedDate: joi.date(),
+                createdDate: joi.date()
             })
             break
     }

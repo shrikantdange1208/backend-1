@@ -1,14 +1,16 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
-const logger = require('../middleware/logger');
+const utils = require('../common/utils');
+const logger = require('../middleware/logger')
 const { isAdmin } = require('../middleware/auth')
 const audit = require('./audit')
-const joi = require('@hapi/joi');
-const admin = require('firebase-admin');
-const functions = require('firebase-functions');
+const joi = require('@hapi/joi')
+const admin = require('firebase-admin')
+const functions = require('firebase-functions')
 const express = require('express');
-const router = express.Router();
-const db = admin.firestore();
+const c = require('config');
+const router = express.Router()
+const db = admin.firestore()
 
 /**
  * @description Route to retireve all products from firestore
@@ -23,9 +25,9 @@ router.get("/", async (request, response, next) => {
     let snapshot = await productCollection.get()
     snapshot.forEach(product => {
         var productData = product.data()
-        productData[constants.PRODUCT] = product.id,
-        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
-        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        productData[constants.NAME] = utils.capitalize(productData[constants.NAME])
+        productData[constants.ID] = product.id
+        productData = utils.formatDate(productData)
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = snapshot.size;
@@ -38,22 +40,22 @@ router.get("/", async (request, response, next) => {
  * @returns Json object containing requested product
  * @throws 400 if the product does not exists in firestore
  */
-router.get('/:product', async (request, response, next) => {
-    var requestedProduct = request.params.product.toLocaleLowerCase()
-    logger.info(`Retrieving product ${requestedProduct} from firestore`)
-    const doc = db.collection(constants.PRODUCTS).doc(requestedProduct);
+router.get('/:id', async (request, response, next) => {
+    var productId = request.params.id
+    logger.info(`Retrieving product from firestore`)
+    const doc = db.collection(constants.PRODUCTS).doc(productId);
     const product = await doc.get()
     if (!product.exists) {
-        const error = new Error(`Requested product ${requestedProduct} is not present in Firestore.`)
+        const error = new Error(`Requested product is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
     var productData = product.data()
-    productData[constants.PRODUCT] = product.id,
-    productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
-    productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
-    logger.debug(`Returning details for product ${requestedProduct} to client.`);
+    productData[constants.NAME] = utils.capitalize(productData[constants.NAME])
+    productData[constants.ID] = product.id
+    productData = utils.formatDate(productData)
+    logger.debug(`Returning details for product ${productData[constants.NAME]} to client.`);
     response.status(200).send(productData);
 });
 
@@ -61,24 +63,25 @@ router.get('/:product', async (request, response, next) => {
  * @description Route to retrieve products data from a given category
  * @returns Json object containing requested products
  */
-router.get('/category/:category', async (request, response, next) => {
-    var requestedCategory = request.params.category.toLocaleLowerCase()
-    logger.info(`Retrieving products of category ${requestedCategory} from firestore`)
+router.get('/category/:categoryId', async (request, response, next) => {
+    var categoryId = request.params.categoryId
+    logger.info(`Retrieving products from a category from firestore`)
     const products = {
         "products": []
     }
-    const productRef = db.collection(constants.PRODUCTS).where(constants.CATEGORY, '==', requestedCategory);
+    const productRef = db.collection(constants.PRODUCTS)
+                        .where(constants.CATEGORY, '==', categoryId);
     const productSnapshot = await productRef.get()
 
     productSnapshot.forEach(product => {
         var productData = product.data()
-        productData[constants.PRODUCT] = product.id,
-        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
-        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        productData[constants.NAME] = utils.capitalize(productData[constants.NAME])
+        productData[constants.ID] = product.id
+        productData = utils.formatDate(productData)
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
-    logger.debug(`Returning products of category ${requestedCategory} to client.`);
+    logger.debug(`Returning products to client.`);
     response.status(200).send(products);
 });
 
@@ -97,9 +100,9 @@ router.get('/all/active', async (request, response, next) => {
     const productSnapshot = await productRef.get()
     productSnapshot.forEach(product => {
         var productData = product.data()
-        productData[constants.PRODUCT] = product.id,
-        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
-        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        productData[constants.NAME] = utils.capitalize(productData[constants.NAME])
+        productData[constants.ID] = product.id
+        productData = utils.formatDate(productData)
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
@@ -116,15 +119,14 @@ router.get('/all/inactive', async (request, response, next) => {
     const products = {
         "products": []
     }
-
     const productRef = db.collection(constants.PRODUCTS)
         .where(constants.IS_ACTIVE, '==', false);
     const productSnapshot = await productRef.get()
     productSnapshot.forEach(product => {
         var productData = product.data()
-        productData[constants.PRODUCT] = product.id,
-        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
-        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        productData[constants.NAME] = utils.capitalize(productData[constants.NAME])
+        productData[constants.ID] = product.id
+        productData = utils.formatDate(productData)
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
@@ -136,22 +138,22 @@ router.get('/all/inactive', async (request, response, next) => {
  * @description Route to retrieve all active/inActive products data from a given category
  * @returns Json object containing requested products
  */
-router.get('/category/:category/:active', async (request, response, next) => {
+router.get('/category/:categoryId/:active', async (request, response, next) => {
     var status = JSON.parse(request.params.active.toLocaleLowerCase());
-    var category = request.params.category.toLocaleLowerCase();
+    var categoryId = request.params.categoryId;
     logger.info(`Retrieving all active/inActive products from a given category from firestore`)
     const products = {
         "products": []
     }
     const productRef = db.collection(constants.PRODUCTS)
         .where(constants.IS_ACTIVE, '==', status)
-        .where(constants.CATEGORY, '==', category)
+        .where(constants.CATEGORY, '==', categoryId)
     const productSnapshot = await productRef.get()
     productSnapshot.forEach(product => {
         var productData = product.data()
-        productData[constants.PRODUCT] = product.id,
-        productData[constants.CREATED_DATE] = productData.createdDate.toDate(),
-        productData[constants.LAST_UPDATED_DATE] = productData.lastUpdatedDate.toDate()
+        productData[constants.NAME] = utils.capitalize(productData[constants.NAME])
+        productData[constants.ID] = product.id
+        productData = utils.formatDate(productData)
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
@@ -178,11 +180,13 @@ router.post('/', isAdmin, async (request, response, next) => {
     }
 
     // If product already exists, return 400
-    var productName = request.body.product.toLocaleLowerCase()
+    var productName = request.body.name.toLocaleLowerCase()
     logger.info(`Creating product ${productName} in firestore....`);
-    const doc = db.collection(constants.PRODUCTS).doc(productName);
-    const product = await doc.get()
-    if (product.exists) {
+    const productSnapshot = await db.collection(constants.PRODUCTS)
+        .where(constants.NAME, '==', productName)
+        .get()
+
+    if (productSnapshot.size > 0) {
         const err = new Error(`The product ${productName} already exists. Please update if needed.`)
         err.statusCode = 400
         next(err)
@@ -190,22 +194,22 @@ router.post('/', isAdmin, async (request, response, next) => {
     }
 
     let data = request.body
-    delete data[constants.PRODUCT]
+    data[constants.NAME] = productName
+    data[constants.CREATED_DATE] = new Date()
+    data[constants.LAST_UPDATED_DATE] = new Date()
     if (!request.body.thresholds) {
         data[constants.THRESHOLDS] = {}
     }
-    data[constants.IS_ACTIVE] = true
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
-    await db.collection(constants.PRODUCTS).doc(productName).set(data)
+    const productRef = await db.collection(constants.PRODUCTS).add(data)
 
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} added new product ${productName} to catalog`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`${productName} document Created`)
-    data[constants.PRODUCT] = productName
-    response.status(201).json(data)
+    response.status(201).json({ 'id': productRef.id, ...data })
 });
 
 /**
@@ -226,26 +230,30 @@ router.put('/', isAdmin, async (request, response, next) => {
     }
 
     // If product does not exists, return 400
-    var productName = request.body.product.toLocaleLowerCase()
-    logger.info(`Updating product ${productName} in firestore....`);
-    const productRef = db.collection(constants.PRODUCTS).doc(productName);
+    var productId = request.body.id
+    logger.info(`Updating a product in firestore....`);
+    const productRef = db.collection(constants.PRODUCTS).doc(productId);
     const product = await productRef.get()
     if (!product.exists) {
-        const err = new Error(`Requested product ${productName} is not present in Firestore.`)
+        const err = new Error(`Requested product ${productId} is not present in Firestore.`)
         err.statusCode = 404
         next(err)
         return;
     }
-    let data = request.body
-    delete data[constants.PRODUCT]
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await productRef.set(data, { merge: true })
+
+    const oldData = product.data()
+    let newData = request.body
+    delete newData[constants.ID]
+    delete newData[constants.CREATED_DATE]
+    newData[constants.LAST_UPDATED_DATE] = new Date()
+    await productRef.set(newData, { merge: true })
+    newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} updated product ${productName}`
+    const eventMessage = `User ${request.user.firstName} updated product ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Updated product ${productName}`)
+    logger.debug(`Updated product ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -254,25 +262,26 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @returns  deleted product
  * @throws 400 if product does not exist
  */
-router.delete('/:product', isAdmin, async (request, response, next) => {
-    var productName = request.params.product.toLocaleLowerCase()
-    logger.info(`Deleting product ${productName} from firestore`)
+router.delete('/:id', isAdmin, async (request, response, next) => {
+    var productid = request.params.id
+    logger.info(`Deleting a product from firestore`)
 
-    const productRef = db.collection(constants.PRODUCTS).doc(productName);
+    const productRef = db.collection(constants.PRODUCTS).doc(productid);
     const product = await productRef.get()
     if (!product.exists) {
-        const error = new Error(`Product ${productName} is not present in Firestore.`)
+        const error = new Error(`Product ${productid} is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
+    const productData = product.data()
     await productRef.delete()
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} deleted product ${productName}`
+    const eventMessage = `User ${request.user.firstName} deleted product ${productData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted product ${productName}`)
+    logger.debug(`Deleted product ${productData[constants.NAME]}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
 
@@ -286,7 +295,7 @@ function validateParams(body, type) {
     switch (type) {
         case constants.CREATE:
             schema = joi.object({
-                product: joi.string()
+                name: joi.string()
                     .min(1)
                     .max(30)
                     .required(),
@@ -298,16 +307,17 @@ function validateParams(body, type) {
                     .min(1)
                     .max(30)
                     .required(),
+                isActive: joi.bool().required(),
                 thresholds: joi.object().pattern(
-                    joi.string()
-                        .regex(/^[a-zA-Z]+$/).required(),
+                    joi.string().required(),
                     joi.number().required()
                 )
             })
             break
         case constants.UPDATE:
             schema = joi.object({
-                product: joi.string()
+                id: joi.string(),
+                name: joi.string()
                     .min(1)
                     .max(30),
                 category: joi.string()
@@ -317,10 +327,11 @@ function validateParams(body, type) {
                     .min(1)
                     .max(30),
                 thresholds: joi.object().pattern(
-                    joi.string()
-                        .regex(/^[a-zA-Z]+$/).required(),
+                    joi.string().required(),
                     joi.number().required()),
-                isActive: joi.bool()
+                isActive: joi.bool(),
+                lastUpdatedDate: joi.date(),
+                createdDate: joi.date()
             })
             break
     }

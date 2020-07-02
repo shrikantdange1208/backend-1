@@ -6,6 +6,7 @@ function define(name, value) {
 }
 
 define("NAME", "name");
+define("ID", "id");
 define("CATEGORY", "category");
 define("CATEGORIES", "categories");
 define("BRANCHES", "branches");
@@ -53,3 +54,5 @@ define("EMAIL", "email");
 define("TIMESTAMP", "timestamp");
 define("DATE", "date");
 define("EVENT", "event");
+define("BEFORE", "before");
+define("AFTER", "after");
