@@ -249,7 +249,8 @@ router.delete('/:id', isAdmin, async(request, response, next) => {
             break
         case  constants.UPDATE:
             schema = joi.object({
-                id: joi.string(),
+                id: joi.string()
+                .required(),
                 name: joi.string()
                     .min(1)
                     .max(30)

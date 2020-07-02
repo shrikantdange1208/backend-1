@@ -101,6 +101,7 @@ function validateParams(body) {
             .max(30)
             .required(),
         operationalQuantity: joi.number()
+                    .required()
     })
     return validate(schema, body)
 }
