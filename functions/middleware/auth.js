@@ -52,7 +52,7 @@ const isAuthenticated = async function (request, response, next) {
             lastName: 'Pinkman',
             email: 'jesse@pinkman.com'
         }
-        next()
+        return next()
     } catch (err) {
         // logger.error(`In Catch of IsAuthenticated`)
         // logger.error(`${err.message}`)
@@ -80,7 +80,7 @@ const isAdmin = async function (request, response, next) {
         next(err)
         return
     } else {
-        next()
+        return next()
     }
 };
 

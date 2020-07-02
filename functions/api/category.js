@@ -42,11 +42,11 @@ router.get("/", async (request, response) => {
  */
 router.get('/:id', async (request, response, next) => {
     var categoryId = request.params.id
-    logger.info(`Retrieving category with ID ${categoryId} from firestore`)
+    logger.info(`Retrieving category from firestore`)
     const doc = db.collection(constants.CATEGORIES).doc(categoryId);
     const category = await doc.get()
     if (!category.exists) {
-        const error = new Error(`Requested category with ID ${categoryId} is not present in Firestore.`)
+        const error = new Error(`Requested category is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
@@ -66,11 +66,11 @@ router.get('/:id', async (request, response, next) => {
  */
 router.get('/products/:id', async (request, response, next) => {
     var categoryId = request.params.id
-    logger.info(`Retrieving products for category with ID ${categoryId}`)
+    logger.info(`Retrieving products for given category`)
     const doc = db.collection(constants.CATEGORIES).doc(categoryId)
     const category = await doc.get()
     if (!category.exists) {
-        const error = new Error(`Requested category with ID ${categoryId} is not present in Firestore.`)
+        const error = new Error(`Requested category is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
@@ -136,7 +136,7 @@ router.get("/all/inactive", async (request, response) => {
  * @throws 400 if category already exists or 404 if required params are missing
  */
 router.post('/', isAdmin, async (request, response, next) => {
-    logger.info(`Creating category in firestore New MEHTOD....`);
+    logger.info(`Creating category in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
     const { error } = validateParams(request.body, constants.CREATE)
@@ -194,11 +194,11 @@ router.put('/', isAdmin, async (request, response, next) => {
 
     // If category does not exists, return 404
     var categoryId = request.body.id
-    logger.info(`Updating category with ID ${categoryId} in firestore....`);
+    logger.info(`Updating category in firestore....`);
     const categoryRef = db.collection(constants.CATEGORIES).doc(categoryId);
     const category = await categoryRef.get()
     if (!category.exists) {
-        const err = new Error(`Requested category with ID ${categoryId} is not present in Firestore.`)
+        const err = new Error(`Requested category is not present in Firestore.`)
         err.statusCode = 404
         next(err)
         return;

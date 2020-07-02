@@ -40,11 +40,11 @@ router.get("/", async (request, response, next) => {
  */
 router.get('/:id', async (request, response, next) => {
     var unitId = request.params.id
-    logger.info(`Retrieving unit with ID ${unitId} from firestore`)
+    logger.info(`Retrieving unit from firestore`)
     const doc = db.collection(constants.UNITS).doc(unitId);
     const unit = await doc.get()
     if (!unit.exists) {
-        const error = new Error(`Requested unit with ID ${unitId} is not present in Firestore.`)
+        const error = new Error(`Requested unit is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
