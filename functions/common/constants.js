@@ -56,3 +56,7 @@ define("DATE", "date");
 define("EVENT", "event");
 define("BEFORE", "before");
 define("AFTER", "after");
+
+//Transaction constants
+define("TRANSACTIONS", "transactions");
+define("DATE", "date");
