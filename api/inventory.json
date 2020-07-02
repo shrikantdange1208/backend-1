@@ -1,0 +1,156 @@
+# Get Inventory for a single branch (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/inventories/{branchId}
+
+{
+    "inventory": [
+        {
+            "availableQuantity": 32,
+            "threshold": 10,
+            "unit": "3do7vedVa9udu9krhjWJ",
+            "isBelowThreshold": false,
+            "category": "miSfk8RC2935IiDzC3fx",
+            "id": "qc9PSf6PsdBTnVxiqc0D"
+        },
+        {
+            "availableQuantity": 8,
+            "threshold": 10,
+            "unit": "SZYf35oJqP992E7PdusL",
+            "isBelowThreshold": true,
+            "category": "B7t3rfHbkGhXnahF5d26",
+            "id": "ufjGAgxFsq0FpAs864ha"
+        }
+    ],
+    "totalProducts": 2,
+    "branch": "FropnRmUAWtZGX3GZUd8"
+}
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get Inventory of products below threshold for a single branch (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/inventories/{branchId}/belowThreshold/
+
+{
+    "inventory": [
+        {
+            "availableQuantity": 8,
+            "threshold": 10,
+            "unit": "SZYf35oJqP992E7PdusL",
+            "isBelowThreshold": true,
+            "category": "B7t3rfHbkGhXnahF5d26",
+            "id": "ufjGAgxFsq0FpAs864ha"
+        }
+    ],
+    "totalProducts": 1,
+    "branch": "FropnRmUAWtZGX3GZUd8"
+}
+
+
+# Get Inventory for all branches (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/inventories/
+
+#Response
+{
+    "inventories": [
+        [
+            {
+                "inventory": [
+                    {
+                        "availableQuantity": 32,
+                        "threshold": 10,
+                        "unit": "3do7vedVa9udu9krhjWJ",
+                        "isBelowThreshold": false,
+                        "category": "miSfk8RC2935IiDzC3fx",
+                        "id": "qc9PSf6PsdBTnVxiqc0D"
+                    },
+                    {
+                        "availableQuantity": 8,
+                        "threshold": 10,
+                        "unit": "SZYf35oJqP992E7PdusL",
+                        "isBelowThreshold": true,
+                        "category": "B7t3rfHbkGhXnahF5d26",
+                        "id": "ufjGAgxFsq0FpAs864ha"
+                    }
+                ],
+                "totalProducts": 2,
+                "branch": "FropnRmUAWtZGX3GZUd8"
+            },
+            {
+                "inventory": [
+                    {
+                        "availableQuantity": 300,
+                        "threshold": 35,
+                        "unit": "SZYf35oJqP992E7PdusL",
+                        "isBelowThreshold": false,
+                        "category": "miSfk8RC2935IiDzC3fx",
+                        "id": "3V0TKHqOC2GLzzNceFKs"
+                    },
+                    {
+                        "availableQuantity": 40,
+                        "threshold": 15,
+                        "unit": "SZYf35oJqP992E7PdusL",
+                        "isBelowThreshold": false,
+                        "category": "HaqTU6zqgo33uqVeYe6t",
+                        "id": "9UIL52tQTYwk5Hb7gkJ6"
+                    }
+                ],
+                "totalProducts": 2,
+                "branch": "PKaItjoJdtxBhcR0VmQZ"
+            }
+        ]
+    ],
+    "totalBranches": 2
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get Inventory of products below threshold for all branch (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/inventories/all/branches/belowthreshold
+
+#Response
+{
+    "inventories": [
+        [
+            {
+                "inventory": [],
+                "totalProducts": 0,
+                "branch": "CqeSrtSXWAM5QkAPzt5y"
+            },
+            {
+                "inventory": [
+                    {
+                        "availableQuantity": 8,
+                        "threshold": 10,
+                        "unit": "SZYf35oJqP992E7PdusL",
+                        "isBelowThreshold": true,
+                        "category": "B7t3rfHbkGhXnahF5d26",
+                        "id": "ufjGAgxFsq0FpAs864ha"
+                    }
+                ],
+                "totalProducts": 1,
+                "branch": "FropnRmUAWtZGX3GZUd8"
+            },
+            {
+                "inventory": [],
+                "totalProducts": 0,
+                "branch": "PKaItjoJdtxBhcR0VmQZ"
+            },
+            {
+                "inventory": [],
+                "totalProducts": 0,
+                "branch": "nmnpHFEB45FtMLQzqEBj"
+            },
+            {
+                "inventory": [],
+                "totalProducts": 0,
+                "branch": "pAhsD46B6cTMUQltjmrl"
+            }
+        ]
+    ],
+    "totalBranches": 5
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+

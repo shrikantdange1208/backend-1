@@ -1,11 +1,12 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
-const logger = require('../middleware/logger');
-const { isAdmin } = require('../middleware/auth');
+const utils = require('../common/utils')
+const logger = require('../middleware/logger')
+const { isAdmin } = require('../middleware/auth')
 const audit = require('./audit')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-const functions = require('firebase-functions');
+const functions = require('firebase-functions')
 const express = require('express');
 const router = express.Router();
 const db = admin.firestore();
@@ -23,9 +24,9 @@ router.get("/", async (request, response) => {
     let snapshot = await categoryCollection.get()
     snapshot.forEach(category => {
         var categoryData = category.data()
-        categoryData[constants.CATEGORY] = category.id
-        categoryData[constants.CREATED_DATE] = categoryData[constants.CREATED_DATE].toDate()
-        categoryData[constants.LAST_UPDATED_DATE] = categoryData[constants.LAST_UPDATED_DATE].toDate()
+        categoryData[constants.NAME] = utils.capitalize(categoryData[constants.NAME])
+        categoryData[constants.ID] = category.id
+        categoryData = utils.formatDate(categoryData)
         delete categoryData[constants.PRODUCTS]
         categories.categories.push(categoryData);
     })
@@ -39,23 +40,23 @@ router.get("/", async (request, response) => {
  * @returns Json object containing requested category
  * @throws 400 if the branch does not exists in firestore
  */
-router.get('/:category', async (request, response, next) => {
-    var requestedCategory = request.params.category.toLocaleLowerCase()
-    logger.info(`Retrieving category ${requestedCategory} from firestore`)
-    const doc = db.collection(constants.CATEGORIES).doc(requestedCategory);
+router.get('/:id', async (request, response, next) => {
+    var categoryId = request.params.id
+    logger.info(`Retrieving category from firestore`)
+    const doc = db.collection(constants.CATEGORIES).doc(categoryId);
     const category = await doc.get()
     if (!category.exists) {
-        const error = new Error(`Requested category ${requestedCategory} is not present in Firestore.`)
+        const error = new Error(`Requested category is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
     var categoryData = category.data()
-    categoryData[constants.CATEGORY] = category.id
-    categoryData[constants.CREATED_DATE] = categoryData[constants.CREATED_DATE].toDate()
-    categoryData[constants.LAST_UPDATED_DATE] = categoryData[constants.LAST_UPDATED_DATE].toDate()
+    categoryData[constants.ID] = category.id
+    categoryData[constants.NAME] = utils.capitalize(categoryData[constants.NAME])
+    categoryData = utils.formatDate(categoryData)
     delete categoryData[constants.PRODUCTS]
-    logger.debug(`Returning details for category ${requestedCategory} to client.`);
+    logger.debug(`Returning details for category ${categoryData[constants.NAME]} to client.`);
     response.status(200).send(categoryData);
 });
 
@@ -63,19 +64,19 @@ router.get('/:category', async (request, response, next) => {
  * @description Route to retrieve all products from a given category
  * @returns Json object containing array of products for a given category
  */
-router.get('/products/:category', async (request, response, next) => {
-    var requestedCategory = request.params.category.toLocaleLowerCase()
-    logger.info(`Retrieving products for category ${requestedCategory}`)
-    const doc = db.collection(constants.CATEGORIES).doc(requestedCategory)
+router.get('/products/:id', async (request, response, next) => {
+    var categoryId = request.params.id
+    logger.info(`Retrieving products for given category`)
+    const doc = db.collection(constants.CATEGORIES).doc(categoryId)
     const category = await doc.get()
     if (!category.exists) {
-        const error = new Error(`Requested category ${requestedCategory} is not present in Firestore.`)
+        const error = new Error(`Requested category is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
     var categoryData = category.data()
-    logger.debug(`Returning products from category ${requestedCategory} to client.`);
+    logger.debug(`Returning products from category ${categoryData[constants.NAME]} to client.`);
     response.status(200).send(categoryData[constants.PRODUCTS]);
 });
 
@@ -93,9 +94,9 @@ router.get("/all/active", async (request, response) => {
     let snapshot = await categoryCollection.get()
     snapshot.forEach(category => {
         var categoryData = category.data()
-        categoryData[constants.CATEGORY] = category.id
-        categoryData[constants.CREATED_DATE] = categoryData[constants.CREATED_DATE].toDate()
-        categoryData[constants.LAST_UPDATED_DATE] = categoryData[constants.LAST_UPDATED_DATE].toDate()
+        categoryData[constants.ID] = category.id
+        categoryData[constants.NAME] = utils.capitalize(categoryData[constants.NAME])
+        categoryData = utils.formatDate(categoryData)
         delete categoryData[constants.PRODUCTS]
         categories.categories.push(categoryData)
     })
@@ -118,9 +119,9 @@ router.get("/all/inactive", async (request, response) => {
     let snapshot = await categoryCollection.get()
     snapshot.forEach(category => {
         var categoryData = category.data()
-        categoryData[constants.CATEGORY] = category.id
-        categoryData[constants.CREATED_DATE] = categoryData[constants.CREATED_DATE].toDate()
-        categoryData[constants.LAST_UPDATED_DATE] = categoryData[constants.LAST_UPDATED_DATE].toDate()
+        categoryData[constants.ID] = category.id
+        categoryData[constants.NAME] = utils.capitalize(categoryData[constants.NAME])
+        categoryData = utils.formatDate(categoryData)
         delete categoryData[constants.PRODUCTS]
         categories.categories.push(categoryData)
     })
@@ -147,32 +148,31 @@ router.post('/', isAdmin, async (request, response, next) => {
     }
 
     // If category already exists, return 400
-    var categoryName = request.body.category.toLocaleLowerCase()
+    var categoryName = request.body.name.toLocaleLowerCase()
     logger.info(`Creating category ${categoryName} in firestore....`);
-    const doc = db.collection(constants.CATEGORIES).doc(categoryName);
-    const category = await doc.get()
-    if (category.exists) {
+    const categorySnapshot = await db.collection(constants.CATEGORIES)
+                            .where(constants.NAME, '==', categoryName)
+                            .get()
+    if (categorySnapshot.size > 0) {
         const err = new Error(`The category ${categoryName} already exists. Please update if needed.`)
         err.statusCode = 400
         next(err)
         return;
     }
 
-    let data = {}
-    data[constants.DESCRIPTION] = request.body.description
-    data[constants.IS_ACTIVE] = true
+    let data = request.body
+    data[constants.NAME] = categoryName
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
     data[constants.PRODUCTS] = []
-    await db.collection(constants.CATEGORIES).doc(categoryName).set(data)
+    const categoryRef = await db.collection(constants.CATEGORIES).add(data)
 
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} added new category ${categoryName}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`${categoryName} document Created`)
-    data[constants.CATEGORY] = categoryName
-    response.status(201).json(data)
+    logger.debug(`Created category ${categoryName}`)
+    response.status(201).json({'id': categoryRef.id, ...data})
 });
 
 /**
@@ -193,26 +193,29 @@ router.put('/', isAdmin, async (request, response, next) => {
     }
 
     // If category does not exists, return 404
-    var categoryName = request.body.category
-    logger.info(`Updating category ${categoryName} in firestore....`);
-    const categoryRef = db.collection(constants.CATEGORIES).doc(categoryName);
+    var categoryId = request.body.id
+    logger.info(`Updating category in firestore....`);
+    const categoryRef = db.collection(constants.CATEGORIES).doc(categoryId);
     const category = await categoryRef.get()
     if (!category.exists) {
-        const err = new Error(`Requested category ${categoryName} is not present in Firestore.`)
+        const err = new Error(`Requested category is not present in Firestore.`)
         err.statusCode = 404
         next(err)
         return;
     }
-    let data = request.body
-    delete data[constants.CATEGORY]
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await categoryRef.update(data)
-
+    const oldData = category.data()
+    let newData = request.body
+    delete newData[constants.ID]
+    newData[constants.LAST_UPDATED_DATE] = new Date()
+    delete newData[constants.CREATED_DATE]
+    await categoryRef.set(newData, { merge: true })
+    newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
+    
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} updated category ${categoryName}`
-    audit.logEvent(eventMessage, request)
+    const eventMessage = `User ${request.user.firstName} updated category ${oldData[constants.NAME]}`
+    audit.logEvent(eventMessage, request, oldData, newData)
 
-    logger.debug(`Updated category ${categoryName}`)
+    logger.debug(`Updated category ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -221,25 +224,26 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @returns  deleted category
  * @throws 400 if category does not exist
  */
-router.delete('/:category', isAdmin, async (request, response, next) => {
-    var categoryName = request.params.category.toLocaleLowerCase()
-    logger.info(`Deleting category ${categoryName} from firestore`)
+router.delete('/:id', isAdmin, async (request, response, next) => {
+    var categoryId = request.params.id
+    logger.info(`Deleting category with ID ${categoryId} from firestore`)
 
-    const categoryRef = db.collection(constants.CATEGORIES).doc(categoryName);
+    const categoryRef = db.collection(constants.CATEGORIES).doc(categoryId);
     const category = await categoryRef.get()
     if (!category.exists) {
-        const error = new Error(`Category ${categoryName} is not present in Firestore.`)
+        const error = new Error(`Category with ID ${categoryId} is not present in Firestore.`)
         error.statusCode = 404
         next(error)
         return;
     }
+    const categoryData = category.data()
     await categoryRef.delete()
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} deleted category ${categoryName}`
+    const eventMessage = `User ${request.user.firstName} deleted category ${categoryData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted category ${categoryName}`)
+    logger.debug(`Deleted category ${categoryData[constants.NAME]}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
 
@@ -253,26 +257,33 @@ function validateParams(body, type) {
     switch (type) {
         case constants.CREATE:
             schema = joi.object({
-                category: joi.string()
+                name: joi.string()
                     .min(1)
                     .max(30)
                     .required(),
                 description: joi.string()
                     .min(1)
                     .max(50)
+                    .required(),
+                isActive: joi.bool()
                     .required()
             })
             break
         case constants.UPDATE:
             schema = joi.object({
-                category: joi.string()
-                    .min(1)
-                    .max(30)
+                id: joi.string()
                     .required(),
+                name: joi.string()
+                    .min(1)
+                    .max(30),
                 description: joi.string()
                     .min(1)
                     .max(50),
-                isActive: joi.bool()
+                isActive: joi.bool(),
+                products: joi.array()
+                    .items(joi.string().allow('')),
+                lastUpdatedDate: joi.date(),
+                createdDate: joi.date()
             })
             break
     }
@@ -284,10 +295,13 @@ module.exports.addOrUpdateCategory = functions.firestore
     .document(`/${constants.CATEGORIES}/{categoryName}`)
     .onWrite(async (change, context) => {
         const categoryName = context.params.categoryName
-        if (!change.after._fieldsProto) {
-            logger.debug(`Category ${change.before.id} has been deleted`)
+        if (!change.before._fieldsProto) {
+            logger.debug(`New category ${change.after.id} has been created`)
+        } else if (!change.after._fieldsProto) {
+            var oldData = change.before.data()
+            logger.debug(`Category ${oldData[constants.NAME]} has been deleted`)
             deleteAllProductsFromCategory(change.before)
-        } else if(change.before._fieldsProto && change.after._fieldsProto) {
+        } else {
             logger.debug(`Category ${change.before.id} has been updated`)
             var oldData = change.before.data()
             var newData = change.after.data()
@@ -301,34 +315,32 @@ module.exports.addOrUpdateCategory = functions.firestore
     });
 
 async function changeStatusOfAllProducts(updatedCategory) {
-    var categoryName = updatedCategory.id
-    var status = updatedCategory.data().isActive;
-    console.log(`Updating status of all products in category ${categoryName} to ${status}`)
+    var categoryId = updatedCategory.id
+    var categoryData = updatedCategory.data()
+    var status = categoryData[constants.IS_ACTIVE];
+    console.log(`Updating status of all products in category ${categoryData[constants.NAME]} to ${status}`)
     const productCollection = db.collection(constants.PRODUCTS)
-        .where(constants.CATEGORY, '==', categoryName)
+        .where(constants.CATEGORY, '==', categoryId)
     const productSnapshot = await productCollection.get()
     let batch = db.batch()
     productSnapshot.docs.forEach((product) => {
-        
         console.log(`Retrieving product ref for ${product.id}`)
-        //const productRef = db.collection(constants.PRODUCT).doc(product.id)
         batch.update(product.ref, {'isActive': status})
-        
     })
     await batch.commit();
-    console.log(`Updated status of all products in category ${categoryName}`)
+    console.log(`Updated status of all products in category ${categoryData[constants.NAME]}`)
 }
 
 async function deleteAllProductsFromCategory(deletedCategory) {
-    var categoryName = deletedCategory.id
+    var categoryId = deletedCategory.id
     const productCollection = db.collection(constants.PRODUCTS)
-        .where(constants.CATEGORY, '==', categoryName)
+        .where(constants.CATEGORY, '==', categoryId)
     const productSnapshots = await productCollection.get()
     let batch = db.batch()
     productSnapshots.docs.forEach((product) => {
         batch.delete(product.ref);
     })
     await batch.commit();
-    console.log(`Deleted products from category ${categoryName}`)
+    console.log(`Deleted products from category ${deletedCategory.data()[constants.NAME]}`)
 }
 

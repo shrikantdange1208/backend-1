@@ -1,5 +1,6 @@
 const constants = require('../common/constants');
 const logger = require('../middleware/logger');
+const { isAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
 const express = require('express');
 const router = express.Router();
@@ -11,9 +12,9 @@ const db = admin.firestore();
  * @description Route to retireve all transactions under all branches
  * @returns Json object containing all transactions under all branches
  */
-router.get("/", async (request, response, next) => {
+router.get("/", isAdmin, async (request, response, next) => {
     console.log("Retrieving all transactions under all branches");
-    let branchCollectionRef = db.collection('branch');
+    let branchCollectionRef = db.collection(constants.BRANCHES);
     let documents = []
     documents = await branchCollectionRef.listDocuments();
     const{user,product,fromDate,toDate} = request.query;    
@@ -21,21 +22,23 @@ router.get("/", async (request, response, next) => {
     for(const doc of documents) {
         var branchtransactions = {}
         console.log(`fetching document of branch ${doc.id}`);
+        const branchSnapshot = await doc.get()
+        const branchData = branchSnapshot.data()
         let subCollectionDocRef = branchCollectionRef.doc(doc.id).collection('transactions');
         if(user){
-            subCollectionDocRef = subCollectionDocRef.where("user","==",user)
+            subCollectionDocRef = subCollectionDocRef.where(constants.USER,"==",user)
         }
         if(product){
-            subCollectionDocRef = subCollectionDocRef.where("product","==",product);
+            subCollectionDocRef = subCollectionDocRef.where(constants.PRODUCT,"==",product);
         }
         if(fromDate){
-            subCollectionDocRef = subCollectionDocRef.where("date",">=",new Date(fromDate));
+            subCollectionDocRef = subCollectionDocRef.where(constants.DATE,">=",new Date(fromDate));
         }
         if(toDate){
-            subCollectionDocRef = subCollectionDocRef.where("date","<=",new Date(toDate));
+            subCollectionDocRef = subCollectionDocRef.where(constants.DATE,"<=",new Date(toDate));
         }
         let snapshot = await subCollectionDocRef.get()
-        branchtransactions[constants.BRANCH] = doc.id;
+        branchtransactions[constants.BRANCH] = branchData[constants.NAME];
         branchtransactions[constants.TRANSACTIONS] = []
        
         snapshot.forEach(transaction => {
@@ -53,24 +56,25 @@ router.get("/", async (request, response, next) => {
  * @description Route to retireve all transactions under given branch for given user
  * @returns Json object containing all transactions under given branch for given user
  */
-router.get("/:branch_name", async (request, response, next) => {
+router.get("/:id", isAdmin, async (request, response, next) => {
     logger.info("Retrieving all transactions under given branch for given user");
-    var branchName = request.params.branch_name.toLocaleLowerCase();
+    var branchId = request.params.id
     const{user,product,fromDate,toDate} = request.query;
-    let transactionCollection = db.collection('branch').doc(branchName).collection('transactions')
+    let transactionCollection = db.collection(constants.BRANCHES)
+                                    .doc(branchId)
+                                    .collection(constants.TRANSACTIONS)
     if(user){
-        transactionCollection = transactionCollection.where("user","==",user)
+        transactionCollection = transactionCollection.where(constants.USER,"==",user)
     }
     if(product){
-        transactionCollection = transactionCollection.where("product","==",product);
+        transactionCollection = transactionCollection.where(constants.PRODUCT,"==",product);
     }
     if(fromDate){
-        transactionCollection = transactionCollection.where("date",">=",new Date(fromDate));
+        transactionCollection = transactionCollection.where(constants.DATE,">=",new Date(fromDate));
     }
     if(toDate){
-        transactionCollection = transactionCollection.where("date","<=",new Date(toDate));
+        transactionCollection = transactionCollection.where(constants.DATE,"<=",new Date(toDate));
     }
-    console.log(request.query);
     let snapshot = await transactionCollection.get()
     const branchTransactions = []
     snapshot.forEach(transaction => {

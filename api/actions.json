@@ -1,0 +1,47 @@
+# Add Product Operation (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/addproduct
+#Request
+{
+    "branch": "pAhsD46B6cTMUQltjmrl",
+    "product": "ufjGAgxFsq0FpAs864ha",
+    "operationalQuantity": 30
+}
+
+#Response
+{
+    "transactionId": "5KZTecgMrx4CM8a71kkc"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Issue Product Operation (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/issueproduct
+#Request
+{
+    "branch": "pAhsD46B6cTMUQltjmrl",
+    "product": "ufjGAgxFsq0FpAs864ha",
+    "operationalQuantity": 30
+}
+
+#Response
+{
+    "transactionId": "5KZTecgMrx4CM8a71kkc"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Issue Product Operation (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/adjustment
+#Request
+{
+    "branch": "pAhsD46B6cTMUQltjmrl",
+    "product": "ufjGAgxFsq0FpAs864ha",
+    "operationalQuantity": 30
+}
+
+#Response
+{
+    "transactionId": "5KZTecgMrx4CM8a71kkc"
+}

@@ -7,20 +7,22 @@
 #Response
 {
   "categories": [
-    {
-      "category": "food",
-      "description": "Category for food",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "category": "pharmacy",
-      "description": "Category for medicines",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "description": "Category for mdecial products",
+          "isActive": true,
+          "lastUpdatedDate": "2020-07-02T03:54:14.321Z",
+          "createdDate": "2020-07-02T03:54:14.321Z",
+          "name": "Pharmacy",
+          "id": "2ZK0UUW4A8fg03G0OogB"
+      },
+      {
+          "description": "Category for books",
+          "isActive": true,
+          "lastUpdatedDate": "2020-07-02T03:55:41.208Z",
+          "createdDate": "2020-07-02T03:55:41.208Z",
+          "name": "Books",
+          "id": "B7t3rfHbkGhXnahF5d26"
+      }
   ],
   "totalCategories": 2
 }
@@ -29,28 +31,29 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get a single Category (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/categories/{categoryName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/categories/{categoryId}
 
 #Response
 {
-  "categories":"food",
   "description": "Category for food",
   "isActive": true,
-  "createdDate": "2020-06-12T11:16:04.060Z",
-  "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
+  "lastUpdatedDate": "2020-07-02T03:54:21.628Z",
+  "createdDate": "2020-07-02T03:54:21.628Z",
+  "name": "Food",
+  "id": "miSfk8RC2935IiDzC3fx"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Get product list of products from a category
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/categories/{categoryName}/products
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/categories/products/{categoryId}
 
 #Response
 [
-  "product1",
-  "product2",
-  "product3"
+  "qc9PSf6PsdBTnVxiqc0D",
+  "3V0TKHqOC2GLzzNceFKs",
+  "tV90MxDDZGHoIvBkCpr9"
 ]
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -61,20 +64,22 @@
 #Response
 {
   "categories": [
-    {
-      "category": "food",
-      "description": "Category for food",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "category": "pharmacy",
-      "description": "Category for medicines",
-      "isActive": true,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "description": "Category for mdecial products",
+          "isActive": true,
+          "lastUpdatedDate": "2020-07-02T03:54:14.321Z",
+          "createdDate": "2020-07-02T03:54:14.321Z",
+          "name": "Pharmacy",
+          "id": "2ZK0UUW4A8fg03G0OogB"
+      },
+      {
+          "description": "Category for books",
+          "isActive": true,
+          "lastUpdatedDate": "2020-07-02T03:55:41.208Z",
+          "createdDate": "2020-07-02T03:55:41.208Z",
+          "name": "Books",
+          "id": "B7t3rfHbkGhXnahF5d26"
+      }
   ],
   "totalCategories": 2
 }
@@ -87,20 +92,22 @@
 #Response
 {
   "categories": [
-    {
-      "category": "food",
-      "description": "Category for food",
-      "isActive": false,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    },
-    {
-      "category": "pharmacy",
-      "description": "Category for medicines",
-      "isActive": false,
-      "createdDate": "2020-06-12T11:16:04.060Z",
-      "lastUpdatedDate": "2020-06-12T11:16:14.460Z"
-    }
+      {
+          "description": "Category for mdecial products",
+          "isActive": false,
+          "lastUpdatedDate": "2020-07-02T03:54:14.321Z",
+          "createdDate": "2020-07-02T03:54:14.321Z",
+          "name": "Pharmacy",
+          "id": "2ZK0UUW4A8fg03G0OogB"
+      },
+      {
+          "description": "Category for books",
+          "isActive": false,
+          "lastUpdatedDate": "2020-07-02T03:55:41.208Z",
+          "createdDate": "2020-07-02T03:55:41.208Z",
+          "name": "Books",
+          "id": "B7t3rfHbkGhXnahF5d26"
+      }
   ],
   "totalCategories": 2
 }
@@ -112,13 +119,20 @@
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/categories
 #Request
 {
-  "category": "food",
-  "description": "Category for food"
+	"name": "books",
+	"description": "Category for books",
+	"isActive": true
 }
 
 #Response: 201 
 {
-  "message": "created successfully"
+  "id": "wZI0p2Aun1T5I1fD2UWP",
+  "name": "books",
+  "description": "Category for books",
+  "isActive": true,
+  "createdDate": "2020-07-02T13:29:57.794Z",
+  "lastUpdatedDate": "2020-07-02T13:29:57.794Z",
+  "products": []
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -129,9 +143,13 @@
 
 #Request
 {
-  "category": "food",
-  "description": "Category for food",
-  "status": false
+  "id": "wZI0p2Aun1T5I1fD2UWP",
+  "name": "books",
+  "description": "Category for Books",
+  "isActive": false,
+  "createdDate": "2020-07-02T13:29:57.794Z",
+  "lastUpdatedDate": "2020-07-02T16:29:57.794Z",
+  "products": []
 }
 #Response - 204 - (No Content)
 
@@ -139,7 +157,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Delete Category (DELETE)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories/{categoryName}
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/categories/{categoryId}
 
 #Response - 200
 {
