@@ -130,12 +130,14 @@ router.put('/', isAdmin, async (request, response, next) => {
     }
     const oldData = unit.data()
     let data = request.body
-    delete data[constants.ID]
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await unitRef.update(data)
+    delete newData[constants.ID]
+    newData[constants.LAST_UPDATED_DATE] = new Date()
+    delete newData[constants.CREATED_DATE]
+    await branchRef.set(newData, { merge: true })
+    newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} updated unit ${oldData[constants.NAME]}`
-    audit.logEvent(eventMessage, request)
+    audit.logEvent(eventMessage, request, oldData, newData)
 
     logger.debug(`Updated unit ${oldData[constants.NAME]}`)
     response.sendStatus(204)
