@@ -206,11 +206,14 @@ router.put('/', isAdmin, async (request, response, next) => {
     const oldData = category.data()
     let data = request.body
     delete data[constants.ID]
-    data[constants.LAST_UPDATED_DATE] = new Date()
-    await categoryRef.update(data)
+    newData[constants.LAST_UPDATED_DATE] = new Date()
+    delete newData[constants.CREATED_DATE]
+    await categoryRef.set(newData, { merge: true })
+    newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
+    
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} updated category ${oldData[constants.NAME]}`
-    audit.logEvent(eventMessage, request)
+    audit.logEvent(eventMessage, request, oldData, newData)
 
     logger.debug(`Updated category ${oldData[constants.NAME]}`)
     response.sendStatus(204)

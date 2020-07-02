@@ -251,7 +251,7 @@ router.put('/', isAdmin, async (request, response, next) => {
 
     // Add event in Audit
     const eventMessage = `User ${request.user.firstName} updated product ${oldData[constants.NAME]}`
-    audit.logEvent(eventMessage, request)
+    audit.logEvent(eventMessage, request, oldData, newData)
 
     logger.debug(`Updated product ${oldData[constants.NAME]}`)
     response.sendStatus(204)
