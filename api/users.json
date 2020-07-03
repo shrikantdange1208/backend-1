@@ -1,0 +1,123 @@
+# /api/users
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All users (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/users
+#Response
+{
+    "users": [
+      {
+        "id": "2vNSY3hwJ7Nbfua61rlLMzV3VRg2",
+        "firstName": "Erica M",
+        "role": "system",
+        "createdDate": "2020-06-23T09:01:01.833Z",
+        "isActive": true,
+        "branch": "kormangala",
+        "lastName": "George",
+        "contact": "9876543210",
+        "lastUpdatedDate": "2020-06-27T07:52:49.798Z",
+        "email": "jeorge@abc.com"
+      },
+      {
+        "id": "NizrRMS4mrWtyHz3Qwl3Lqpf8Mw2",
+        "firstName": "John",
+        "role": "system",
+        "createdDate": "2020-06-28T10:33:21.483Z",
+        "isActive": true,
+        "branch": "kormangala",
+        "contact": "1231231234",
+        "lastName": "Doe",
+        "email": "john@gamil.com",
+        "lastUpdatedDate": "2020-06-28T10:33:21.483Z"
+      }
+    ],
+    "totalUsers": 4
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get specific users (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/users/{id}
+#Response 200
+
+{
+    "id": "2vNSY3hwJ7Nbfua61rlLMzV3VRg2",
+    "firstName": "Erica M",
+    "role": "system",
+    "createdDate": "2020-06-23T09:01:01.833Z",
+    "isActive": true,
+    "branch": "kormangala",
+    "lastName": "George",
+    "contact": "9876543210",
+    "lastUpdatedDate": "2020-06-27T07:52:49.798Z",
+    "email": "jeorge@abc.com"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+# Add User (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/users
+#Request
+{
+	"firstName": "David",
+	"role": "system",
+	"isActive": true,
+	"branch": "kormangala",
+	"contact": "9876543210",
+	"lastName": "Dam",
+	"email": "david@david.com"
+}
+
+#Response 201 
+{
+    "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
+    "firstName": "David",
+    "role": "system",
+    "isActive": true,
+    "branch": "kormangala",
+    "contact": "9876543210",
+    "lastName": "Dam",
+    "email": "david@david.com",
+    "createdDate": "2020-06-28T11:17:06.587Z",
+    "lastUpdatedDate": "2020-06-28T11:17:06.587Z"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Operation (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/users
+
+#Request
+{
+	"id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
+	"firstName": "David",
+	"role": "system",
+	"createdDate": "2020-06-28T10:34:54.737Z",
+	"isActive": true,
+	"branch": "sarjapur",
+	"contact": "9876543210",
+	"lastName": "Dam",
+	"email": "david@david.com",
+	"lastUpdatedDate": "2020-06-28T10:34:54.737Z"
+}
+
+#Response - 204 - (No Content)
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Delete user (DELETE)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/users/{id}
+
+#Response - 200 OK 
+{
+    "message": "deleted successfully"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------

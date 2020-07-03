@@ -5,7 +5,6 @@ const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const express = require('express');
-const { data } = require('../middleware/logger');
 const router = express.Router();
 const db = admin.firestore();
 
@@ -30,7 +29,7 @@ router.post('/addProduct', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -55,7 +54,7 @@ router.post('/issueProduct', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -80,9 +79,91 @@ router.post('/adjustment', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
+
+/**
+ * Route to request products from a branch
+ * @returns 201 Created
+ */
+router.post('/request', async (req, res, next) => {
+    const { error } = validateRequestAndAcceptTransactionParams(req.body, constants.REQUEST)
+    if (error) {
+        const err = new Error(error.details[0].message)
+        err.statusCode = 400
+        next(err)
+        return;
+    }
+    const { toBranch, fromBranch, product, operationalQuantity, comments } = req.body
+    const branchDocRef = await db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).add({
+        product,
+        operationalQuantity,
+        fromBranch,
+        operation: constants.TRANSFER_IN,
+        comments,
+        date: new Date(),
+        user: req.user.email
+    })
+    const id = branchDocRef.id
+    await db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(id).set({
+        product,
+        operationalQuantity,
+        toBranch,
+        comments,
+        operation: constants.TRANSFER_OUT,
+        date: new Date(),
+        user: req.user.email
+    })
+    res.status(201).send({ pendingTransactionsId: id })
+})
+
+//TODO: change as per latest discussion 
+/**
+ * Route to accept the transfer of products to a branch
+ * @returns 201 Created
+ */
+// router.post('/accept', async (req, res, next) => {
+//     const { error } = validateRequestAndAcceptTransactionParams(req.body, constants.ACCEPT)
+//     if (error) {
+//         const err = new Error(error.details[0].message)
+//         err.statusCode = 400
+//         next(err)
+//         return;
+//     }
+//     const { toBranch, fromBranch, pendingTransactionsId } = req.body
+//     const toBranchPendingTrxDocRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_TRANSACTIONS).doc(pendingTransactionsId)
+//     const fromBranchPendingTrxDocRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_TRANSACTIONS).doc(pendingTransactionsId)
+//     let toBranchDoc
+//     let fromBranchDoc
+//     const docs = await db.getAll(toBranchPendingTrxDocRef, fromBranchPendingTrxDocRef)
+//     toBranchDoc = docs[0]
+//     fromBranchDoc = docs[1]
+
+//     if (!toBranchDoc.exists || !fromBranchDoc.exists) {
+//         const error = new Error(`No pending transaction to accept`)
+//         error.statusCode = 404
+//         next(error)
+//         return
+//     }
+//     const toBranchData = toBranchDoc.data()
+//     toBranchData[constants.DATE] = new Date()
+//     toBranchData[constants.BRANCH] = toBranch
+//     toBranchData[constants.TRANSACTIONID] = pendingTransactionsId
+//     tobranchTransaction = createTransaction(toBranchData)
+
+//     const fromBranchData = fromBranchDoc.data()
+//     fromBranchData[constants.DATE] = new Date()
+//     fromBranchData[constants.BRANCH] = fromBranch
+//     fromBranchData[constants.TRANSACTIONID] = pendingTransactionsId
+//     fromBranchTransaction = createTransaction(fromBranchData)
+//     const toBranchTransactionId = await tobranchTransaction
+//     const fromBranchTransactionId = await fromBranchTransaction
+    
+//     await toBranchPendingTrxDocRef.delete()
+//     await fromBranchPendingTrxDocRef.delete()
+//     res.status(201).send({ transactionId: pendingTransactionsId, toBranchTransactionId, fromBranchTransactionId })
+// })
 
 /**
  * Validates the request body.
@@ -101,10 +182,35 @@ function validateParams(body) {
             .max(30)
             .required(),
         operationalQuantity: joi.number()
-                    .required()
+            .required()
     })
     return validate(schema, body)
 }
+
+function validateRequestAndAcceptTransactionParams(body, type) {
+    let schema
+    switch (type) {
+        case constants.REQUEST:
+            schema = joi.object({
+                toBranch: joi.string().alphanum().length(20).required(),
+                fromBranch: joi.string().alphanum().length(20).required(),
+                product: joi.string().min(1).max(30).required(),
+                operationalQuantity: joi.number().required(),
+                comments: joi.string()
+            })
+            break
+        case constants.ACCEPT:
+            schema = joi.object({
+                toBranch: joi.string().alphanum().length(20).required(),
+                fromBranch: joi.string().alphanum().length(20).required(),
+                pendingTransactionsId: joi.string().alphanum().length(20).required()
+            })
+            break
+    }
+    return validate(schema, body)
+
+}
+
 
 module.exports = router;
 
@@ -112,7 +218,7 @@ module.exports = router;
  * Method to create a new transaction
  * @param {data for the transaction} data
  */
-module.exports.createTransaction = async function (data) {
+const createTransaction = async function (data) {
     const branchId = data[constants.BRANCH]
     delete data[constants.BRANCH]
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
@@ -180,16 +286,16 @@ module.exports.updateAvailableQuantityInInventory = functions.firestore
         logger.info(`Updating availableQuantity for product ${transactionRecord[constants.PRODUCT]} in branch ${branchId}`)
 
         const inventoryRef = await db.collection(constants.BRANCHES).doc(branchId)
-                                .collection(constants.INVENTORY)
+            .collection(constants.INVENTORY)
         const inventorySnapshot = await inventoryRef
-                                .doc(productId)
-                                .get()
+            .doc(productId)
+            .get()
 
         var data = {}
-        if(!inventorySnapshot.exists) {
+        if (!inventorySnapshot.exists) {
             const productSnapshot = await db.collection(constants.PRODUCTS)
-                                        .doc(productId).get()
-            
+                .doc(productId).get()
+
             data[constants.CATEGORY] = productSnapshot.get(constants.CATEGORY)
             data[constants.THRESHOLD] = productSnapshot.get(constants.THRESHOLDS)[branchId]
             data[constants.UNIT] = productSnapshot.get(constants.UNIT)

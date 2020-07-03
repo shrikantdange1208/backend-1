@@ -19,29 +19,28 @@ router.post('/', isAdmin, async (req, res, next) => {
         next(err)
         return
     }
-    const { label } = req.body
-    const id = label.toLocaleLowerCase()
-    let rolesRef = db.collection(constants.ROLES).doc(id)
-    const doc = await rolesRef.get()
-    if (doc.exists) {
-        const err = new Error(`Role ${id} already exists. Please update if needed.`)
+    const { name } = req.body
+    let rolesRef = db.collection(constants.ROLES).where('name','==', name)
+    const snapshot = await rolesRef.get()
+    if (!snapshot.empty) {
+        const err = new Error(`Role ${name} already exists. Please update if needed.`)
         err.statusCode = 404
         next(err)
         return
     }
-    const response = {
+    const data = {
         ...req.body,
         createdDate: new Date(),
         lastUpdatedDate: new Date()
     }
-    await rolesRef.set({
-        ...response
+    const response = await db.collection(constants.ROLES).add({
+        ...data
     })
     // Fire and forget audit log
-    const eventMessage = `User ${req.user.firstName} created new role ${id}`
+    const eventMessage = `User ${req.user.firstName} created new role ${name}`
     audit.logEvent(eventMessage, req)
 
-    res.status(201).send({ id, ...response })
+    res.status(201).send({ id: response.id, ...data })
 })
 
 /*
@@ -66,8 +65,8 @@ router.get('/', async (req, res, next) => {
 /*
 1.Returns a specific role and its permissions, description, status
 */
-router.get('/:role', async (req, res, next) => {
-    let rolesRef = db.collection(constants.ROLES).doc(req.params.role.toLocaleLowerCase())
+router.get('/:id', async (req, res, next) => {
+    let rolesRef = db.collection(constants.ROLES).doc(req.params.id)
     const doc = await rolesRef.get()
     if (!doc.exists) {
         const error = new Error(`${req.params.role} not found in firestore`)
@@ -97,7 +96,7 @@ router.put('/', isAdmin, async (req, res, next) => {
     }
     const { id } = req.body
     delete req.body.id
-    let rolesRef = db.collection(constants.ROLES).doc(id.toLocaleLowerCase())
+    let rolesRef = db.collection(constants.ROLES).doc(id)
     const doc = await rolesRef.get()
     if (!doc.exists) {
         const error = new Error(`Requested ${id} is not present in firestore`)
@@ -105,14 +104,17 @@ router.put('/', isAdmin, async (req, res, next) => {
         next(error)
         return
     }
-    await rolesRef.update({
-        ...req.body,
-        lastUpdatedDate: new Date()
-    })
+    const oldData = doc.data()
+    let newData = req.body
+    delete newData[constants.ID]
+    delete newData[constants.CREATED_DATE]
+    newData[constants.LAST_UPDATED_DATE] = new Date()
+    await usersRef.set(newData, { merge: true })
+    newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
 
     // Fire and forget audit log
-    const eventMessage = `User ${req.user.firstName} updated role ${id.toLocaleLowerCase()}`
-    audit.logEvent(eventMessage, req)
+    const eventMessage = `User ${req.user.firstName} updated role ${oldData[constants.NAME]}`
+    audit.logEvent(eventMessage, req, oldData, newData)
 
     res.sendStatus(204)
 
@@ -121,19 +123,20 @@ router.put('/', isAdmin, async (req, res, next) => {
 /*
 1.Deletes the role record
 */
-router.delete('/:role', isAdmin, async (req, res, next) => {
-    let rolesRef = db.collection(constants.ROLES).doc(req.params.role.toLocaleLowerCase())
+router.delete('/:id', isAdmin, async (req, res, next) => {
+    let rolesRef = db.collection(constants.ROLES).doc(req.params.id)
     const doc = await rolesRef.get()
     if (!doc.exists) {
-        const error = new Error(`${req.params.role} not found in firestore`)
+        const error = new Error(`${req.params.id} not found in firestore`)
         error.statusCode = 404
         next(error)
         return
     }
+    const { name } = doc.data()
     await rolesRef.delete()
 
     // Fire and forget audit log
-    const eventMessage = `User ${req.user.firstName} deleted role ${req.params.role.toLocaleLowerCase()}`
+    const eventMessage = `User ${req.user.firstName} deleted role ${name}`
     audit.logEvent(eventMessage, req)
 
     res.status(200).send({ 'message': 'deleted successfully' })
@@ -145,19 +148,19 @@ function validateInput(body, type) {
 
         case constants.CREATE:
             schema = joi.object().keys({
-                label: joi.string().regex(/^[a-zA-Z]{5,10}$/).required(),
+                name: joi.string().regex(/^[a-zA-Z]{5,10}$/).required(),
                 description: joi.string().regex(/^[a-z A-Z]{5,40}$/).required(),
                 permissions: joi.array().items(joi.string().required()).required(),
-                isActive: joi.bool()
+                isActive: joi.bool().required()
             })
             break
         case constants.UPDATE:
             schema = joi.object().keys({
-                id: joi.string().lowercase().regex(/^[a-z]{5,10}$/).required(),
+                id: joi.string().alphanum().length(20).required(),
                 description: joi.string().regex(/^[a-z A-Z]{5,40}$/).optional(),
                 permissions: joi.array().items(joi.string().required()).required(),
                 isActive: joi.bool(),
-                label: joi.string().regex(/^[a-zA-Z]{5,10}$/),
+                name: joi.string().regex(/^[a-zA-Z]{5,10}$/),
                 lastUpdatedDate: joi.date()
             })
             break

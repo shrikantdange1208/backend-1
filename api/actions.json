@@ -45,3 +45,25 @@
 {
     "transactionId": "5KZTecgMrx4CM8a71kkc"
 }
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Request Product Operation (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/request
+#Request
+{
+	"toBranch": "MxoS2K8t8jT7MATniD4x",
+	"fromBranch": "R1vTnxSLWByLa7NocDDX",
+	"product": "milk",
+	"operationalQuantity": 5,
+	"comments": "urgent requirement"
+}
+
+#Response (This transactionId is pendingTransactionId)
+{
+    "pendingTransactionsId": "gnVACYkIFM6vd8baebkA"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,41 @@
+# /api/permissions
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All permissions (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/permissions
+#Response
+{
+    "permissions": [
+      {
+        "id": "1KXrCSUujr2mQBCGWNPq",
+        "permission": "VIEW_BRANCHES",
+        "lastUpdatedDate": "2020-06-26T18:30:00.000Z",
+        "createdDate": "2020-06-26T18:30:00.000Z",
+        "description": "Permission to view all the branches"
+      },
+      {
+        "id": "TleQILkMYOoR8C38sDDb",
+        "createdDate": "2020-06-22T18:30:00.000Z",
+        "description": "Permission to view the available users",
+        "permission": "VIEW_USERS",
+        "lastUpdatedDate": "2020-06-22T18:30:00.000Z"
+      },
+      {
+        "id": "vSPDVwwNweyXdmkqP9wd",
+        "permission": "MANAGE_USERS",
+        "lastUpdatedDate": "2020-06-22T18:30:00.000Z",
+        "createdDate": "2020-06-22T18:30:00.000Z",
+        "description": "Permission to create, update and delete users"
+      },
+      {
+        "id": "xHxbEsoqSvCPVwwv1cl1",
+        "permission": "MANAGE_BRANCHES",
+        "lastUpdatedDate": "2020-06-26T18:30:00.000Z",
+        "createdDate": "2020-06-26T18:30:00.000Z",
+        "description": "Permission to manage all the roles"
+      }
+    ],
+    "totalPermissions": 4
+  }
