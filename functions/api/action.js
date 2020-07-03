@@ -29,7 +29,7 @@ router.post('/addProduct', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -54,7 +54,7 @@ router.post('/issueProduct', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -79,7 +79,7 @@ router.post('/adjustment', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -96,7 +96,7 @@ router.post('/request', async (req, res, next) => {
         return;
     }
     const { toBranch, fromBranch, product, operationalQuantity, comments } = req.body
-    const branchDocRef = await db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_TRANSACTIONS).add({
+    const branchDocRef = await db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).add({
         product,
         operationalQuantity,
         fromBranch,
@@ -106,7 +106,7 @@ router.post('/request', async (req, res, next) => {
         user: req.user.email
     })
     const id = branchDocRef.id
-    await db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_TRANSACTIONS).doc(id).set({
+    await db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(id).set({
         product,
         operationalQuantity,
         toBranch,
