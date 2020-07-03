@@ -298,8 +298,8 @@ module.exports.addOrUpdateCategory = functions.firestore
         if (!change.before._fieldsProto) {
             logger.debug(`New category ${change.after.id} has been created`)
         } else if (!change.after._fieldsProto) {
-            var oldData = change.before.data()
-            logger.debug(`Category ${oldData[constants.NAME]} has been deleted`)
+            var data = change.before.data()
+            logger.debug(`Category ${data[constants.NAME]} has been deleted`)
             deleteAllProductsFromCategory(change.before)
         } else {
             logger.debug(`Category ${change.before.id} has been updated`)
