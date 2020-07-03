@@ -100,8 +100,14 @@ function validateParams(body) {
             .min(1)
             .max(30)
             .required(),
+        productName: joi.string()
+            .min(1)
+            .max(30)
+            .required(),
         operationalQuantity: joi.number()
-                    .required()
+                    .required(),
+        note: joi.string()
+
     })
     return validate(schema, body)
 }
@@ -161,49 +167,15 @@ function getClosingQuantity(operation, initialQuantity, operationalQuantity) {
             return initialQuantity + operationalQuantity
         case constants.ISSUE_PRODUCT:
         case constants.TRANSFER_OUT:
+            if(operationalQuantity > initialQuantity) {
+                const error = new Error(`Requested quantity ${operationalQuantity} is greater than the available quantity ${initialQuantity}`)
+                error.statusCode = 400
+                throw  error
+            }
             return initialQuantity - operationalQuantity
         case constants.ADJUSTMENT:
             return operationalQuantity
     }
 }
 
-/**
- * Trigger to update availableQuantity and isBelowThreshold value after
- * a transaction is completed for a particular branch
- */
-module.exports.updateAvailableQuantityInInventory = functions.firestore
-    .document(`/${constants.BRANCHES}/{branch}/${constants.TRANSACTIONS}/{transactionId}`)
-    .onWrite(async (snapshot, context) => {
-        const transactionRecord = snapshot.after.data()
-        const branchId = context.params.branch
-        const productId = transactionRecord[constants.PRODUCT]
-        logger.info(`Updating availableQuantity for product ${transactionRecord[constants.PRODUCT]} in branch ${branchId}`)
 
-        const inventoryRef = await db.collection(constants.BRANCHES).doc(branchId)
-                                .collection(constants.INVENTORY)
-        const inventorySnapshot = await inventoryRef
-                                .doc(productId)
-                                .get()
-
-        var data = {}
-        if(!inventorySnapshot.exists) {
-            const productSnapshot = await db.collection(constants.PRODUCTS)
-                                        .doc(productId).get()
-            
-            data[constants.CATEGORY] = productSnapshot.get(constants.CATEGORY)
-            data[constants.THRESHOLD] = productSnapshot.get(constants.THRESHOLDS)[branchId]
-            data[constants.UNIT] = productSnapshot.get(constants.UNIT)
-            //branchInventory[productId] = data
-        } else {
-            data = inventorySnapshot.data()
-        }
-        // const inventorySnapshot = await inventoryRef.get()
-        // const branchInventory = inventorySnapshot.get(constants.INVENTORY)
-
-        data[constants.AVAILABLE_QUANTITY]
-            = transactionRecord[constants.CLOSING_QUANTITY]
-        data[constants.IS_BELOW_THRESHOLD]
-            = transactionRecord[constants.CLOSING_QUANTITY] < data[constants.THRESHOLD]
-                ? true : false
-        inventoryRef.doc(productId).set(data)
-    });
