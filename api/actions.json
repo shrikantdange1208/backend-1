@@ -67,19 +67,3 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
-
-# Accept to transfer product Operation (POST)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/accept
-#Request
-{
-	"toBranch": "MxoS2K8t8jT7MATniD4x",
-	"fromBranch": "R1vTnxSLWByLa7NocDDX",
-	"pendingTransactionsId": "gnVACYkIFM6vd8baebkA"
-}
-
-#Response
-{
-    "transactionId": "gnVACYkIFM6vd8baebkA",// this is the linking id between both transactions
-    "toBranchTransactionId": "v8jszk47HSPQP2IG1a7w",
-    "fromBranchTransactionId": "PgR3qYexQoOSHzprXbBT"
-}

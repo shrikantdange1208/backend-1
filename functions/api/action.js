@@ -118,51 +118,52 @@ router.post('/request', async (req, res, next) => {
     res.status(201).send({ pendingTransactionsId: id })
 })
 
+//TODO: change as per latest discussion 
 /**
  * Route to accept the transfer of products to a branch
  * @returns 201 Created
  */
-router.post('/accept', async (req, res, next) => {
-    const { error } = validateRequestAndAcceptTransactionParams(req.body, constants.ACCEPT)
-    if (error) {
-        const err = new Error(error.details[0].message)
-        err.statusCode = 400
-        next(err)
-        return;
-    }
-    const { toBranch, fromBranch, pendingTransactionsId } = req.body
-    const toBranchPendingTrxDocRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_TRANSACTIONS).doc(pendingTransactionsId)
-    const fromBranchPendingTrxDocRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_TRANSACTIONS).doc(pendingTransactionsId)
-    let toBranchDoc
-    let fromBranchDoc
-    const docs = await db.getAll(toBranchPendingTrxDocRef, fromBranchPendingTrxDocRef)
-    toBranchDoc = docs[0]
-    fromBranchDoc = docs[1]
+// router.post('/accept', async (req, res, next) => {
+//     const { error } = validateRequestAndAcceptTransactionParams(req.body, constants.ACCEPT)
+//     if (error) {
+//         const err = new Error(error.details[0].message)
+//         err.statusCode = 400
+//         next(err)
+//         return;
+//     }
+//     const { toBranch, fromBranch, pendingTransactionsId } = req.body
+//     const toBranchPendingTrxDocRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_TRANSACTIONS).doc(pendingTransactionsId)
+//     const fromBranchPendingTrxDocRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_TRANSACTIONS).doc(pendingTransactionsId)
+//     let toBranchDoc
+//     let fromBranchDoc
+//     const docs = await db.getAll(toBranchPendingTrxDocRef, fromBranchPendingTrxDocRef)
+//     toBranchDoc = docs[0]
+//     fromBranchDoc = docs[1]
 
-    if (!toBranchDoc.exists || !fromBranchDoc.exists) {
-        const error = new Error(`No pending transaction to accept`)
-        error.statusCode = 404
-        next(error)
-        return
-    }
-    const toBranchData = toBranchDoc.data()
-    toBranchData[constants.DATE] = new Date()
-    toBranchData[constants.BRANCH] = toBranch
-    toBranchData[constants.TRANSACTIONID] = pendingTransactionsId
-    tobranchTransaction = createTransaction(toBranchData)
+//     if (!toBranchDoc.exists || !fromBranchDoc.exists) {
+//         const error = new Error(`No pending transaction to accept`)
+//         error.statusCode = 404
+//         next(error)
+//         return
+//     }
+//     const toBranchData = toBranchDoc.data()
+//     toBranchData[constants.DATE] = new Date()
+//     toBranchData[constants.BRANCH] = toBranch
+//     toBranchData[constants.TRANSACTIONID] = pendingTransactionsId
+//     tobranchTransaction = createTransaction(toBranchData)
 
-    const fromBranchData = fromBranchDoc.data()
-    fromBranchData[constants.DATE] = new Date()
-    fromBranchData[constants.BRANCH] = fromBranch
-    fromBranchData[constants.TRANSACTIONID] = pendingTransactionsId
-    fromBranchTransaction = createTransaction(fromBranchData)
-    const toBranchTransactionId = await tobranchTransaction
-    const fromBranchTransactionId = await fromBranchTransaction
+//     const fromBranchData = fromBranchDoc.data()
+//     fromBranchData[constants.DATE] = new Date()
+//     fromBranchData[constants.BRANCH] = fromBranch
+//     fromBranchData[constants.TRANSACTIONID] = pendingTransactionsId
+//     fromBranchTransaction = createTransaction(fromBranchData)
+//     const toBranchTransactionId = await tobranchTransaction
+//     const fromBranchTransactionId = await fromBranchTransaction
     
-    await toBranchPendingTrxDocRef.delete()
-    await fromBranchPendingTrxDocRef.delete()
-    res.status(201).send({ transactionId: pendingTransactionsId, toBranchTransactionId, fromBranchTransactionId })
-})
+//     await toBranchPendingTrxDocRef.delete()
+//     await fromBranchPendingTrxDocRef.delete()
+//     res.status(201).send({ transactionId: pendingTransactionsId, toBranchTransactionId, fromBranchTransactionId })
+// })
 
 /**
  * Validates the request body.
