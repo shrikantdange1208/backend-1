@@ -72,4 +72,5 @@ define("AVAILABLE_QUANTITY", "availableQuantity");
 define("INITIAL_QUANTITY", "initialQuantity");
 define("CLOSING_QUANTITY", "closingQuantity");
 define("OPERATIONAL_QUANTITY", "operationalQuantity");
+define("NOTE", "note");
 

@@ -4,7 +4,6 @@ const { isAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
 const express = require('express');
 const router = express.Router();
-const cors = require('cors');
 const url = require('url');
 const db = admin.firestore();
 
@@ -24,7 +23,10 @@ router.get("/", isAdmin, async (request, response, next) => {
         console.log(`fetching document of branch ${doc.id}`);
         const branchSnapshot = await doc.get()
         const branchData = branchSnapshot.data()
-        let subCollectionDocRef = branchCollectionRef.doc(doc.id).collection('transactions');
+        let subCollectionDocRef = branchCollectionRef
+                                    .doc(doc.id)
+                                    .collection('transactions')
+                                    .orderBy(constants.DATE, 'desc');
         if(user){
             subCollectionDocRef = subCollectionDocRef.where(constants.USER,"==",user)
         }
@@ -63,6 +65,7 @@ router.get("/:id", isAdmin, async (request, response, next) => {
     let transactionCollection = db.collection(constants.BRANCHES)
                                     .doc(branchId)
                                     .collection(constants.TRANSACTIONS)
+                                    .orderBy(constants.DATE, 'desc')
     if(user){
         transactionCollection = transactionCollection.where(constants.USER,"==",user)
     }
