@@ -96,9 +96,7 @@ router.get('/:id', async (req, res, next) => {
 3.Sets/updates the custom claims for the uid
 */
 router.put('/', isAdmin, async (req, res, next) => {
-    if (req.body.createdDate) {
-        delete req.body.createdDate
-    }
+ 
     const { error } = validateInput(req.body, constants.UPDATE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -116,10 +114,14 @@ router.put('/', isAdmin, async (req, res, next) => {
         next(error)
         return
     }
-    await usersRef.update({
-        ...req.body,
-        lastUpdatedDate: new Date()
-    })
+    const oldData = doc.data()
+    let newData = req.body
+    delete newData[constants.ID]
+    delete newData[constants.CREATED_DATE]
+    newData[constants.LAST_UPDATED_DATE] = new Date()
+    await usersRef.set(newData, { merge: true })
+    newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
+    
     if (role && branch) {
         await admin.auth().setCustomUserClaims(id, {
             role: role.toLocaleLowerCase(),
@@ -127,8 +129,8 @@ router.put('/', isAdmin, async (req, res, next) => {
         })
     }
     // Fire and forget audit log
-    const eventMessage = `User ${req.user.firstName} updated user ${req.body.firstName}`
-    audit.logEvent(eventMessage, req)
+    const eventMessage = `User ${request.user.firstName} updated user ${oldData[constants.NAME]}`
+    audit.logEvent(eventMessage, req, oldData, newData)
 
     res.sendStatus(204)
 })
@@ -165,7 +167,7 @@ function validateInput(body, type) {
                 firstName: joi.string().min(1).max(30).required(),
                 lastName: joi.string().min(1).max(30).required(),
                 contact: joi.string().length(10).required(),
-                isActive: joi.bool().default(true),
+                isActive: joi.bool().required(),
                 email: joi.string().email({ minDomainSegments: 2 }).required()
             })
             break
@@ -179,6 +181,7 @@ function validateInput(body, type) {
                 contact: joi.string().length(10),
                 isActive: joi.bool(),
                 email: joi.string().email({ minDomainSegments: 2 }),
+                createdDate: joi.date(),
                 lastUpdatedDate: joi.date()
             })
             break
@@ -188,7 +191,10 @@ function validateInput(body, type) {
 
 module.exports = router
 
-
+/*
+Trigger on users collection
+Updates the users info in branch collection for every create, update, delete of users in users collection
+*/
 module.exports.modifyUsers = functions.firestore
     .document(`/${constants.USERS}/{userId}`)
     .onWrite(async (change, context) => {

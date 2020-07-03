@@ -17,7 +17,7 @@ router.post('/addProduct', async (request, response, next) => {
     logger.info(`Adding product to inventory....`);
     // Validate parameters
     logger.debug('Validating params.')
-    const { error } = validateParams(request.body)
+    const { error } = validateParams(request.body, constants.ADD_PRODUCT)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -42,7 +42,7 @@ router.post('/issueProduct', async (request, response, next) => {
     logger.info(`Issuing product from the inventory....`);
     // Validate parameters
     logger.debug('Validating params.')
-    const { error } = validateParams(request.body)
+    const { error } = validateParams(request.body, constants.ISSUE_PRODUCT)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -67,7 +67,7 @@ router.post('/adjustment', async (request, response, next) => {
     logger.info(`Adjusting product value in the inventory....`);
     // Validate parameters
     logger.debug('Validating params.')
-    const { error } = validateParams(request.body)
+    const { error } = validateParams(request.body, constants.ADJUSTMENT)
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
@@ -84,32 +84,50 @@ router.post('/adjustment', async (request, response, next) => {
     response.status(201).json({ 'transactionId': transactionId })
 });
 
-/**
- * Validates the request body.
- * @param {*} body request body
- * @param {*} type identifier to determine which request is to be validated
- */
-function validateParams(body) {
-
-    let schema = joi.object({
-        branch: joi.string()
-            .min(1)
-            .max(30)
-            .required(),
-        product: joi.string()
-            .min(1)
-            .max(30)
-            .required(),
-        productName: joi.string()
-            .min(1)
-            .max(30)
-            .required(),
-        operationalQuantity: joi.number()
+function validateParams(body, type) {
+    let schema
+    switch (type) {
+        case constants.ADD_PRODUCT:
+        case constants.ISSUE_PRODUCT:
+        case constants.ADJUSTMENT:
+            schema = joi.object({
+                branch: joi.string()
+                    .min(1)
+                    .max(30)
                     .required(),
-        note: joi.string()
-
-    })
+                product: joi.string()
+                    .min(1)
+                    .max(30)
+                    .required(),
+                productName: joi.string()
+                    .min(1)
+                    .max(30)
+                    .required(),
+                operationalQuantity: joi.number()
+                            .required(),
+                note: joi.string()
+            })
+            break
+        case constants.REQUEST:
+            schema = joi.object({
+                toBranch: joi.string().alphanum().length(20).required(),
+                fromBranch: joi.string().alphanum().length(20).required(),
+                product: joi.string().min(1).max(30).required(),
+                operationalQuantity: joi.number().required(),
+                note: joi.string()
+            })
+            break
+        case constants.ACCEPT:
+            schema = joi.object({
+                toBranch: joi.string().alphanum().length(20).required(),
+                fromBranch: joi.string().alphanum().length(20).required(),
+                pendingTransactionsId: joi.string().alphanum().length(20).required(),
+                note: joi.string()
+            })
+            break
+    }
     return validate(schema, body)
+
 }
 
 module.exports = router;

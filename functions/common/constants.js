@@ -60,9 +60,10 @@ define("AFTER", "after");
 
 //Transaction constants
 define("TRANSACTIONS", "transactions");
+define("PENDING_REQUESTS", "pendingRequests");
 
 // Action constants
-define("TRANSACTIONID", "transactionID");
+define("TRANSACTIONID", "transactionId");
 define("ADD_PRODUCT", "addProduct");
 define("ISSUE_PRODUCT", "issueProduct");
 define("TRANSFER_IN", "transferIn");
@@ -74,3 +75,5 @@ define("CLOSING_QUANTITY", "closingQuantity");
 define("OPERATIONAL_QUANTITY", "operationalQuantity");
 define("NOTE", "note");
 
+define("REQUEST", "request");
+define("ACCEPT", "accept");

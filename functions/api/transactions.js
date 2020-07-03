@@ -25,7 +25,7 @@ router.get("/", isAdmin, async (request, response, next) => {
         const branchData = branchSnapshot.data()
         let subCollectionDocRef = branchCollectionRef
                                     .doc(doc.id)
-                                    .collection('transactions')
+                                    .collection(constants.TRANSACTIONS)
                                     .orderBy(constants.DATE, 'desc');
         if(user){
             subCollectionDocRef = subCollectionDocRef.where(constants.USER,"==",user)
