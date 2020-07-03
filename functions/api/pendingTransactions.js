@@ -27,25 +27,4 @@ router.get("/branches/:id", async (req, res, next) => {
     res.status(200).send(response);
 });
 
-/**
- * @description Route to retrieve pending transactions for all branches
- * @returns Json object containing all pending transactions
- */
-router.get("/branches", async (req, res, next) => {
-    const branchId = req.params.id
-    const allPendingTransactions = []
-    let pendingTransactions = db.collection(constants.BRANCHES).doc(branchId).collection(constants.PENDING_TRANSACTIONS);
-    let snapshot = await pendingTransactions.get()
-    snapshot.forEach(transaction => {
-        const trxData = transaction.data()
-        trxData[constants.DATE] = trxData[constants.DATE].toDate()
-        allPendingTransactions.push({ id: transaction.id, ...trxData })
-    })
-    const response = {
-        pendingTransactions: allPendingTransactions,
-        totalPendingTransactions: allPendingTransactions.length
-    }
-    res.status(200).send(response);
-});
-
 module.exports = router;
