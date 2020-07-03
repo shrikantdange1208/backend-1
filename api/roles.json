@@ -1,0 +1,105 @@
+# /api/roles
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All roles (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/roles
+#Response
+{
+    "roles": [
+        {
+            "id": "0JFHrko1NBXzcwvtIiYX",
+            "lastUpdatedDate": "2020-07-01T17:37:13.282Z",
+            "description": "branch access",
+            "permissions": [
+              "VIEW_DASHBOARD"
+            ],
+            "createdDate": "2020-07-01T17:37:13.282Z",
+            "isActive": true,
+            "name": "branch"
+          }
+    ],
+    "totalRoles": 1
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get specific role (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/roles/{id}
+#Response 200
+
+{
+    "id": "0JFHrko1NBXzcwvtIiYX",
+    "lastUpdatedDate": "2020-07-01T17:37:13.282Z",
+    "description": "branch access",
+    "permissions": [
+      "VIEW_DASHBOARD"
+    ],
+    "createdDate": "2020-07-01T17:37:13.282Z",
+    "isActive": true,
+    "name": "branch"
+}
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+# Add User (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/roles
+#Request
+{
+    "name": "branch",
+    "description": "branch access",
+    "permissions": [
+          "VIEW_DASHBOARD"
+    ],
+      "isActive": true
+}
+
+#Response 201 
+{
+    "id": "0JFHrko1NBXzcwvtIiYX",
+    "lastUpdatedDate": "2020-07-01T17:37:13.282Z",
+    "description": "branch access",
+    "permissions": [
+      "VIEW_DASHBOARD"
+    ],
+    "createdDate": "2020-07-01T17:37:13.282Z",
+    "isActive": true,
+    "name": "branch"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Update Operation (PUT)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/roles
+
+#Request
+{
+    "id": "0JFHrko1NBXzcwvtIiYX",
+    "permissions": [
+      "DUMMY"
+    ],
+    "createdDate": "2020-06-28T06:51:34.588Z",
+    "isActive": false,
+    "name": "DUMMYROLE",
+    "lastUpdatedDate": "2020-06-28T06:51:34.588Z",
+    "description": "Dummy role"
+  }
+
+#Response - 204 - (No Content)
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Delete role (DELETE)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/roles/{id}
+
+#Response - 200 OK 
+{
+    "message": "deleted successfully"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
