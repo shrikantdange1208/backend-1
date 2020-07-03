@@ -30,7 +30,7 @@ router.post('/addProduct', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -55,7 +55,7 @@ router.post('/issueProduct', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -80,7 +80,7 @@ router.post('/adjustment', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await module.exports.createTransaction(data)
+    const transactionId = await createTransaction(data)
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -136,7 +136,7 @@ module.exports = router;
  * Method to create a new transaction
  * @param {data for the transaction} data
  */
-module.exports.createTransaction = async function (data) {
+const createTransaction = async function (data) {
     const branchId = data[constants.BRANCH]
     delete data[constants.BRANCH]
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
