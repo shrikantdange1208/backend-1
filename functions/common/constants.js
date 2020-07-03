@@ -60,7 +60,7 @@ define("AFTER", "after");
 
 //Transaction constants
 define("TRANSACTIONS", "transactions");
-define("PENDING_TRANSACTIONS", "pendingTransactions");
+define("PENDING_REQUESTS", "pendingRequests");
 
 // Action constants
 define("TRANSACTIONID", "transactionId");

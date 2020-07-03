@@ -114,7 +114,7 @@ router.put('/', isAdmin, async (req, res, next) => {
 
     // Fire and forget audit log
     const eventMessage = `User ${req.user.firstName} updated role ${oldData[constants.NAME]}`
-    audit.logEvent(eventMessage, req)
+    audit.logEvent(eventMessage, req, oldData, newData)
 
     res.sendStatus(204)
 
@@ -151,7 +151,7 @@ function validateInput(body, type) {
                 name: joi.string().regex(/^[a-zA-Z]{5,10}$/).required(),
                 description: joi.string().regex(/^[a-z A-Z]{5,40}$/).required(),
                 permissions: joi.array().items(joi.string().required()).required(),
-                isActive: joi.bool()
+                isActive: joi.bool().required()
             })
             break
         case constants.UPDATE:

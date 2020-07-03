@@ -12,7 +12,7 @@ const permissions = require('../api/permissions');
 const transactions = require('../api/transactions');
 const inventories = require('../api/inventory');
 const actions = require('../api/action');
-const pendingTransactions = require('../api/pendingTransactions');
+const pendingRequests = require('../api/pendingRequests');
 const { isAuthenticated } = require('../middleware/auth');
 const httperror = require('../middleware/error');
 
@@ -33,6 +33,6 @@ module.exports = function(app) {
     app.use('/api/inventories', inventories);
     app.use('/api/transactions',transactions);
     app.use('/api/actions', actions);
-    app.use('/api/pendingTransactions', pendingTransactions);
+    app.use('/api/pendingRequests', pendingRequests);
     app.use(httperror);
 }

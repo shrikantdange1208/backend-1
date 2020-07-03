@@ -167,7 +167,7 @@ function validateInput(body, type) {
                 firstName: joi.string().min(1).max(30).required(),
                 lastName: joi.string().min(1).max(30).required(),
                 contact: joi.string().length(10).required(),
-                isActive: joi.bool().default(true),
+                isActive: joi.bool().required(),
                 email: joi.string().email({ minDomainSegments: 2 }).required()
             })
             break
