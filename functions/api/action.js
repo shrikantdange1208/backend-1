@@ -84,6 +84,125 @@ router.post('/adjustment', async (request, response, next) => {
     response.status(201).json({ 'transactionId': transactionId })
 });
 
+/**
+ * Route to request products from a branch
+ * @returns 201 Created
+ */
+router.post('/requestProduct', async (req, res, next) => {
+    const { error } = validateParams(req.body, constants.REQUEST)
+    if (error) {
+        const err = new Error(error.details[0].message)
+        err.statusCode = 400
+        next(err)
+        return;
+    }
+    const { toBranch, fromBranch, toBranchName, fromBranchName, product, productName, operationalQuantity, note } = req.body
+    const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch);
+    const fromBranchRef = db.collection(constants.BRANCHES).doc(fromBranch);
+    const docs = await db.getAll(toBranchRef, fromBranchRef)
+    const toBranchDoc = docs[0]
+    const fromBranchDoc = docs[1]
+
+    if (!toBranchDoc.exists || !fromBranchDoc.exists) {
+        const error = new Error(`Branch does not exist. Can not request products`)
+        error.statusCode = 404
+        next(error)
+        return
+    }
+    const branchDocRef = await db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).add({
+        product,
+        productName,
+        operationalQuantity,
+        fromBranchName,
+        operation: constants.TRANSFER_IN,
+        note,
+        date: new Date(),
+        user: req.user.email
+    })
+    const id = branchDocRef.id
+    await db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(id).set({
+        product,
+        productName,
+        operationalQuantity,
+        toBranchName,
+        note,
+        operation: constants.TRANSFER_OUT,
+        date: new Date(),
+        user: req.user.email
+    })
+    res.status(201).send({ pendingRequestsId: id })
+})
+
+/**
+ * Route to accept the transfer of products to a branch
+ * @returns 201 Created
+ */
+router.post('/transferProduct', async (req, res, next) => {
+    const { error } = validateParams(req.body, constants.ACCEPT)
+    if (error) {
+        const err = new Error(error.details[0].message)
+        err.statusCode = 400
+        next(err)
+        return;
+    }
+    const { toBranch, fromBranch, toBranchName, fromBranchName, product, productName, operationalQuantity, pendingRequestsId } = req.body
+
+    //check if branches exist
+    const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch);
+    const fromBranchRef = db.collection(constants.BRANCHES).doc(fromBranch);
+    const docs = await db.getAll(toBranchRef, fromBranchRef)
+    const toBranchDoc = docs[0]
+    const fromBranchDoc = docs[1]
+
+    if (!toBranchDoc.exists || !fromBranchDoc.exists) {
+        const error = new Error(`Branch does not exist. Can not transfer out products`)
+        error.statusCode = 404
+        next(error)
+        return
+    }
+    
+    //check if pending requests exist
+    const toBranchPendingReqRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
+    const fromBranchPendingReqRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
+    const pendingReqDocs = await db.getAll(toBranchPendingReqRef, fromBranchPendingReqRef)
+    const toBranchPendingReqDoc = pendingReqDocs[0]
+    const fromBranchPendingReqDoc = pendingReqDocs[1]
+
+    if (!toBranchPendingReqDoc.exists || !fromBranchPendingReqDoc.exists) {
+        const error = new Error(`No pending requests to accept`)
+        error.statusCode = 404
+        next(error)
+        return
+    }
+    //create transferOut transaction
+    const fromBranchData = {
+        ...fromBranchPendingReqDoc.data(),
+        date: new Date(),
+        branch: fromBranch,
+        operationalQuantity,
+        transactionId: pendingRequestsId,
+        user: req.user.email //updating user to the one who accepts
+    }
+    fromBranchTransaction = createTransaction(fromBranchData)
+
+    //create transferIn transaction
+    const toBranchData = {
+        ...toBranchPendingReqDoc.data(),
+        date: new Date(),
+        branch: toBranch,
+        operationalQuantity,
+        transactionId: pendingRequestsId,
+    }
+    tobranchTransaction = createTransaction(toBranchData)
+
+    const fromBranchTransactionId = await fromBranchTransaction
+    const toBranchTransactionId = await tobranchTransaction
+    
+    await toBranchPendingReqRef.delete()
+    await fromBranchPendingReqRef.delete()
+    res.status(201).send({ transactionId: pendingRequestsId, toBranchTransactionId, fromBranchTransactionId })
+})
+
 function validateParams(body, type) {
     let schema
     switch (type) {
@@ -91,20 +210,10 @@ function validateParams(body, type) {
         case constants.ISSUE_PRODUCT:
         case constants.ADJUSTMENT:
             schema = joi.object({
-                branch: joi.string()
-                    .min(1)
-                    .max(30)
-                    .required(),
-                product: joi.string()
-                    .min(1)
-                    .max(30)
-                    .required(),
-                productName: joi.string()
-                    .min(1)
-                    .max(30)
-                    .required(),
-                operationalQuantity: joi.number()
-                            .required(),
+                branch: joi.string().min(1).max(30).required(),
+                product: joi.string().min(1).max(30).required(),
+                productName: joi.string().min(1).max(30).required(),
+                operationalQuantity: joi.number().required(),
                 note: joi.string()
             })
             break
@@ -112,7 +221,10 @@ function validateParams(body, type) {
             schema = joi.object({
                 toBranch: joi.string().alphanum().length(20).required(),
                 fromBranch: joi.string().alphanum().length(20).required(),
-                product: joi.string().min(1).max(30).required(),
+                fromBranchName: joi.string().min(1).max(30).required(),
+                toBranchName: joi.string().min(1).max(30).required(),
+                product: joi.string().alphanum().length(20).required(),
+                productName: joi.string().min(1).max(30).required(),
                 operationalQuantity: joi.number().required(),
                 note: joi.string()
             })
@@ -121,8 +233,13 @@ function validateParams(body, type) {
             schema = joi.object({
                 toBranch: joi.string().alphanum().length(20).required(),
                 fromBranch: joi.string().alphanum().length(20).required(),
-                pendingTransactionsId: joi.string().alphanum().length(20).required(),
-                note: joi.string()
+                fromBranchName: joi.string().min(1).max(30).required(),
+                toBranchName: joi.string().min(1).max(30).required(),
+                product: joi.string().alphanum().length(20).required(),
+                productName: joi.string().min(1).max(30).required(),
+                operationalQuantity: joi.number().required(),
+                note: joi.string(),
+                pendingRequestsId: joi.string().alphanum().length(20).required(),
             })
             break
     }

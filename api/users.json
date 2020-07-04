@@ -9,32 +9,20 @@
 {
     "users": [
       {
-        "id": "2vNSY3hwJ7Nbfua61rlLMzV3VRg2",
-        "firstName": "Erica M",
-        "role": "system",
-        "createdDate": "2020-06-23T09:01:01.833Z",
+        "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
+        "email": "david@david.com",
+        "lastUpdatedDate": "2020-07-04T11:30:31.725Z",
+        "firstName": "David david",
+        "role": "9nY9XTsOzMVwJK7dYLw6",
+        "createdDate": "2020-07-04T11:30:31.724Z",
         "isActive": true,
-        "branch": "kormangala",
-        "lastName": "George",
+        "branch": "MxoS2K8t8jT7MATniD4x",
         "contact": "9876543210",
-        "lastUpdatedDate": "2020-06-27T07:52:49.798Z",
-        "email": "jeorge@abc.com"
-      },
-      {
-        "id": "NizrRMS4mrWtyHz3Qwl3Lqpf8Mw2",
-        "firstName": "John",
-        "role": "system",
-        "createdDate": "2020-06-28T10:33:21.483Z",
-        "isActive": true,
-        "branch": "kormangala",
-        "contact": "1231231234",
-        "lastName": "Doe",
-        "email": "john@gamil.com",
-        "lastUpdatedDate": "2020-06-28T10:33:21.483Z"
+        "lastName": "Dam"
       }
     ],
-    "totalUsers": 4
-}
+    "totalUsers": 1
+  }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -45,16 +33,16 @@
 #Response 200
 
 {
-    "id": "2vNSY3hwJ7Nbfua61rlLMzV3VRg2",
-    "firstName": "Erica M",
-    "role": "system",
-    "createdDate": "2020-06-23T09:01:01.833Z",
+    "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
+    "role": "9nY9XTsOzMVwJK7dYLw6",
+    "createdDate": "2020-07-04T11:30:31.724Z",
     "isActive": true,
-    "branch": "kormangala",
-    "lastName": "George",
+    "branch": "MxoS2K8t8jT7MATniD4x",
     "contact": "9876543210",
-    "lastUpdatedDate": "2020-06-27T07:52:49.798Z",
-    "email": "jeorge@abc.com"
+    "lastName": "Dam",
+    "email": "david@david.com",
+    "lastUpdatedDate": "2020-07-04T11:30:31.725Z",
+    "firstName": "David david"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -63,10 +51,10 @@
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/users
 #Request
 {
-	"firstName": "David",
-	"role": "system",
+	"firstName": "David david",
+	"role": "9nY9XTsOzMVwJK7dYLw6",
 	"isActive": true,
-	"branch": "kormangala",
+	"branch": "MxoS2K8t8jT7MATniD4x",
 	"contact": "9876543210",
 	"lastName": "Dam",
 	"email": "david@david.com"
@@ -75,16 +63,16 @@
 #Response 201 
 {
     "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
-    "firstName": "David",
-    "role": "system",
+    "firstName": "David david",
+    "role": "9nY9XTsOzMVwJK7dYLw6",
     "isActive": true,
-    "branch": "kormangala",
+    "branch": "MxoS2K8t8jT7MATniD4x",
     "contact": "9876543210",
     "lastName": "Dam",
     "email": "david@david.com",
-    "createdDate": "2020-06-28T11:17:06.587Z",
-    "lastUpdatedDate": "2020-06-28T11:17:06.587Z"
-}
+    "createdDate": "2020-07-04T11:30:31.724Z",
+    "lastUpdatedDate": "2020-07-04T11:30:31.725Z"
+  }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -94,16 +82,16 @@
 
 #Request
 {
-	"id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
-	"firstName": "David",
-	"role": "system",
-	"createdDate": "2020-06-28T10:34:54.737Z",
-	"isActive": true,
-	"branch": "sarjapur",
-	"contact": "9876543210",
-	"lastName": "Dam",
-	"email": "david@david.com",
-	"lastUpdatedDate": "2020-06-28T10:34:54.737Z"
+    "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
+    "role": "9nY9XTsOzMVwJK7dYLw6",
+    "createdDate": "2020-07-04T11:30:31.724Z",
+    "isActive": false,
+    "branch": "MxoS2K8t8jT7MATniD4x",
+    "contact": "044-12331445",
+    "lastName": "Dam dam",
+    "email": "davi@david.com",
+    "lastUpdatedDate": "2020-07-04T11:30:31.725Z",
+    "firstName": "Dravid"
 }
 
 #Response - 204 - (No Content)

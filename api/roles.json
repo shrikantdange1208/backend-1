@@ -8,19 +8,33 @@
 #Response
 {
     "roles": [
-        {
-            "id": "0JFHrko1NBXzcwvtIiYX",
-            "lastUpdatedDate": "2020-07-01T17:37:13.282Z",
-            "description": "branch access",
-            "permissions": [
-              "VIEW_DASHBOARD"
-            ],
-            "createdDate": "2020-07-01T17:37:13.282Z",
-            "isActive": true,
-            "name": "branch"
-          }
+      {
+        "id": "9nY9XTsOzMVwJK7dYLw6",
+        "createdDate": "2020-07-04T10:50:50.460Z",
+        "isActive": true,
+        "name": "Admin",
+        "lastUpdatedDate": "2020-07-04T10:50:50.460Z",
+        "description": "Super Admin of the System",
+        "permissions": [
+          "VIEW_BRANCHES",
+          "VIEW_USERS",
+          "MANAGE_USERS",
+          "MANAGE_BRANCHES"
+        ]
+      },
+      {
+        "id": "xZu6jo1l19reAEwfzjKz",
+        "permissions": [
+          "VIEW_DASHBOARD"
+        ],
+        "createdDate": "2020-07-04T11:22:32.718Z",
+        "isActive": true,
+        "name": "system",
+        "lastUpdatedDate": "2020-07-04T11:22:32.718Z",
+        "description": "access to only branch details"
+      }
     ],
-    "totalRoles": 1
+    "totalRoles": 2
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -32,42 +46,42 @@
 #Response 200
 
 {
-    "id": "0JFHrko1NBXzcwvtIiYX",
-    "lastUpdatedDate": "2020-07-01T17:37:13.282Z",
-    "description": "branch access",
+    "id": "xZu6jo1l19reAEwfzjKz",
+    "createdDate": "2020-07-04T11:22:32.718Z",
+    "isActive": true,
+    "name": "system",
+    "lastUpdatedDate": "2020-07-04T11:22:32.718Z",
+    "description": "access to only branch details",
     "permissions": [
       "VIEW_DASHBOARD"
-    ],
-    "createdDate": "2020-07-01T17:37:13.282Z",
-    "isActive": true,
-    "name": "branch"
-}
+    ]
+  }
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 # Add User (POST)
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/roles
 #Request
 {
-    "name": "branch",
-    "description": "branch access",
+    "name": "system",
+    "description": "access to only branch details",
     "permissions": [
           "VIEW_DASHBOARD"
     ],
       "isActive": true
-}
+  }
 
 #Response 201 
 {
-    "id": "0JFHrko1NBXzcwvtIiYX",
-    "lastUpdatedDate": "2020-07-01T17:37:13.282Z",
-    "description": "branch access",
+    "id": "xZu6jo1l19reAEwfzjKz",
+    "name": "system",
+    "description": "access to only branch details",
     "permissions": [
       "VIEW_DASHBOARD"
     ],
-    "createdDate": "2020-07-01T17:37:13.282Z",
     "isActive": true,
-    "name": "branch"
-}
+    "createdDate": "2020-07-04T11:22:32.718Z",
+    "lastUpdatedDate": "2020-07-04T11:22:32.718Z"
+  }
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -77,16 +91,16 @@
 
 #Request
 {
-    "id": "0JFHrko1NBXzcwvtIiYX",
-    "permissions": [
-      "DUMMY"
-    ],
-    "createdDate": "2020-06-28T06:51:34.588Z",
+    "id": "xZu6jo1l19reAEwfzjKz",
+    "createdDate": "2020-07-04T11:22:32.718Z",
     "isActive": false,
-    "name": "DUMMYROLE",
-    "lastUpdatedDate": "2020-06-28T06:51:34.588Z",
-    "description": "Dummy role"
-  }
+    "name": "system only",
+    "lastUpdatedDate": "2020-07-04T11:22:32.718Z",
+    "description": "access to only branch details",
+    "permissions": [
+      "REQUEST_PRODUCT"
+    ]
+}
 
 #Response - 204 - (No Content)
 
