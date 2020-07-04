@@ -3,8 +3,10 @@
 #Request
 {
     "branch": "pAhsD46B6cTMUQltjmrl",
+    "productName":"Bench",
     "product": "ufjGAgxFsq0FpAs864ha",
-    "operationalQuantity": 30
+    "operationalQuantity": 30,
+    "note": "Some Note"
 }
 
 #Response
@@ -20,8 +22,10 @@
 #Request
 {
     "branch": "pAhsD46B6cTMUQltjmrl",
+    "productName":"Bench",
     "product": "ufjGAgxFsq0FpAs864ha",
-    "operationalQuantity": 30
+    "operationalQuantity": 30,
+    "note": "Some Note"
 }
 
 #Response
@@ -37,8 +41,10 @@
 #Request
 {
     "branch": "pAhsD46B6cTMUQltjmrl",
+    "productName":"Bench",
     "product": "ufjGAgxFsq0FpAs864ha",
-    "operationalQuantity": 30
+    "operationalQuantity": 30,
+    "note": "Some Note"
 }
 
 #Response
