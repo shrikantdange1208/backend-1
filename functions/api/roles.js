@@ -20,7 +20,7 @@ router.post('/', isAdmin, async (req, res, next) => {
         return
     }
     const { name } = req.body
-    let rolesRef = db.collection(constants.ROLES).where('name','==', name)
+    let rolesRef = db.collection(constants.ROLES).where('name', '==', name)
     const snapshot = await rolesRef.get()
     if (!snapshot.empty) {
         const err = new Error(`Role ${name} already exists. Please update if needed.`)
@@ -109,7 +109,7 @@ router.put('/', isAdmin, async (req, res, next) => {
     delete newData[constants.ID]
     delete newData[constants.CREATED_DATE]
     newData[constants.LAST_UPDATED_DATE] = new Date()
-    await usersRef.set(newData, { merge: true })
+    await rolesRef.set(newData, { merge: true })
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
 
     // Fire and forget audit log
@@ -148,7 +148,7 @@ function validateInput(body, type) {
 
         case constants.CREATE:
             schema = joi.object().keys({
-                name: joi.string().regex(/^[a-zA-Z]{5,10}$/).required(),
+                name: joi.string().min(1).max(30).required(),
                 description: joi.string().regex(/^[a-z A-Z]{5,40}$/).required(),
                 permissions: joi.array().items(joi.string().required()).required(),
                 isActive: joi.bool().required()
@@ -157,10 +157,10 @@ function validateInput(body, type) {
         case constants.UPDATE:
             schema = joi.object().keys({
                 id: joi.string().alphanum().length(20).required(),
-                description: joi.string().regex(/^[a-z A-Z]{5,40}$/).optional(),
-                permissions: joi.array().items(joi.string().required()).required(),
+                description: joi.string().regex(/^[a-z A-Z]{5,40}$/),
+                permissions: joi.array().items(joi.string().required()),
                 isActive: joi.bool(),
-                name: joi.string().regex(/^[a-zA-Z]{5,10}$/),
+                name: joi.string().min(1).max(30),
                 lastUpdatedDate: joi.date()
             })
             break

@@ -56,19 +56,47 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Request Product Operation (POST)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/request
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/requestProduct
 #Request
 {
-	"toBranch": "MxoS2K8t8jT7MATniD4x",
-	"fromBranch": "R1vTnxSLWByLa7NocDDX",
-	"product": "milk",
-	"operationalQuantity": 5,
-	"comments": "urgent requirement"
+	"fromBranch": "MxoS2K8t8jT7MATniD4x",
+	"toBranch": "R1vTnxSLWByLa7NocDDX", //always headoffice
+	"fromBranchName": "sarjapur",
+	"toBranchName": "madiwala",
+	"productId": "3V0TKHqOC2GLzzNceFKs",
+	"productName": "bread",
+	"operationalQuantity": 10,
+	"note": "urgent requirement"
 }
 
-#Response (This transactionId is pendingTransactionId)
+
+#Response
 {
-    "pendingTransactionsId": "gnVACYkIFM6vd8baebkA"
+    "pendingRequestsId": "gnVACYkIFM6vd8baebkA"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Accept product request Operation (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/transferproduct
+#Request
+{
+	"fromBranch": "MxoS2K8t8jT7MATniD4x",
+	"toBranch": "R1vTnxSLWByLa7NocDDX",
+	"fromBranchName": "sarjapur",
+	"toBranchName": "madiwala",
+	"productId": "3V0TKHqOC2GLzzNceFKs",
+	"productName": "bread",
+	"operationalQuantity": 10,
+	"pendingRequestsId": "gnVACYkIFM6vd8baebkA"
+}
+
+#Response
+{
+    "transactionId": "gnVACYkIFM6vd8baebkA",
+    "toBranchTransactionId": "v8jszk47HSPQP2IG1a7w",
+    "fromBranchTransactionId": "PgR3qYexQoOSHzprXbBT"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------

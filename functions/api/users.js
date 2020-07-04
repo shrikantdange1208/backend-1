@@ -44,7 +44,7 @@ router.post('/', isAdmin, async (req, res, next) => {
         ...response
     })
     await admin.auth().setCustomUserClaims(uid, {
-        role: role.toLocaleLowerCase(), branch
+        role, branch
     })
     logger.info(`${req.body.email} added to users list and claims have been set`)
 
@@ -96,7 +96,7 @@ router.get('/:id', async (req, res, next) => {
 3.Sets/updates the custom claims for the uid
 */
 router.put('/', isAdmin, async (req, res, next) => {
- 
+
     const { error } = validateInput(req.body, constants.UPDATE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -118,18 +118,19 @@ router.put('/', isAdmin, async (req, res, next) => {
     let newData = req.body
     delete newData[constants.ID]
     delete newData[constants.CREATED_DATE]
+    delete newData[constants.EMAIL]
     newData[constants.LAST_UPDATED_DATE] = new Date()
     await usersRef.set(newData, { merge: true })
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
-    
+
     if (role && branch) {
         await admin.auth().setCustomUserClaims(id, {
-            role: role.toLocaleLowerCase(),
+            role,
             branch
         })
     }
     // Fire and forget audit log
-    const eventMessage = `User ${request.user.firstName} updated user ${oldData[constants.NAME]}`
+    const eventMessage = `User ${req.user.firstName} updated user ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, req, oldData, newData)
 
     res.sendStatus(204)
@@ -162,23 +163,23 @@ function validateInput(body, type) {
     switch (type) {
         case constants.CREATE:
             schema = joi.object().keys({
-                role: joi.string().regex(/^[a-z]{5,10}$/).required(),
-                branch: joi.string().regex(/^[a-zA-Z]{5,30}$/).required(),
+                role: joi.string().alphanum().length(20).required(),
+                branch: joi.string().alphanum().length(20).required(),
                 firstName: joi.string().min(1).max(30).required(),
                 lastName: joi.string().min(1).max(30).required(),
-                contact: joi.string().length(10).required(),
+                contact: joi.string().required(),
                 isActive: joi.bool().required(),
                 email: joi.string().email({ minDomainSegments: 2 }).required()
             })
             break
         case constants.UPDATE:
             schema = joi.object().keys({
-                id: joi.string().alphanum().min(28).max(30).required(),
-                role: joi.string().regex(/^[a-z]{5,10}$/).required(),
-                branch: joi.string().regex(/^[a-zA-Z]{5,30}$/).required(),
+                id: joi.string().alphanum().min(28).required(),
+                role: joi.string().alphanum().length(20).required(),
+                branch: joi.string().alphanum().length(20).required(),
                 firstName: joi.string().min(1).max(30),
                 lastName: joi.string().min(1).max(30),
-                contact: joi.string().length(10),
+                contact: joi.string(),
                 isActive: joi.bool(),
                 email: joi.string().email({ minDomainSegments: 2 }),
                 createdDate: joi.date(),
