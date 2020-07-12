@@ -7,22 +7,46 @@
   # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/users
 #Response
 {
-    "users": [
-      {
-        "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
-        "email": "david@david.com",
-        "lastUpdatedDate": "2020-07-04T11:30:31.725Z",
-        "firstName": "David david",
-        "role": "9nY9XTsOzMVwJK7dYLw6",
-        "createdDate": "2020-07-04T11:30:31.724Z",
-        "isActive": true,
-        "branch": "MxoS2K8t8jT7MATniD4x",
-        "contact": "9876543210",
-        "lastName": "Dam"
-      }
-    ],
-    "totalUsers": 1
-  }
+  "users": [
+    {
+      "id": "NPCPHbsF6fbY0gvnRaQYuOWpsZ13",
+      "createdDate": "2020-07-12T09:09:04.448Z",
+      "isActive": true,
+      "branch": "MxoS2K8t8jT7MATniD4x",
+      "contact": "9876543210",
+      "lastName": "Tribbiani",
+      "email": "user2@yahoo.com",
+      "lastUpdatedDate": "2020-07-12T09:09:04.448Z",
+      "firstName": "Joey",
+      "role": "superadmin"
+    },
+    {
+      "id": "nxgHHaDAeMNK4ucnMigKXQi8RN63",
+      "createdDate": "2020-07-12T09:10:12.397Z",
+      "isActive": true,
+      "branch": "R1vTnxSLWByLa7NocDDX",
+      "contact": "9876543210",
+      "lastName": "Buffay",
+      "email": "user3@yahoo.com",
+      "lastUpdatedDate": "2020-07-12T09:10:12.397Z",
+      "firstName": "Phoebe",
+      "role": "branch"
+    },
+    {
+      "id": "qJfhkGyiL4bSXIcCnt57h6wCn0p1",
+      "firstName": "ABC",
+      "role": "admin",
+      "createdDate": "2020-07-12T09:08:08.729Z",
+      "isActive": true,
+      "branch": "MxoS2K8t8jT7MATniD4x",
+      "contact": "9876543210",
+      "lastName": "XYZ",
+      "email": "user1@gmail.com",
+      "lastUpdatedDate": "2020-07-12T09:08:08.729Z"
+    }
+  ],
+  "totalUsers": 3
+}
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -33,16 +57,16 @@
 #Response 200
 
 {
-    "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
-    "role": "9nY9XTsOzMVwJK7dYLw6",
-    "createdDate": "2020-07-04T11:30:31.724Z",
-    "isActive": true,
-    "branch": "MxoS2K8t8jT7MATniD4x",
-    "contact": "9876543210",
-    "lastName": "Dam",
-    "email": "david@david.com",
-    "lastUpdatedDate": "2020-07-04T11:30:31.725Z",
-    "firstName": "David david"
+  "id": "qJfhkGyiL4bSXIcCnt57h6wCn0p1",
+  "firstName": "ABC",
+  "role": "admin",
+  "createdDate": "2020-07-12T09:08:08.729Z",
+  "isActive": true,
+  "branch": "MxoS2K8t8jT7MATniD4x",
+  "contact": "9876543210",
+  "lastName": "XYZ",
+  "email": "user1@gmail.com",
+  "lastUpdatedDate": "2020-07-12T09:08:08.729Z"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -51,47 +75,47 @@
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/users
 #Request
 {
-	"firstName": "David david",
-	"role": "9nY9XTsOzMVwJK7dYLw6",
+	"firstName": "Phoebe",
+	"role": "branch",
 	"isActive": true,
-	"branch": "MxoS2K8t8jT7MATniD4x",
+	"branch": "R1vTnxSLWByLa7NocDDX",
 	"contact": "9876543210",
-	"lastName": "Dam",
-	"email": "david@david.com"
+	"lastName": "Buffay",
+	"email": "user3@yahoo.com"
 }
 
 #Response 201 
 {
-    "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
-    "firstName": "David david",
-    "role": "9nY9XTsOzMVwJK7dYLw6",
-    "isActive": true,
-    "branch": "MxoS2K8t8jT7MATniD4x",
-    "contact": "9876543210",
-    "lastName": "Dam",
-    "email": "david@david.com",
-    "createdDate": "2020-07-04T11:30:31.724Z",
-    "lastUpdatedDate": "2020-07-04T11:30:31.725Z"
-  }
+  "id": "nxgHHaDAeMNK4ucnMigKXQi8RN63",
+  "firstName": "Phoebe",
+  "role": "branch",
+  "isActive": true,
+  "branch": "R1vTnxSLWByLa7NocDDX",
+  "contact": "9876543210",
+  "lastName": "Buffay",
+  "email": "user3@yahoo.com",
+  "createdDate": "2020-07-12T09:10:12.397Z",
+  "lastUpdatedDate": "2020-07-12T09:10:12.397Z"
+}
 
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Update Operation (PUT)
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/users
-
+# updating isActive to false will disable the users account in authentication
 #Request
 {
-    "id": "IBMnaugsMhRP6ZDqCoYCwQjJFGQ2",
-    "role": "9nY9XTsOzMVwJK7dYLw6",
-    "createdDate": "2020-07-04T11:30:31.724Z",
-    "isActive": false,
-    "branch": "MxoS2K8t8jT7MATniD4x",
-    "contact": "044-12331445",
-    "lastName": "Dam dam",
-    "email": "davi@david.com",
-    "lastUpdatedDate": "2020-07-04T11:30:31.725Z",
-    "firstName": "Dravid"
+  "id": "ChMIKMgeINhAagSEsmQhwlrj0na2",
+  "firstName": "ABC",
+  "role": "superadmin",
+  "isActive": true,
+  "branch": "MxoS2K8t8jT7MATniD4x",
+  "contact": "9876543210",
+  "lastName": "XYZ",
+  "email": "test@gmail.com",
+  "createdDate": "2020-07-12T08:44:36.637Z",
+  "lastUpdatedDate": "2020-07-12T08:44:36.637Z"
 }
 
 #Response - 204 - (No Content)
@@ -101,7 +125,7 @@
 
 # Delete user (DELETE)
 # Endpoint: http://localhost:5001/local-parikrama/us-central1/app/api/users/{id}
-
+# Deletes users account from authentication
 #Response - 200 OK 
 {
     "message": "deleted successfully"

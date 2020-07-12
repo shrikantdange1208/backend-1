@@ -2,7 +2,7 @@ const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils')
 const logger = require('../middleware/logger')
-const { isAdmin } = require('../middleware/auth')
+const { isAdminOrSuperAdmin } = require('../middleware/auth')
 const audit = require('./audit')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
@@ -135,7 +135,7 @@ router.get("/all/inactive", async (request, response) => {
  * @returns 201 - Created
  * @throws 400 if category already exists or 404 if required params are missing
  */
-router.post('/', isAdmin, async (request, response, next) => {
+router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info(`Creating category in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -180,7 +180,7 @@ router.post('/', isAdmin, async (request, response, next) => {
  * @returns 204, No Content
  * @throws 404/400 if category does not exist or has wrong params resp.
  */
-router.put('/', isAdmin, async (request, response, next) => {
+router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.debug(`Updating category in firestore....`);
 
     // Validate parameters
@@ -224,7 +224,7 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @returns  deleted category
  * @throws 400 if category does not exist
  */
-router.delete('/:id', isAdmin, async (request, response, next) => {
+router.delete('/:id', isAdminOrSuperAdmin, async (request, response, next) => {
     var categoryId = request.params.id
     logger.info(`Deleting category with ID ${categoryId} from firestore`)
 

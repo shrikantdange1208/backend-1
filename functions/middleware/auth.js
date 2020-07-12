@@ -1,8 +1,7 @@
-const express = require('express');
 const admin = require('firebase-admin');
 const logger = require('./logger')
 const constants = require('../common/constants')
-
+const db = admin.firestore()
 /**
  * Middleware to verify whether the user is authenticated
  * @param {request} request 
@@ -11,6 +10,7 @@ const constants = require('../common/constants')
  */
 const isAuthenticated = async function (request, response, next) {
     const errMessage = 'Authorization token not found in header or is in invalid format!!'
+    
     const { authorization } = request.headers
     try {
         if (!authorization || !authorization.startsWith('Bearer')) {
@@ -23,30 +23,26 @@ const isAuthenticated = async function (request, response, next) {
             throw new Error(constants.UNAUTHORIZED)
         }
         const authToken = split[1]
+        console.log('token', authToken)
         // const decodedToken = await admin.auth().verifyIdToken(authToken)
-        //logger.info(`User ${decodedToken.firstName} is authenticated`)
-        // request.user = { 
-        //     uid: decodedToken.uid, 
-        //     role: customClaims.role, 
-        //     branch: customClaims.branch, 
-        //     firstName: decodedToken.firstName, 
-        //     lastName: decodedToken.lastName,
-        //     email: decodedToken.email 
-        // }
-
-        // TODO: Remove this
-        request.user = {
-            uid: '5OGy1Jo2JXf2nXocHEVtZX7116K2',
-            role: 'admin',
-            branch: 'kormangala',
-            firstName: 'Walter',
-            lastName: 'White',
-            email: 'walter@white.com'
+        // console.log('decodedtoken', decodedToken)
+        // //logger.info(`User ${decodedToken.firstName} is authenticated`)
+        // const user = await admin.auth().getUser(decodedToken.uid)
+        // console.log(user)
+        /*let usersRef = await db.collection(constants.USERS).doc(decodedToken.uid)
+        const doc = await usersRef.get()
+         request.user = { 
+            uid: decodedToken.uid, 
+            role: decodedToken.role, 
+            branch: decodedToken.branch, 
+            firstName: doc.data().firstName, 
+            lastName: doc.data().lastName,
+            email: doc.data().email 
         }
-
+        */
         request.user = {
             uid: '5OGy1Jo2JXf2nXocHEVtZX7116K2',
-            role: 'admin',
+            role: 'superadmin',
             branch: 'kormangala',
             firstName: 'Jesse',
             lastName: 'Pinkman',
@@ -64,17 +60,38 @@ const isAuthenticated = async function (request, response, next) {
 };
 
 /**
- * Method to check if user is Admin
+ * Method to check if user is either Admin or SuperAdmin
  * @param {request} request 
  * @param {response} response 
  * @param {function to pass control} next
  */
 
-const isAdmin = async function (request, response, next) {
+const isAdminOrSuperAdmin = async function (request, response, next) {
     const role = request.user.role
     logger.debug(`Current user has role ${role}`)
-    if (!role || role !== constants.ADMIN) {
-        logger.warn(`Current user is not a admin and has role ${role}`);
+    if (!role || (role !== constants.ADMIN && role !== constants.SUPER_ADMIN)) {
+        logger.warn(`Current user is neither an admin or a super admin and has role ${role}`);
+        const err =  new Error(`Unauthorized`)
+        err.statusCode = 403
+        next(err)
+        return
+    } else {
+        return next()
+    }
+};
+
+/**
+ * Method to check if user is SuperAdmin
+ * @param {request} request 
+ * @param {response} response 
+ * @param {function to pass control} next
+ */
+
+const isSuperAdmin = async function (request, response, next) {
+    const role = request.user.role
+    logger.debug(`Current user has role ${role}`)
+    if (!role || role !== constants.SUPER_ADMIN) {
+        logger.warn(`Current user is not a super admin and has role ${role}`);
         const err =  new Error(`Unauthorized`)
         err.statusCode = 403
         next(err)
@@ -85,6 +102,7 @@ const isAdmin = async function (request, response, next) {
 };
 
 module.exports = {
-    isAdmin: isAdmin,
-    isAuthenticated: isAuthenticated
+    isAdminOrSuperAdmin,
+    isAuthenticated,
+    isSuperAdmin,
 }

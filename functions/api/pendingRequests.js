@@ -1,6 +1,6 @@
 const constants = require('../common/constants')
 const logger = require('../middleware/logger');
-const { isAdmin } = require('../middleware/auth');
+const { isAdminOrSuperAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
 const express = require('express');
 const router = express.Router();

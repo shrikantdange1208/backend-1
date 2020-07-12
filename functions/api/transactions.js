@@ -1,6 +1,6 @@
 const constants = require('../common/constants');
 const logger = require('../middleware/logger');
-const { isAdmin } = require('../middleware/auth');
+const { isAdminOrSuperAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
 const express = require('express');
 const router = express.Router();
@@ -11,7 +11,7 @@ const db = admin.firestore();
  * @description Route to retireve all transactions under all branches
  * @returns Json object containing all transactions under all branches
  */
-router.get("/", isAdmin, async (request, response, next) => {
+router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
     console.log("Retrieving all transactions under all branches");
     let branchCollectionRef = db.collection(constants.BRANCHES);
     let documents = []
@@ -58,7 +58,7 @@ router.get("/", isAdmin, async (request, response, next) => {
  * @description Route to retireve all transactions under given branch for given user
  * @returns Json object containing all transactions under given branch for given user
  */
-router.get("/:id", isAdmin, async (request, response, next) => {
+router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info("Retrieving all transactions under given branch for given user");
     var branchId = request.params.id
     const{user,product,fromDate,toDate} = request.query;

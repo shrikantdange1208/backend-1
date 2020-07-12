@@ -2,7 +2,7 @@ const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils')
 const logger = require('../middleware/logger');
-const { isAdmin } = require('../middleware/auth');
+const { isAdminOrSuperAdmin } = require('../middleware/auth');
 const audit = require('./audit')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
@@ -112,7 +112,7 @@ router.get('/all/inactive', async (request, response, next) => {
  * @returns 201 - Created 
  * @throws 400 if operation already exists or 404 if required params are missing
  */
-router.post('/', isAdmin, async (request, response, next) => {
+router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info(`Creating Operation in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -156,7 +156,7 @@ router.post('/', isAdmin, async (request, response, next) => {
  * @returns  204 - No Content
  * @throws 404 if operation does not exist or 400 has wrong params
  */
-router.put('/', isAdmin, async (request, response, next) => {
+router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info(`Updating a operation in firestore....`);
     
     // Validate parameters
@@ -198,7 +198,7 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @returns  deleted operation
  * @throws 400 if product does not exist
  */
-router.delete('/:id', isAdmin, async(request, response, next) => {
+router.delete('/:id', isAdminOrSuperAdmin, async(request, response, next) => {
     var operationid = request.params.id
     logger.info(`Deleting operation from firestore`)
     

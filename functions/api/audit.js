@@ -1,7 +1,7 @@
 const constants = require('../common/constants')
 const utils = require('../common/utils')
 const logger = require('../middleware/logger');
-const { isAdmin } = require('../middleware/auth');
+const { isAdminOrSuperAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
 const auth = require('../middleware/auth')
 const functions = require('firebase-functions');
@@ -13,7 +13,7 @@ const db = admin.firestore();
  * @description Route to retireve audit logs from firestore
  * @returns Json object containing all audit logs
  */
-router.get("/", isAdmin, async (request, response, next) => {
+router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info("Retrieving audit logs from firestore");
     const audits = {
         "audit": []
@@ -35,7 +35,7 @@ router.get("/", isAdmin, async (request, response, next) => {
 });
 
 // TODO: DELETE ME
-router.delete("/", isAdmin, async (request, response, next) => {
+router.delete("/", isAdminOrSuperAdmin, async (request, response, next) => {
     db.collection("audit")
         .get()
         .then(res => {
