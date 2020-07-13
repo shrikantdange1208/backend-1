@@ -5,7 +5,7 @@ const logger = require('../middleware/logger');
 const formatDate = require('../common/dateFormatter')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-const { isAdminOrSuperAdmin } = require('../middleware/auth');
+const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth');
 const audit = require('./audit')
 const express = require('express');
 const router = express.Router();
@@ -173,7 +173,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  * @description Route to delete a branch
  * @throws 400 if branch does not exist
  */
-router.delete('/:id', isAdminOrSuperAdmin, async (request, response, next) => {
+router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var branchId = request.params.id
     logger.info(`Deleting branch from firestore`)
 

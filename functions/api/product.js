@@ -2,13 +2,12 @@ const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils');
 const logger = require('../middleware/logger')
-const { isAdminOrSuperAdmin } = require('../middleware/auth')
+const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth')
 const audit = require('./audit')
 const joi = require('@hapi/joi')
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 const express = require('express');
-const c = require('config');
 const router = express.Router()
 const db = admin.firestore()
 
@@ -320,7 +319,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  * @returns  deleted product
  * @throws 400 if product does not exist
  */
-router.delete('/:id', isAdminOrSuperAdmin, async (request, response, next) => {
+router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var productid = request.params.id
     logger.info(`Deleting a product from firestore`)
 

@@ -1,10 +1,8 @@
 const constants = require('../common/constants')
 const utils = require('../common/utils')
 const logger = require('../middleware/logger');
-const { isAdminOrSuperAdmin } = require('../middleware/auth');
+const { isSuperAdmin, isAdminOrSuperAdmin} = require('../middleware/auth');
 const admin = require('firebase-admin');
-const auth = require('../middleware/auth')
-const functions = require('firebase-functions');
 const express = require('express');
 const router = express.Router();
 const db = admin.firestore();
@@ -35,7 +33,7 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
 });
 
 // TODO: DELETE ME
-router.delete("/", isAdminOrSuperAdmin, async (request, response, next) => {
+router.delete("/", isSuperAdmin, async (request, response, next) => {
     db.collection("audit")
         .get()
         .then(res => {

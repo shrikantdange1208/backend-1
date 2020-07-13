@@ -4,7 +4,6 @@ const { isAdminOrSuperAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
 const express = require('express');
 const router = express.Router();
-const url = require('url');
 const db = admin.firestore();
 
 /**

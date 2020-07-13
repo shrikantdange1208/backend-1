@@ -2,7 +2,7 @@ const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils')
 const logger = require('../middleware/logger')
-const { isAdminOrSuperAdmin } = require('../middleware/auth');
+const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth');
 const audit = require('./audit')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
@@ -148,7 +148,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  * @returns  deleted unit
  * @throws 400 if unit for product does not exist
  */
-router.delete('/:id', isAdminOrSuperAdmin, async(request, response, next) => {
+router.delete('/:id', isSuperAdmin, async(request, response, next) => {
     var unitId = request.params.id
     logger.info(`Deleting unit with ID ${unitId} from firestore`)
     

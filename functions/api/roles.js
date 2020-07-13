@@ -5,6 +5,7 @@ const db = admin.firestore()
 const constants = require('../common/constants')
 const { isAdminOrSuperAdmin } = require('../middleware/auth')
 
+//TODO: remove commented code later
 // /*
 // 1.Creates a new role along with its permissions, status and description
 // */
