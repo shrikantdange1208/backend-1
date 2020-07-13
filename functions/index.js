@@ -14,6 +14,7 @@ const categories = require('./api/category');
 const products = require('./api/product');
 const users = require('./api/users');
 const inventory = require('./api/inventory');
+const branch = require('./api/branch');
 logger.info('Initializing Inventory Management System');
 // Initialize express
 const app = express();
@@ -24,3 +25,4 @@ exports.addOrUpdateProduct = products.addOrUpdateProduct
 exports.addOrUpdateCategory = categories.addOrUpdateCategory
 exports.modifyUsers = users.modifyUsers
 exports.updateAvailableQuantityInInventory = inventory.updateAvailableQuantityInInventory
+exports.addOrUpdateBranch = branch.addOrUpdateBranch

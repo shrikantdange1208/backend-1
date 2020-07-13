@@ -61,6 +61,9 @@ define("AFTER", "after");
 //Transaction constants
 define("TRANSACTIONS", "transactions");
 define("PENDING_REQUESTS", "pendingRequests");
+define("FROM_DATE", "fromDate");
+define("TO_DATE", "toDate");
+define("REPORT", "report");
 
 // Action constants
 define("TRANSACTIONID", "transactionId");
@@ -72,6 +75,8 @@ define("ADJUSTMENT", "adjustment");
 define("AVAILABLE_QUANTITY", "availableQuantity");
 define("INITIAL_QUANTITY", "initialQuantity");
 define("CLOSING_QUANTITY", "closingQuantity");
+define("ADDED_QUANTITY", "addedQuantity");
+define("CONSUMED_QUANTITY", "consumedQuantity");
 define("OPERATIONAL_QUANTITY", "operationalQuantity");
 define("NOTE", "note");
 

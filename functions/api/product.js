@@ -9,6 +9,7 @@ const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 const express = require('express');
 const c = require('config');
+const { updateAvailableQuantityInInventory } = require('./inventory');
 const router = express.Router()
 const db = admin.firestore()
 
@@ -368,7 +369,7 @@ function validateParams(body, type) {
                 isActive: joi.bool().required(),
                 thresholds: joi.object().pattern(
                     joi.string().required(),
-                    joi.number().required()
+                    joi.number().integer().strict().required()
                 )
             })
             break
@@ -387,7 +388,7 @@ function validateParams(body, type) {
                     .max(30),
                 thresholds: joi.object().pattern(
                     joi.string().required(),
-                    joi.number().required()),
+                    joi.number().integer().strict().required()),
                 isActive: joi.bool(),
                 lastUpdatedDate: joi.date(),
                 createdDate: joi.date()
@@ -480,27 +481,62 @@ async function deleteProductFromCategory(deletedProduct) {
  * @param {newData} newData 
  */
 async function updateThresholdInInventories(productId, oldData, newData) {
-    var oldThresholds = oldData[constants.THRESHOLDS];
-    var newThresholds = newData[constants.THRESHOLDS];
-    var updatedBranchId = ''
-    var updatedThreshold = 0
+    const oldThresholds = oldData[constants.THRESHOLDS];
+    const newThresholds = newData[constants.THRESHOLDS];
+    var updatedThresholds = {}
     for (var branchId in oldThresholds) {
-        if (oldThresholds[branchId] !== newThresholds[branchId]) {
-            updatedBranchId =  branchId
-            updatedThreshold = newThresholds[branchId]
-            break
+        if ((oldThresholds[branchId] && newThresholds[branchId]) 
+                && (oldThresholds[branchId] !== newThresholds[branchId])) {
+            updatedThresholds[branchId] = newThresholds[branchId]
         }
     }
-    console.log(`Updated threshold of branch ${branchId} to ${updatedThreshold}`)
+
+    for (var branchId in newThresholds) {
+        if((newThresholds[branchId] && !oldThresholds[branchId])) {
+            updatedThresholds[branchId] = newThresholds[branchId]
+        }
+    }
+    
+    const promises = []
+    for (let [key, value] of Object.entries(updatedThresholds)) {
+        console.log(`Updating threshold for product ${oldData[constants.NAME]} to ${value} in branch ${key}`)
+        promises.push(updateThresholdInInventory(productId, key, value))
+    }
+    Promise.all(promises)
+        .then(console.log(`Updated all thresholds in branch inventories`))
+        .catch(err => {
+            console.error(`Error occurred while updating thresholds`)
+            throw err
+        })
+}
+
+/**
+ * Async method to update all thresholds
+ * @param {product ID} productId 
+ * @param {branch} branchId 
+ * @param {threshold} threshold 
+ */
+async function updateThresholdInInventory(productId, branchId, threshold) {
+    
     const inventoryRef = db.collection(constants.BRANCHES)
-                            .doc(updatedBranchId)
+                            .doc(branchId)
                             .collection(constants.INVENTORY)
                             .doc(productId)
 
     db.runTransaction(async (transaction) => {
         const inventoryDocument = await transaction.get(inventoryRef)
-        if(inventoryDocument.exists) {
-            transaction.update(inventoryRef, { 'threshold': updatedThreshold });
+        const availableQuantity = inventoryDocument.data()[constants.AVAILABLE_QUANTITY]
+        var isBelowThreshold = false
+        
+        if (threshold > availableQuantity) {
+            isBelowThreshold = true
         } 
-    })
+        if(inventoryDocument.exists) {
+            transaction.update(inventoryRef, 
+                {   
+                    'threshold': threshold, 
+                    'isBelowThreshold': isBelowThreshold 
+                });
+        } 
+    })   
 }

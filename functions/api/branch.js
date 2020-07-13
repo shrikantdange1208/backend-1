@@ -5,9 +5,10 @@ const logger = require('../middleware/logger');
 const formatDate = require('../common/dateFormatter')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
+const functions = require('firebase-functions')
 const { isAdmin } = require('../middleware/auth');
 const audit = require('./audit')
-const express = require('express');
+const express = require('express')
 const router = express.Router();
 const db = admin.firestore();
 
@@ -227,11 +228,14 @@ function validateParams(body, type) {
                         .min(1)
                         .max(50)
                         .required(),
-                    zipcode: joi.number()
+                    zipcode: joi.number().integer().strict()
                 }).required(),
                 isHeadOffice: joi.bool()
                     .required(),
-                isActive: joi.bool().required()
+                isActive: joi.bool().required(),
+                contact: joi.string().required(),
+                contactPerson: joi.string().required()
+
             })
             break
         case constants.UPDATE:
@@ -254,14 +258,16 @@ function validateParams(body, type) {
                     country: joi.string()
                         .min(1)
                         .max(50),
-                    zipcode: joi.number()
+                    zipcode: joi.number().integer().strict()
                 }),
                 isHeadOffice: joi.bool(),
                 isActive: joi.bool(),
                 users: joi.array()
                     .items(joi.string().allow('')),
                 lastUpdatedDate: joi.date(),
-                createdDate: joi.date()
+                createdDate: joi.date(),
+                contact: joi.string(),
+                contactPerson: joi.string()
             })
             break
     }
@@ -269,3 +275,34 @@ function validateParams(body, type) {
 }
 
 module.exports = router;
+
+/**
+ * Trigger to execute actions when Branch is deleted
+ */
+module.exports.addOrUpdateBranch = functions.firestore
+    .document(`/${constants.BRANCHES}/{branchId}`)
+    .onWrite(async (change, context) => {
+        const branchId = context.params.branchId
+        if (!change.after._fieldsProto) {
+            logger.debug(`Branch ${change.before.data()[(constants.NAME)]} has been deleted`)
+            deleteThresholdsFromAllProducts(branchId)
+        }
+    });
+
+/**
+ * Method to delete all threshold for deleted branch from all products
+ * @param {*} newProduct 
+ */
+async function deleteThresholdsFromAllProducts(branchId) {
+    console.log(`Deleting thresholds for branch ${branchId} from all products`)
+    const productCollecton = db.collection(constants.PRODUCTS)
+    const productSnapshots = await productCollecton.get()
+    productSnapshots.forEach(async product => {
+        const productData = product.data()
+        if(productData[constants.THRESHOLDS].hasOwnProperty(branchId)) {
+            console.log(`Deleting threshold for branch ${branchId} from product ${productData[constants.NAME]}`)
+            delete productData[constants.THRESHOLDS][branchId]
+            await product.ref.update({'thresholds': productData[constants.THRESHOLDS]}, { merge: true })
+        }
+    })
+}
