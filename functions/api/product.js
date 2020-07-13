@@ -2,13 +2,12 @@ const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils');
 const logger = require('../middleware/logger')
-const { isAdmin } = require('../middleware/auth')
+const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth')
 const audit = require('./audit')
 const joi = require('@hapi/joi')
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 const express = require('express');
-const c = require('config');
 const router = express.Router()
 const db = admin.firestore()
 
@@ -224,7 +223,7 @@ router.get('/thresholds/all/:branchId', async (request, response, next) => {
  * @returns 201 - Created
  * @throws 400 if product already exists or 404 if required params are missing
  */
-router.post('/', isAdmin, async (request, response, next) => {
+router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     logger.info(`Creating product in firestore....`);
     // Validate parameters
@@ -275,7 +274,7 @@ router.post('/', isAdmin, async (request, response, next) => {
  * @returns  204 - No Content
  * @throws 404 if product does not exist or 400 if request has wrong params
  */
-router.put('/', isAdmin, async (request, response, next) => {
+router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info(`Updating product in firestore....`);
 
     // Validate parameters
@@ -320,7 +319,7 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @returns  deleted product
  * @throws 400 if product does not exist
  */
-router.delete('/:id', isAdmin, async (request, response, next) => {
+router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var productid = request.params.id
     logger.info(`Deleting a product from firestore`)
 

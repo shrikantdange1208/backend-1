@@ -5,7 +5,7 @@ const logger = require('../middleware/logger');
 const formatDate = require('../common/dateFormatter')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-const { isAdmin } = require('../middleware/auth');
+const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth');
 const audit = require('./audit')
 const express = require('express');
 const router = express.Router();
@@ -86,7 +86,7 @@ router.get('/:id', async (request, response, next) => {
  * @returns 201 - Created
  * @throws 400 if branch already exists or 404 if required params are missing
  */
-router.post('/', isAdmin, async (request, response, next) => {
+router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info(`Creating branch in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -131,7 +131,7 @@ router.post('/', isAdmin, async (request, response, next) => {
  * @returns 204, No Content
  * @throws 404/400 if branch does not exist or has wrong params resp.
  */
-router.put('/', isAdmin, async (request, response, next) => {
+router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.debug(`Updating branch in firestore....`);
 
     // Validate parameters
@@ -173,7 +173,7 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @description Route to delete a branch
  * @throws 400 if branch does not exist
  */
-router.delete('/:id', isAdmin, async (request, response, next) => {
+router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var branchId = request.params.id
     logger.info(`Deleting branch from firestore`)
 
