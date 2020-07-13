@@ -2,7 +2,7 @@ const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils')
 const logger = require('../middleware/logger')
-const { isAdmin } = require('../middleware/auth');
+const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth');
 const audit = require('./audit')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
@@ -62,7 +62,7 @@ router.get('/:id', async (request, response, next) => {
  * @returns Created unit
  * @throws 400 if unit already exists or if required params are missing
  */
-router.post('/', isAdmin, async (request, response, next) => {
+router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info(`Creating unit in firestore....`);
     // Validate parameters
     logger.debug('Validating params.')
@@ -105,7 +105,7 @@ router.post('/', isAdmin, async (request, response, next) => {
  * @returns 204, No Content
  * @throws 404/400 if unit does not exist or has wrong params resp.
  */
-router.put('/', isAdmin, async (request, response, next) => {
+router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.debug(`Updating unit in firestore....`);
 
     // Validate parameters
@@ -148,7 +148,7 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @returns  deleted unit
  * @throws 400 if unit for product does not exist
  */
-router.delete('/:id', isAdmin, async(request, response, next) => {
+router.delete('/:id', isSuperAdmin, async(request, response, next) => {
     var unitId = request.params.id
     logger.info(`Deleting unit with ID ${unitId} from firestore`)
     

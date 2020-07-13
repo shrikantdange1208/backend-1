@@ -36,6 +36,7 @@ define("UPDATE", "update");
 define("DELETE", "delete");
 define("ADMIN", "admin");
 define("SYSTEM", "system");
+define("SUPER_ADMIN", "superadmin");
 define("ENTITY", "entity");
 define("PROPERTY", "property");
 define("USERS", "users");

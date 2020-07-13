@@ -7,34 +7,58 @@
   # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/roles
 #Response
 {
-    "roles": [
-      {
-        "id": "9nY9XTsOzMVwJK7dYLw6",
-        "createdDate": "2020-07-04T10:50:50.460Z",
-        "isActive": true,
-        "name": "Admin",
-        "lastUpdatedDate": "2020-07-04T10:50:50.460Z",
-        "description": "Super Admin of the System",
-        "permissions": [
-          "VIEW_BRANCHES",
-          "VIEW_USERS",
-          "MANAGE_USERS",
-          "MANAGE_BRANCHES"
-        ]
-      },
-      {
-        "id": "xZu6jo1l19reAEwfzjKz",
-        "permissions": [
-          "VIEW_DASHBOARD"
-        ],
-        "createdDate": "2020-07-04T11:22:32.718Z",
-        "isActive": true,
-        "name": "system",
-        "lastUpdatedDate": "2020-07-04T11:22:32.718Z",
-        "description": "access to only branch details"
-      }
-    ],
-    "totalRoles": 2
+  "roles": [
+    {
+      "id": "admin",
+      "name": "ADMIN",
+      "permissions": [
+        "VIEW_BRANCHES",
+        "MANAGE_BRANCHES",
+        "VIEW_USERS",
+        "MANAGE_USERS",
+        "MANAGE_INVENTORY",
+        "MANAGE_TRANSFER",
+        "VIEW_AUDITLOG",
+        "GENERATE_REPORT",
+        "VIEW_TRANSACTIONS"
+      ],
+      "date": "2020-07-10T18:30:00.000Z",
+      "description": "Admin access"
+    },
+    {
+      "id": "branch",
+      "name": "BRANCH USER",
+      "permissions": [
+        "VIEW_USERS",
+        "VIEW_BRANCHES",
+        "VIEW_TRANSACTIONS",
+        "GENERATE_REPORT"
+      ],
+      "description": "Access to specific branch",
+      "date": "2020-07-10T18:30:00.000Z"
+    },
+    {
+      "id": "superadmin",
+      "name": "SUPER ADMIN",
+      "permissions": [
+        "VIEW_BRANCHES",
+        "MANAGE_BRANCHES",
+        "VIEW_USERS",
+        "MANAGE_USERS",
+        "MANAGE_TRANSFER",
+        "MANAGE_INVENTORY",
+        "VIEW_AUDITLOG",
+        "VIEW_TRANSACTIONS",
+        "GENERATE_REPORT",
+        "DELETE_INVENTORY",
+        "DELETE_USER",
+        "DELETE_BRANCH"
+      ],
+      "description": "Superior access to the inventory system",
+      "date": "2020-07-10T18:30:00.000Z"
+    }
+  ],
+  "totalRoles": 3
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -44,18 +68,18 @@
 # Request
   # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/roles/{id}
 #Response 200
-
 {
-    "id": "xZu6jo1l19reAEwfzjKz",
-    "createdDate": "2020-07-04T11:22:32.718Z",
-    "isActive": true,
-    "name": "system",
-    "lastUpdatedDate": "2020-07-04T11:22:32.718Z",
-    "description": "access to only branch details",
-    "permissions": [
-      "VIEW_DASHBOARD"
-    ]
-  }
+  "id": "branch",
+  "description": "Access to specific branch",
+  "date": "2020-07-10T18:30:00.000Z",
+  "name": "BRANCH USER",
+  "permissions": [
+    "VIEW_USERS",
+    "VIEW_BRANCHES",
+    "VIEW_TRANSACTIONS",
+    "GENERATE_REPORT"
+  ]
+}
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 # Add User (POST)

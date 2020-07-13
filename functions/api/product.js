@@ -2,7 +2,7 @@ const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils');
 const logger = require('../middleware/logger')
-const { isAdmin } = require('../middleware/auth')
+const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth')
 const audit = require('./audit')
 const joi = require('@hapi/joi')
 const admin = require('firebase-admin')
@@ -225,7 +225,7 @@ router.get('/thresholds/all/:branchId', async (request, response, next) => {
  * @returns 201 - Created
  * @throws 400 if product already exists or 404 if required params are missing
  */
-router.post('/', isAdmin, async (request, response, next) => {
+router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     logger.info(`Creating product in firestore....`);
     // Validate parameters
@@ -276,7 +276,7 @@ router.post('/', isAdmin, async (request, response, next) => {
  * @returns  204 - No Content
  * @throws 404 if product does not exist or 400 if request has wrong params
  */
-router.put('/', isAdmin, async (request, response, next) => {
+router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info(`Updating product in firestore....`);
 
     // Validate parameters
@@ -321,7 +321,7 @@ router.put('/', isAdmin, async (request, response, next) => {
  * @returns  deleted product
  * @throws 400 if product does not exist
  */
-router.delete('/:id', isAdmin, async (request, response, next) => {
+router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var productid = request.params.id
     logger.info(`Deleting a product from firestore`)
 
@@ -485,7 +485,7 @@ async function updateThresholdInInventories(productId, oldData, newData) {
     const newThresholds = newData[constants.THRESHOLDS];
     var updatedThresholds = {}
     for (var branchId in oldThresholds) {
-        if ((oldThresholds[branchId] && newThresholds[branchId]) 
+        if ((oldThresholds[branchId] && newThresholds[branchId])
                 && (oldThresholds[branchId] !== newThresholds[branchId])) {
             updatedThresholds[branchId] = newThresholds[branchId]
         }
@@ -496,7 +496,7 @@ async function updateThresholdInInventories(productId, oldData, newData) {
             updatedThresholds[branchId] = newThresholds[branchId]
         }
     }
-    
+
     const promises = []
     for (let [key, value] of Object.entries(updatedThresholds)) {
         console.log(`Updating threshold for product ${oldData[constants.NAME]} to ${value} in branch ${key}`)
@@ -512,12 +512,12 @@ async function updateThresholdInInventories(productId, oldData, newData) {
 
 /**
  * Async method to update all thresholds
- * @param {product ID} productId 
- * @param {branch} branchId 
- * @param {threshold} threshold 
+ * @param {product ID} productId
+ * @param {branch} branchId
+ * @param {threshold} threshold
  */
 async function updateThresholdInInventory(productId, branchId, threshold) {
-    
+
     const inventoryRef = db.collection(constants.BRANCHES)
                             .doc(branchId)
                             .collection(constants.INVENTORY)
@@ -527,16 +527,16 @@ async function updateThresholdInInventory(productId, branchId, threshold) {
         const inventoryDocument = await transaction.get(inventoryRef)
         const availableQuantity = inventoryDocument.data()[constants.AVAILABLE_QUANTITY]
         var isBelowThreshold = false
-        
+
         if (threshold > availableQuantity) {
             isBelowThreshold = true
-        } 
+        }
         if(inventoryDocument.exists) {
-            transaction.update(inventoryRef, 
-                {   
-                    'threshold': threshold, 
-                    'isBelowThreshold': isBelowThreshold 
+            transaction.update(inventoryRef,
+                {
+                    'threshold': threshold,
+                    'isBelowThreshold': isBelowThreshold
                 });
         } 
-    })   
+    })
 }
