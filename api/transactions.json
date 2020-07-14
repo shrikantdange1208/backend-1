@@ -8,29 +8,33 @@
 #Response
 {
   "transactions": [
-    {
-        "date": "2020-07-03T12:41:57.064Z",
-        "note": "Some Note",
-        "product": "QryLWEPZwMz5okojBIZ9",
-        "initialQuantity": 38,
-        "productName": "Paracetamol",
-        "closingQuantity": 66,
-        "operationalQuantity": 28,
-        "operation": "addProduct",
-        "user": "jesse@pinkman.com"
-    },
-    {
-        "date": "2020-07-03T12:41:57.064Z",
-        "note": "Some Note",
-        "product": "QryLWEPZwMz5okojBIZ9",
-        "initialQuantity": 38,
-        "productName": "Paracetamol",
-        "closingQuantity": 66,
-        "operationalQuantity": 28,
-        "operation": "addProduct",
-        "user": "jesse@pinkman.com"
-    }
-  ]
+      {
+          "date": "2020-07-12T05:31:41.949Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 39,
+          "operationalQuantity": 11,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 50,
+          "id": "zDJTQWoTuOtNCkVlgdLk"
+      },
+      {
+          "operationalQuantity": 10,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 39,
+          "date": "2020-07-12T05:29:16.647Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 29,
+          "id": "AP88Bwc0q1wAmKKEzqQp"
+      }
+  ],
+  "nextPageToken": "kY60SHyOS6G8JB08XYrr",
+  "prevPageToken": "zDJTQWoTuOtNCkVlgdLk"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -41,29 +45,45 @@
 #Response
 {
   "transactions": [
-    {
-        "date": "2020-07-03T12:41:57.064Z",
-        "note": "Some Note",
-        "product": "QryLWEPZwMz5okojBIZ9",
-        "initialQuantity": 38,
-        "productName": "Paracetamol",
-        "closingQuantity": 66,
-        "operationalQuantity": 28,
-        "operation": "addProduct",
-        "user": "jesse@pinkman.com"
-    },
-    {
-        "date": "2020-07-03T12:41:57.064Z",
-        "note": "Some Note",
-        "product": "QryLWEPZwMz5okojBIZ9",
-        "initialQuantity": 38,
-        "productName": "Paracetamol",
-        "closingQuantity": 66,
-        "operationalQuantity": 28,
-        "operation": "addProduct",
-        "user": "jesse@pinkman.com"
-    }
-  ]
+      {
+          "operationalQuantity": 11,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 50,
+          "date": "2020-07-12T05:31:41.949Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 39,
+          "id": "zDJTQWoTuOtNCkVlgdLk"
+      },
+      {
+          "operationalQuantity": 10,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 39,
+          "date": "2020-07-12T05:29:16.647Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 29,
+          "id": "AP88Bwc0q1wAmKKEzqQp"
+      },
+      {
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 29,
+          "date": "2020-07-12T05:27:53.998Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 21,
+          "operationalQuantity": 8,
+          "id": "kY60SHyOS6G8JB08XYrr"
+      }
+  ],
+  "nextPageToken": "kY60SHyOS6G8JB08XYrr",
+  "prevPageToken": "zDJTQWoTuOtNCkVlgdLk"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
@@ -74,20 +94,313 @@
 #Response
 {
   "transactions": [
-    {
-        "date": "2020-07-03T12:41:57.064Z",
-        "note": "Some Note",
-        "product": "QryLWEPZwMz5okojBIZ9",
-        "initialQuantity": 38,
-        "productName": "Paracetamol",
-        "closingQuantity": 66,
-        "operationalQuantity": 28,
-        "operation": "addProduct",
-        "user": "jesse@pinkman.com"
-    }
-  ]
+      {
+          "operationalQuantity": 11,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 50,
+          "date": "2020-07-12T05:31:41.949Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 39,
+          "id": "zDJTQWoTuOtNCkVlgdLk"
+      },
+      {
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 29,
+          "operationalQuantity": 10,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 39,
+          "date": "2020-07-12T05:29:16.647Z",
+          "id": "AP88Bwc0q1wAmKKEzqQp"
+      },
+      {
+          "operationalQuantity": 8,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 29,
+          "date": "2020-07-12T05:27:53.998Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 21,
+          "id": "kY60SHyOS6G8JB08XYrr"
+      }
+  ],
+  "nextPageToken": "kY60SHyOS6G8JB08XYrr",
+  "prevPageToken": "zDJTQWoTuOtNCkVlgdLk"
 }
 
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all transactions under a branch (GET) filter by date range
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchId}?fromDate=2020-06-12&toDate=2020-06-27
+
+#Response
+{
+  "transactions": [
+      {
+          "operationalQuantity": 11,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 50,
+          "date": "2020-07-12T05:31:41.949Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 39,
+          "id": "zDJTQWoTuOtNCkVlgdLk"
+      },
+      {
+          "closingQuantity": 39,
+          "date": "2020-07-12T05:29:16.647Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 29,
+          "operationalQuantity": 10,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "id": "AP88Bwc0q1wAmKKEzqQp"
+      },
+      {
+          "operationalQuantity": 8,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 29,
+          "date": "2020-07-12T05:27:53.998Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 21,
+          "id": "kY60SHyOS6G8JB08XYrr"
+      }
+  ],
+  "nextPageToken": "kY60SHyOS6G8JB08XYrr",
+  "prevPageToken": "zDJTQWoTuOtNCkVlgdLk"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all transactions under a branch (GET) filter by date range
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchId}?fromDate=2020-06-12
+
+#Response
+
+{
+  "transactions": [
+      {
+          "date": "2020-07-12T05:31:41.949Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 39,
+          "operationalQuantity": 11,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 50,
+          "id": "zDJTQWoTuOtNCkVlgdLk"
+      },
+      {
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 39,
+          "date": "2020-07-12T05:29:16.647Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 29,
+          "operationalQuantity": 10,
+          "id": "AP88Bwc0q1wAmKKEzqQp"
+      },
+      {
+          "operationalQuantity": 8,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 29,
+          "date": "2020-07-12T05:27:53.998Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 21,
+          "id": "kY60SHyOS6G8JB08XYrr"
+      }
+  ],
+  "nextPageToken": "kY60SHyOS6G8JB08XYrr",
+  "prevPageToken": "zDJTQWoTuOtNCkVlgdLk"
+}
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+#Pagination example
+# Endpoint : any GET query 
+
+#1. Default behavior Or Initial Request 
+Eg : http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchId}
+
+#Response ( current page Limit is 3 , with no next/prevPagetoken response limits to 3 records)
+{
+  "transactions": [
+      {
+          "date": "2020-07-12T05:31:41.949Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 39,
+          "operationalQuantity": 11,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 50,
+          "id": "zDJTQWoTuOtNCkVlgdLk"
+      },
+      {
+          "operationalQuantity": 10,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 39,
+          "date": "2020-07-12T05:29:16.647Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 29,
+          "id": "AP88Bwc0q1wAmKKEzqQp"
+      }
+  ],
+  "nextPageToken": "kY60SHyOS6G8JB08XYrr",
+  "prevPageToken": null
+}
+
+#prevPageToken =  null implies there are no previous records.
+#2. To Load next Page
+http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchId}?nextPageToken=<<token>>
+
+#Response :
+{
+  "transactions": [
+      {
+          "product": "ysWStrzmdzXOUdCmMQuH",
+          "closingQuantity": 62,
+          "user": "jesse@pinkman.com",
+          "operation": "addProduct",
+          "operationalQuantity": 17,
+          "date": "2020-07-09T03:49:11.657Z",
+          "productName": "Crocin",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 45,
+          "id": "cHksOdHIwT8Dbr4VMLq0"
+      },
+      {
+          "user": "jesse@pinkman.com",
+          "product": "ysWStrzmdzXOUdCmMQuH",
+          "operation": "addProduct",
+          "productName": "Crocin",
+          "date": "2020-07-07T10:03:15.361Z",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 39,
+          "operationalQuantity": 6,
+          "closingQuantity": 45,
+          "id": "Vq1rNcbxydm8SU4rjqFZ"
+      },
+      {
+          "productName": "Crocin",
+          "note": "Testing add inventory flow",
+          "operation": "addProduct",
+          "user": "jesse@pinkman.com",
+          "closingQuantity": 39,
+          "product": "ysWStrzmdzXOUdCmMQuH",
+          "date": "2020-07-07T09:54:27.019Z",
+          "operationalQuantity": 13,
+          "initialQuantity": 26,
+          "id": "mdGDwuB0RtZySERiUhnJ"
+      }
+  ],
+  "nextPageToken": "mdGDwuB0RtZySERiUhnJ",
+  "prevPageToken": "cHksOdHIwT8Dbr4VMLq0"
+}
+
+#3. In case you want to load previous page
+
+http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchId}?prevPageToken=<<token>>
+
+Response :
+{
+  "transactions": [
+      {
+          "user": "jesse@pinkman.com",
+          "closingQuantity": 50,
+          "productName": "Bench",
+          "operation": "addProduct",
+          "note": "Testing add inventory flow",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "operationalQuantity": 11,
+          "initialQuantity": 39,
+          "date": "2020-07-12T05:31:41.949Z",
+          "id": "zDJTQWoTuOtNCkVlgdLk"
+      },
+      {
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "closingQuantity": 39,
+          "productName": "Bench",
+          "user": "jesse@pinkman.com",
+          "operation": "addProduct",
+          "note": "Testing add inventory flow",
+          "operationalQuantity": 10,
+          "initialQuantity": 29,
+          "date": "2020-07-12T05:29:16.647Z",
+          "id": "AP88Bwc0q1wAmKKEzqQp"
+      },
+      {
+          "user": "jesse@pinkman.com",
+          "operation": "addProduct",
+          "closingQuantity": 29,
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "operationalQuantity": 8,
+          "date": "2020-07-12T05:27:53.998Z",
+          "initialQuantity": 21,
+          "productName": "Bench",
+          "note": "Testing add inventory flow",
+          "id": "kY60SHyOS6G8JB08XYrr"
+      }
+  ],
+  "nextPageToken": "kY60SHyOS6G8JB08XYrr",
+  "prevPageToken": null
+}
+
+#4. passing both next and prev page Tokens. 
+http://localhost:5001/local-parikrama/us-central1/api/api/transactions/<<branchId>>?nextPageToken=<<token>>&prevPageToken=<<token>>
+#Response 
+
+Status : 400 (Bad Request)
+Message : Invalid Query Parameters, Please send either nextPageToken or prevPageToken
+
+#5. when there is no next Page 
+http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchId}?nextPageToken=<<token>>
+
+#Response 
+{
+  "transactions": [
+      {
+          "operationalQuantity": 28,
+          "operation": "addProduct",
+          "initialQuantity": 0,
+          "note": "Some Note",
+          "closingQuantity": 28,
+          "user": "jesse@pinkman.com",
+          "product": "ysWStrzmdzXOUdCmMQuH",
+          "date": "2020-07-04T08:03:06.449Z",
+          "productName": "Crocin",
+          "id": "BiXMh6rso94KJiWBZoMK"
+      }
+  ],
+  "nextPageToken": null,
+  "prevPageToken": "BiXMh6rso94KJiWBZoMK"
+}
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
