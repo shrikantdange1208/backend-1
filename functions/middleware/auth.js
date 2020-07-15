@@ -23,7 +23,7 @@ const isAuthenticated = async function (request, response, next) {
             throw new Error(constants.UNAUTHORIZED)
         }
         const authToken = split[1]
-        console.log('token', authToken)
+        //console.log('token', authToken)
         // const decodedToken = await admin.auth().verifyIdToken(authToken)
         // console.log('decodedtoken', decodedToken)
         // //logger.info(`User ${decodedToken.firstName} is authenticated`)

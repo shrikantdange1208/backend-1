@@ -9,7 +9,6 @@ const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 const express = require('express');
 const c = require('config');
-const { updateAvailableQuantityInInventory } = require('./inventory');
 const router = express.Router()
 const db = admin.firestore()
 
@@ -421,14 +420,23 @@ module.exports.addOrUpdateProduct = functions.firestore
                 logger.debug(`Category of product ${oldData[constants.NAME]} changed from ${oldData.category} to ${newData.category}`)
                 deleteProductFromCategory(change.before)
                 addProductToCategory(change.after)
-            } else if (oldData.isActive !== newData.isActive) {
+                await updateCategoryOrUnitInInventory(productId, newData.category)
+            }
+            if (oldData.unit !== newData.unit) {
+                logger.debug(`Unit of product ${oldData[constants.NAME]} changed from ${oldData.unit} to ${newData.unit}`)
+                await updateCategoryOrUnitInInventory(productId, null, newData.unit)
+            }
+
+            if (oldData.isActive !== newData.isActive) {
                 logger.debug(`Status of product ${oldData[constants.NAME]} changed from ${oldData.isActive} to ${newData.isActive}`)
                 if (newData.isActive) {
                     addProductToCategory(change.after)
                 } else {
                     deleteProductFromCategory(change.after)
                 }
-            } else if (Object.entries(oldData.thresholds).toString() !== Object.entries(newData.thresholds).toString()) {
+            }
+
+            if (Object.entries(oldData.thresholds).toString() !== Object.entries(newData.thresholds).toString()) {
                 logger.debug(`Thresholds of product ${oldData[constants.NAME]} has been updated`)
                 updateThresholdInInventories(productId, oldData, newData)
             }
@@ -486,13 +494,13 @@ async function updateThresholdInInventories(productId, oldData, newData) {
     var updatedThresholds = {}
     for (var branchId in oldThresholds) {
         if ((oldThresholds[branchId] && newThresholds[branchId])
-                && (oldThresholds[branchId] !== newThresholds[branchId])) {
+            && (oldThresholds[branchId] !== newThresholds[branchId])) {
             updatedThresholds[branchId] = newThresholds[branchId]
         }
     }
 
     for (var branchId in newThresholds) {
-        if((newThresholds[branchId] && !oldThresholds[branchId])) {
+        if ((newThresholds[branchId] && !oldThresholds[branchId])) {
             updatedThresholds[branchId] = newThresholds[branchId]
         }
     }
@@ -519,9 +527,9 @@ async function updateThresholdInInventories(productId, oldData, newData) {
 async function updateThresholdInInventory(productId, branchId, threshold) {
 
     const inventoryRef = db.collection(constants.BRANCHES)
-                            .doc(branchId)
-                            .collection(constants.INVENTORY)
-                            .doc(productId)
+        .doc(branchId)
+        .collection(constants.INVENTORY)
+        .doc(productId)
 
     db.runTransaction(async (transaction) => {
         const inventoryDocument = await transaction.get(inventoryRef)
@@ -531,12 +539,37 @@ async function updateThresholdInInventory(productId, branchId, threshold) {
         if (threshold > availableQuantity) {
             isBelowThreshold = true
         }
-        if(inventoryDocument.exists) {
+        if (inventoryDocument.exists) {
             transaction.update(inventoryRef,
                 {
                     'threshold': threshold,
                     'isBelowThreshold': isBelowThreshold
                 });
-        } 
+        }
     })
+}
+
+async function updateCategoryOrUnitInInventory(productId, category, unit) {
+
+    const branchCollectionRef = db.collection(constants.BRANCHES)
+    const branchDocuments = await branchCollectionRef.listDocuments();
+
+    for (const branchDoc of branchDocuments) {
+        const inventoryRef = branchDoc
+            .collection(constants.INVENTORY)
+        const productSnapshot = await inventoryRef
+            .doc(productId)
+            .get()
+        if (productSnapshot.exists) {
+            if (category) {
+                console.log(`Updating category in inventory for product ${productSnapshot.id} in branch ${branchDoc.id} to ${category}`)
+                await inventoryRef
+                    .doc(productId).update({ 'category': category })
+            } else if (unit) {
+                console.log(`Updating unit in inventory for product ${productSnapshot.id} in branch ${branchDoc.id} to ${unit}`)
+                await inventoryRef
+                    .doc(productId).update({ 'unit': unit })
+            }
+        }
+    }
 }

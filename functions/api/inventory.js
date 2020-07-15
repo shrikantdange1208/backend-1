@@ -139,7 +139,8 @@ async function getInventory(branchRef, branchId, belowthreshold) {
     return inventory
 }
 
-module.exports = router;
+module.exports = router
+module.exports.getInventory = getInventory
 
 /**
  * Trigger to update availableQuantity and isBelowThreshold value after
@@ -162,7 +163,11 @@ module.exports.updateAvailableQuantityInInventory = functions.firestore
         var data = {}
         if (!inventorySnapshot.exists) {
             const productSnapshot = await db.collection(constants.PRODUCTS)
-                .doc(productId).get()
+                                        .doc(productId).get();
+
+            const productData = productSnapshot.data()
+            data[constants.UNIT] = productData[constants.UNIT]
+            data[constants.CATEGORY] = productData[constants.CATEGORY]
             if (productSnapshot.get(constants.THRESHOLDS)[branchId]) {
                 data[constants.THRESHOLD] = productSnapshot.get(constants.THRESHOLDS)[branchId]
             } else {

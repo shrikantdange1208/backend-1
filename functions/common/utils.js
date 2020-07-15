@@ -23,14 +23,9 @@ const getNextDate = function (date) {
     return newDate
 }
 
-function isEmpty(obj) {
-    return Object.keys(obj).length === 0;
-}
-
 module.exports = {
     capitalize: capitalize,
     formatDate: formatDate,
     prevDate: getPrevDate,
-    nextDate: getNextDate,
-    isEmpty: isEmpty
+    nextDate: getNextDate
 }
