@@ -1,0 +1,28 @@
+{
+    "branch": "somebranchId",
+    "branchName": "kormangala",
+    "totalProducts": 32,
+    "fromDate": "Date",
+    "toDate": "Date",
+    "report":  [
+        {
+            "productId": "productId 1",
+            "productName": "productName",
+            "unit": "unitId",
+            "category": "categoryId",
+            "threshold": 20,
+            "initialQuantity": 20,
+            "addedQuantity": 35,
+            "consumedQuantity":23,
+            "closingQuantity": 32
+        },
+        {
+            "productId": "productId 2",
+            "productName": "productName 3",
+            "initialQuantity": 20,
+            "addedQuantity": 35,
+            "consumedQuantity":23,
+            "closingQuantity": 32
+        }
+    ]
+}
