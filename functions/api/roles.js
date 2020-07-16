@@ -35,7 +35,7 @@ const { isAdminOrSuperAdmin } = require('../middleware/auth')
 //         ...data
 //     })
 //     // Fire and forget audit log
-//     const eventMessage = `User ${req.user.firstName} created new role ${name}`
+//     const eventMessage = `User ${req.user.name} created new role ${name}`
 //     audit.logEvent(eventMessage, req)
 
 //     res.status(201).send({ id: response.id, ...data })
@@ -113,7 +113,7 @@ router.get('/:role', isAdminOrSuperAdmin, async (req, res, next) => {
 //     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
 
 //     // Fire and forget audit log
-//     const eventMessage = `User ${req.user.firstName} updated role ${oldData[constants.NAME]}`
+//     const eventMessage = `User ${req.user.name} updated role ${oldData[constants.NAME]}`
 //     audit.logEvent(eventMessage, req, oldData, newData)
 
 //     res.sendStatus(204)
@@ -136,7 +136,7 @@ router.get('/:role', isAdminOrSuperAdmin, async (req, res, next) => {
 //     await rolesRef.delete()
 
 //     // Fire and forget audit log
-//     const eventMessage = `User ${req.user.firstName} deleted role ${name}`
+//     const eventMessage = `User ${req.user.name} deleted role ${name}`
 //     audit.logEvent(eventMessage, req)
 
 //     res.status(200).send({ 'message': 'deleted successfully' })

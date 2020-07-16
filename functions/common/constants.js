@@ -6,6 +6,8 @@ function define(name, value) {
 }
 
 define("NAME", "name");
+define("FIRST_NAME", "firstName");
+define("LAST_NAME", "lastName");
 define("ID", "id");
 define("CATEGORY", "category");
 define("CATEGORIES", "categories");

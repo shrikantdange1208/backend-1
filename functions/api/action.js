@@ -305,6 +305,18 @@ function validateParams(body, type) {
                 pendingRequestsId: joi.string().alphanum().length(20).required(),
             })
             break
+        case constants.MOVE:
+            schema = joi.object({
+                toBranch: joi.string().alphanum().length(20).required(),
+                fromBranch: joi.string().alphanum().length(20).required(),
+                fromBranchName: joi.string().min(1).max(30).required(),
+                toBranchName: joi.string().min(1).max(30).required(),
+                product: joi.string().alphanum().length(20).required(),
+                productName: joi.string().min(1).max(30).required(),
+                operationalQuantity: joi.number().integer().strict().required(),
+                note: joi.string(),
+            })
+            break
     }
     return validate(schema, body)
 

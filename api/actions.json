@@ -79,7 +79,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Accept product request Operation (POST)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/transferproduct
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/transferProduct
 #Request
 {
 	"fromBranch": "MxoS2K8t8jT7MATniD4x",
@@ -95,6 +95,28 @@
 #Response
 {
     "transactionId": "gnVACYkIFM6vd8baebkA",
+    "toBranchTransactionId": "v8jszk47HSPQP2IG1a7w",
+    "fromBranchTransactionId": "PgR3qYexQoOSHzprXbBT"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Move product from headoffice to branch (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/moveProduct
+#Request
+{
+	"fromBranch": "MxoS2K8t8jT7MATniD4x",
+	"toBranch": "R1vTnxSLWByLa7NocDDX",
+	"fromBranchName": "sarjapur",
+	"toBranchName": "madiwala",
+	"productId": "3V0TKHqOC2GLzzNceFKs",
+	"productName": "blankets",
+	"operationalQuantity": 10
+}
+
+#Response
+{
     "toBranchTransactionId": "v8jszk47HSPQP2IG1a7w",
     "fromBranchTransactionId": "PgR3qYexQoOSHzprXbBT"
 }

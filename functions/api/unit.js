@@ -93,7 +93,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const unitRef = await db.collection(constants.UNITS).add(data)
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} created new unit ${utils.capitalize(unitName)}`
+    const eventMessage = `User ${req.user.name} created new unit ${utils.capitalize(unitName)}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`${unitName} document created`)
@@ -136,7 +136,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     await unitRef.set(newData, { merge: true })
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} updated unit ${oldData[constants.NAME]}`
+    const eventMessage = `User ${req.user.name} updated unit ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
     logger.debug(`Updated unit ${oldData[constants.NAME]}`)
@@ -164,7 +164,7 @@ router.delete('/:id', isSuperAdmin, async(request, response, next) => {
     await unitRef.delete()
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} deleted unit ${unitData[constants.NAME]}`
+    const eventMessage = `User ${req.user.name} deleted unit ${unitData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`Deleted unit ${unitData[constants.NAME]}`)

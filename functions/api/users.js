@@ -49,12 +49,12 @@ router.post('/', isAdminOrSuperAdmin, async (req, res, next) => {
         ...response
     })
     await admin.auth().setCustomUserClaims(uid, {
-        role, branch
+        role, branch, firstName, lastName
     })
     logger.info(`${req.body.email} added to users list and claims have been set`)
 
     // Fire and forget audit log
-    const eventMessage = `User ${req.user.firstName} created new user ${req.body.firstName}`
+    const eventMessage = `User ${req.user.name} created new user ${req.body.firstName}`
     audit.logEvent(eventMessage, req)
 
     res.status(201).send({ id: uid, ...response })
@@ -129,16 +129,18 @@ router.put('/', isAdminOrSuperAdmin, async (req, res, next) => {
     await usersRef.set(newData, { merge: true })
 
     //update claims
-    if (oldData.role !== newData.role || oldData.branch !== newData.branch) {
+    if (oldData.role !== newData.role || oldData.branch !== newData.branch
+        || oldData.firstName !== newData.firstName || oldData.lastName !== newData.lastName) {
         await admin.auth().setCustomUserClaims(id, {
             role,
-            branch
+            branch,
+            firstName,
+            lastName
         })
         console.log('custom claims updated')
     }
 
     //disable users account in authentication
-    console.log(isActive)
     if(isActive == false){
         await admin.auth().updateUser(id, {
             disabled: true
@@ -153,7 +155,7 @@ router.put('/', isAdminOrSuperAdmin, async (req, res, next) => {
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
     
     // Fire and forget audit log
-    const eventMessage = `User ${req.user.firstName} updated user ${oldData[constants.NAME]}`
+    const eventMessage = `User ${req.user.name} updated user ${oldData[constants.FIRST_NAME]} ${oldData[constants.LAST_NAME]}`
     audit.logEvent(eventMessage, req, oldData, newData)
 
     res.sendStatus(204)
@@ -178,7 +180,7 @@ router.delete('/:id', isSuperAdmin, async (req, res, next) => {
     await admin.auth().deleteUser(req.params.id)
     console.log('deleted user account')
     // Fire and forget audit log
-    const eventMessage = `User ${req.user.firstName} deleted user ${req.body.firstName}`
+    const eventMessage = `User ${req.user.name} deleted user ${req.body.firstName}`
     audit.logEvent(eventMessage, req)
     
     res.status(200).send({ 'message': 'deleted successfully' })

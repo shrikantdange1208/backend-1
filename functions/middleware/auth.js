@@ -23,31 +23,39 @@ const isAuthenticated = async function (request, response, next) {
             throw new Error(constants.UNAUTHORIZED)
         }
         const authToken = split[1]
+<<<<<<< HEAD
         //console.log('token', authToken)
         // const decodedToken = await admin.auth().verifyIdToken(authToken)
         // console.log('decodedtoken', decodedToken)
         // //logger.info(`User ${decodedToken.firstName} is authenticated`)
         // const user = await admin.auth().getUser(decodedToken.uid)
         // console.log(user)
+=======
+        console.log('token', authToken)
+        const decodedToken = await admin.auth().verifyIdToken(authToken)
+        console.log(`${decodedToken.email} is authenticated`)
+        const user = await admin.auth().getUser(decodedToken.uid)
+        //console.log(user)
+>>>>>>> auth and moveProducts
         /*let usersRef = await db.collection(constants.USERS).doc(decodedToken.uid)
-        const doc = await usersRef.get()
+        const doc = await usersRef.get()*/
+        const { role, branch, firstName, lastName } = user.customClaims
          request.user = { 
             uid: decodedToken.uid, 
-            role: decodedToken.role, 
-            branch: decodedToken.branch, 
-            firstName: doc.data().firstName, 
-            lastName: doc.data().lastName,
-            email: doc.data().email 
+            role: role, 
+            branch: branch, 
+            name: firstName + ' ' + lastName, 
+            email: decodedToken.email 
         }
-        */
-        request.user = {
-            uid: '5OGy1Jo2JXf2nXocHEVtZX7116K2',
-            role: 'superadmin',
-            branch: 'kormangala',
-            firstName: 'Jesse',
-            lastName: 'Pinkman',
-            email: 'jesse@pinkman.com'
-        }
+        
+        // request.user = {
+        //     uid: '5OGy1Jo2JXf2nXocHEVtZX7116K2',
+        //     role: 'superadmin',
+        //     branch: 'kormangala',
+        //     firstName: 'Jesse',
+        //     lastName: 'Pinkman',
+        //     email: 'jesse@pinkman.com'
+        // }
         return next()
     } catch (err) {
         // logger.error(`In Catch of IsAuthenticated`)
