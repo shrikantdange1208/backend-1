@@ -7,7 +7,6 @@ const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth');
 const functions = require('firebase-functions')
-const { isAdmin } = require('../middleware/auth');
 const audit = require('./audit')
 const express = require('express')
 const router = express.Router();

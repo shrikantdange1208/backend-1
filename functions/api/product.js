@@ -8,7 +8,6 @@ const joi = require('@hapi/joi')
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
 const express = require('express');
-const c = require('config');
 const router = express.Router()
 const db = admin.firestore()
 
@@ -492,14 +491,14 @@ async function updateThresholdInInventories(productId, oldData, newData) {
     const oldThresholds = oldData[constants.THRESHOLDS];
     const newThresholds = newData[constants.THRESHOLDS];
     var updatedThresholds = {}
-    for (var branchId in oldThresholds) {
+    for (const branchId in oldThresholds) {
         if ((oldThresholds[branchId] && newThresholds[branchId])
             && (oldThresholds[branchId] !== newThresholds[branchId])) {
             updatedThresholds[branchId] = newThresholds[branchId]
         }
     }
 
-    for (var branchId in newThresholds) {
+    for (const branchId in newThresholds) {
         if ((newThresholds[branchId] && !oldThresholds[branchId])) {
             updatedThresholds[branchId] = newThresholds[branchId]
         }
