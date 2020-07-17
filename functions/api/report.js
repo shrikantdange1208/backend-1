@@ -67,7 +67,7 @@ router.get("/:branchId", isAdminOrSuperAdmin, async (request, response, next) =>
     Promise.all(promises)
         .then(reports => {
             reports.forEach(productReport => {
-                if (hasTransactionrecordBeforeToDate(productReport)) {
+                if (hasTransactionRecordBeforeToDate(productReport)) {
                     branchReport[constants.REPORT].push(productReport)
                     totalProducts = totalProducts + 1
                 }
@@ -126,7 +126,6 @@ async function getReportForProduct(branchDocument, product, fromDate, toDate) {
         console.debug(`Transactions found between date range ${fromDate} and ${toDate} for product ${product[constants.PRODUCT]}`)
         getReportForProductFromTransactions(product, productTransactionRef)
     } else {
-
         // Transactions not found in th given date range. Use the last transaction to generate the report
         console.debug(`Transactions not found between date range ${fromDate} and ${toDate} for product ${product[constants.PRODUCT]}`)
         const lastTransaction = await branchDocument
