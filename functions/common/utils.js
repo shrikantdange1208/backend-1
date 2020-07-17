@@ -52,7 +52,7 @@ module.exports = {
     capitalize: capitalize,
     formatDate: formatDate,
     hasPreviousPage: hasPreviousPage,
-    hasNextPage: hasNextPage
+    hasNextPage: hasNextPage,
     formatDate: formatDate,
     prevDate: getPrevDate,
     nextDate: getNextDate
