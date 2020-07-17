@@ -1,4 +1,5 @@
 const constants = require('../common/constants');
+const utils = require('../common/utils')
 const logger = require('../middleware/logger');
 const { isAdminOrSuperAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
@@ -118,7 +119,7 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
                 .limit(pageSize)
             }
     }
-    // Case 3 : Only prev page token is give, then end Before the given doc id with limit pagesize.
+    // Case 3 : Only prev page token is given, then end Before the given doc id with limit pagesize.
     if(prevPageToken !== null) {
     var prevVisibleDoc = await db.collection(constants.BRANCHES)
             .doc(branchId)
@@ -133,9 +134,6 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
         }
     }
     let snapshot = await transactionCollection.get()
-    //To identify if its end of pages ( no prev or no next)
-    const hasPrevious =  await hasPreviousPage(transCollectionOrig,snapshot)
-    const hasNext = await hasNextPage(transCollectionOrig,snapshot)
 
     //Final query retrieval
     const branchTransactions = []
@@ -151,34 +149,15 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
     // Populating the response ( with page tokens)
     res[constants.TRANSACTIONS] = branchTransactions
     if(size >0){
+        //To identify if its end of pages ( no prev or no next)
+        const hasPrevious =  await utils.hasPreviousPage(transCollectionOrig,snapshot)
+        const hasNext = await utils.hasNextPage(transCollectionOrig,snapshot)
+
         res[constants.NEXT_PAGE_TOKEN]= hasNext ? snapshot.docs[size-1].id : null;
         res[constants.PREV_PAGE_TOKEN]= hasPrevious ? snapshot.docs[0].id : null;
     }
     response.status(200).send(res);
 });
 
-async function hasPreviousPage (transactionCollection, snapshot){
-    var initialtransaction = snapshot.docs[0]
-    transactionCollection = transactionCollection
-                            .endBefore(initialtransaction)
-                            .limitToLast(constants.PAGE_SIZE)
-    let prevPageSnapshot = await transactionCollection.get()
-    hasPrevPage = (prevPageSnapshot.docs.length>0)
-    return new Promise((resolve,reject) => {   
-        resolve(hasPrevPage)
-    });
-}
-async function hasNextPage (transactionCollection, snapshot){
-    var size = snapshot.docs.length
-    var lasttransaction = snapshot.docs[size-1]
-    transactionCollection = transactionCollection
-                            .startAfter(lasttransaction)
-                            .limit(constants.PAGE_SIZE)
-    let nextPageSnapshot = await transactionCollection.get()
-    hasNxtPage = (nextPageSnapshot.docs.length>0)
-    return new Promise((resolve,reject) => {   
-        resolve(hasNxtPage)
-    });
-}
 
 module.exports = router;

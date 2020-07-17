@@ -1,0 +1,162 @@
+# /api/audits
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Audits performed (GET)
+# Request
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/audits
+  # default pageSize = 3 
+#Response
+{
+  "audit": [
+      {
+          "user": "Jesse Pinkman",
+          "uid": "5OGy1Jo2JXf2nXocHEVtZX7116K2",
+          "event": "User Jesse updated user undefined",
+          "date": "2020-07-15T07:39:03.847Z",
+          "before": {
+              "lastName": "XYZ",
+              "email": "user1@gmail.com",
+              "role": "admin",
+              "contact": "9876543210",
+              "firstName": "ABC",
+              "lastUpdatedDate": "2020-07-12T09:08:08.729Z",
+              "createdDate": "2020-07-12T09:08:08.729Z",
+              "isActive": true,
+              "branch": "MxoS2K8t8jT7MATniD4x"
+          },
+          "after": {
+              "lastUpdatedDate": "2020-07-15T07:39:02.613Z",
+              "isActive": true,
+              "role": "admin",
+              "createdDate": "2020-07-12T09:08:08.729Z",
+              "lastName": "Doe",
+              "branch": "MxoS2K8t8jT7MATniD4x",
+              "contact": "9876543210",
+              "firstName": "John"
+          },
+          "id": "PnV8jJWFkRwvAERv6nXu"
+      },
+      {
+          "event": "User Jesse created new user Chandler",
+          "uid": "5OGy1Jo2JXf2nXocHEVtZX7116K2",
+          "user": "Jesse Pinkman",
+          "date": "2020-07-12T10:20:35.752Z",
+          "id": "n0ydQqTt0fJ3sFEgrANN"
+      },
+      {
+          "user": "Jesse Pinkman",
+          "event": "User Jesse created new user Phoebe",
+          "uid": "5OGy1Jo2JXf2nXocHEVtZX7116K2",
+          "date": "2020-07-12T09:10:13.655Z",
+          "id": "qKoub78OrueITZswFPSd"
+      }
+  ],
+  "nextPageToken": "qKoub78OrueITZswFPSd",
+  "prevPageToken": null
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get All Audit Logs done in a given date range (GET)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/audits?fromDate=2020-07-12&toDate=2020-07-13
+#Response
+{
+  "audit": [
+      {
+          "event": "User Jesse created new user Chandler",
+          "date": "2020-07-12T10:20:35.752Z",
+          "user": "Jesse Pinkman",
+          "uid": "5OGy1Jo2JXf2nXocHEVtZX7116K2",
+          "id": "n0ydQqTt0fJ3sFEgrANN"
+      },
+      {
+          "user": "Jesse Pinkman",
+          "event": "User Jesse created new user Phoebe",
+          "uid": "5OGy1Jo2JXf2nXocHEVtZX7116K2",
+          "date": "2020-07-12T09:10:13.655Z",
+          "id": "qKoub78OrueITZswFPSd"
+      },
+      {
+          "event": "User Jesse created new user Joey",
+          "date": "2020-07-12T09:09:05.596Z",
+          "uid": "5OGy1Jo2JXf2nXocHEVtZX7116K2",
+          "user": "Jesse Pinkman",
+          "id": "DTFSzM1HDwwelZwXZkkK"
+      }
+  ],
+  "nextPageToken": "DTFSzM1HDwwelZwXZkkK",
+  "prevPageToken": null
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all audit logs  (GET) filter by user
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/audits?user={userId}
+#Response
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get audit logs for given date (as above), next page (GET)
+# nextPageToken = null => No next records (end of logs)
+# query : ?nextPageToken=<<token>> => To load next page 
+# query : ?prevPageToken=<<token>> => To load previous page 
+# query : No value for prev or next page token => default page (page 1) with page size
+# prevPageToken = null => No previous records ( start of logs)
+  # Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/audits?fromDate=2020-07-12&toDate=2020-07-13?nextPageToken=<<token>>
+#Response
+{
+  "transactions": [
+      {
+          "operationalQuantity": 11,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 50,
+          "date": "2020-07-12T05:31:41.949Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 39,
+          "id": "zDJTQWoTuOtNCkVlgdLk"
+      },
+      {
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 29,
+          "operationalQuantity": 10,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 39,
+          "date": "2020-07-12T05:29:16.647Z",
+          "id": "AP88Bwc0q1wAmKKEzqQp"
+      },
+      {
+          "operationalQuantity": 8,
+          "operation": "addProduct",
+          "product": "tFX0hb4gZJKUFisUQibf",
+          "productName": "Bench",
+          "closingQuantity": 29,
+          "date": "2020-07-12T05:27:53.998Z",
+          "user": "jesse@pinkman.com",
+          "note": "Testing add inventory flow",
+          "initialQuantity": 21,
+          "id": "kY60SHyOS6G8JB08XYrr"
+      }
+  ],
+  "nextPageToken": "kY60SHyOS6G8JB08XYrr",
+  "prevPageToken": "zDJTQWoTuOtNCkVlgdLk"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Failure case Get audit logs with both next and prev pageToken
+# http://localhost:5001/local-parikrama/us-central1/api/api/audits?nextPageToken=4GTke8qpspSKt5cJnhFT&prevPageToken=n0ydQqTt0fJ3sFEgrANN
+
+# Response : 400 
+# Message : Invalid Query Parameters, Please send either nextPageToken or prevPageToken

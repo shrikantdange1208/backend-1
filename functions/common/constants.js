@@ -68,6 +68,8 @@ define("PAGE_SIZE",3)
 define("FROM_DATE", "fromDate");
 define("TO_DATE", "toDate");
 define("REPORT", "report");
+//TODO : Need to modify page size before handing over
+define("PAGE_SIZE",3);
 
 // Action constants
 define("TRANSACTIONID", "transactionId");
