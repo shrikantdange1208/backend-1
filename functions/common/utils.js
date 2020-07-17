@@ -1,5 +1,3 @@
-const constants = require('../common/constants')
-
 const capitalize = function (string) {
     return string
         .split(' ')
@@ -13,6 +11,18 @@ const formatDate = function (data) {
     return data
 }
 
+const getPrevDate = function (date) {
+    var newDate = new Date(date)
+    newDate.setDate(newDate.getDate() - 1)
+    return newDate
+}
+
+const getNextDate = function (date) {
+    var newDate = new Date(date)
+    newDate.setDate(newDate.getDate() + 1)
+    return newDate
+}
+
 
 const hasPreviousPage = async function (transactionCollection, snapshot){
     var initialtransaction = snapshot.docs[0]
@@ -20,8 +30,8 @@ const hasPreviousPage = async function (transactionCollection, snapshot){
                             .endBefore(initialtransaction)
                             .limitToLast(constants.PAGE_SIZE)
     let prevPageSnapshot = await transactionCollection.get()
-    hasPrevPage = (prevPageSnapshot.docs.length>0) 
-    return new Promise((resolve,reject) => {   
+    hasPrevPage = (prevPageSnapshot.docs.length>0)
+    return new Promise((resolve,reject) => {
         resolve(hasPrevPage)
     });
 }
@@ -33,7 +43,7 @@ const hasNextPage = async function (transactionCollection, snapshot){
                             .limit(constants.PAGE_SIZE)
     let nextPageSnapshot = await transactionCollection.get()
     hasNxtPage = (nextPageSnapshot.docs.length>0)
-    return new Promise((resolve,reject) => {   
+    return new Promise((resolve,reject) => {
         resolve(hasNxtPage)
     });
 }
@@ -43,4 +53,7 @@ module.exports = {
     formatDate: formatDate,
     hasPreviousPage: hasPreviousPage,
     hasNextPage: hasNextPage
+    formatDate: formatDate,
+    prevDate: getPrevDate,
+    nextDate: getNextDate
 }

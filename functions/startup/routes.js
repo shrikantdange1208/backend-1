@@ -8,11 +8,12 @@ const audits = require('../api/audit');
 const branches = require('../api/branch');
 const users = require('../api/users');
 const roles = require('../api/roles');
-const permissions = require('../api/permissions');
+//const permissions = require('../api/permissions');
 const transactions = require('../api/transactions');
 const inventories = require('../api/inventory');
 const actions = require('../api/action');
 const pendingRequests = require('../api/pendingRequests');
+const reports = require('../api/report');
 const { isAuthenticated } = require('../middleware/auth');
 const httperror = require('../middleware/error');
 
@@ -29,10 +30,11 @@ module.exports = function(app) {
     app.use('/api/branches', branches);
     app.use('/api/users', users);
     app.use('/api/roles', roles);
-    app.use('/api/permissions', permissions);
+    //app.use('/api/permissions', permissions);
     app.use('/api/inventories', inventories);
     app.use('/api/transactions',transactions);
     app.use('/api/actions', actions);
     app.use('/api/pendingRequests', pendingRequests);
+    app.use('/api/reports', reports);
     app.use(httperror);
 }
