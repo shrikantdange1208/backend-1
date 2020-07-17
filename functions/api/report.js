@@ -81,9 +81,9 @@ router.get("/:branchId", isAdminOrSuperAdmin, async (request, response, next) =>
  * Method to check if product had a transaction before toDate
  * @param {*} productReport 
  */
-function hasTransactionrecordBeforeToDate(productReport) {
-    if(productReport[constants.INITIAL_QUANTITY] == 0 
-        && productReport[constants.CLOSING_QUANTITY] == 0) {
+function hasTransactionRecordBeforeToDate(productReport) {
+    if(productReport[constants.INITIAL_QUANTITY] === 0 
+        && productReport[constants.CLOSING_QUANTITY] === 0) {
             return false
         }
     return true
@@ -109,8 +109,8 @@ function addBranchData(branch, fromDate, toDate) {
  * Method to generate report for a given product for a particular branch
  * @param {*} branchDocument 
  * @param {*} product 
- * @param {*} fromDate 
- * @param {*} toDate 
+ * @param {*} fromDate fromDate - 1 //toInclude fromDate transactions 
+ * @param {*} toDate toDate + 1 //toInclude toDate transactions 
  */
 async function getReportForProduct(branchDocument, product, fromDate, toDate) {
 

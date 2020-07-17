@@ -213,7 +213,7 @@ function validateParams(body, type) {
                 branch: joi.string().min(1).max(30).required(),
                 product: joi.string().min(1).max(30).required(),
                 productName: joi.string().min(1).max(30).required(),
-                operationalQuantity: joi.number().integer().strict().integer().strict().required(),
+                operationalQuantity: joi.number().integer().strict().required(),
                 note: joi.string()
             })
             break
