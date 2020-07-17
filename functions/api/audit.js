@@ -120,7 +120,7 @@ module.exports = router;
 module.exports.logEvent = function (eventMessage, request, oldData, newData) {
     const eventData = {}
     eventData[constants.EVENT] = eventMessage
-    eventData[constants.USER] = req.user.name
+    eventData[constants.USER] = request.user.name
     eventData[constants.UID] = request.user.uid
     eventData[constants.DATE] = new Date()
     if(oldData && newData) {

@@ -193,10 +193,10 @@ router.post('/transferProduct', async (req, res, next) => {
         operationalQuantity,
         transactionId: pendingRequestsId,
     }
-    tobranchTransaction = createTransaction(toBranchData)
+    toBranchTransaction = createTransaction(toBranchData)
 
     const fromBranchTransactionId = await fromBranchTransaction
-    const toBranchTransactionId = await tobranchTransaction
+    const toBranchTransactionId = await toBranchTransaction
     
     await toBranchPendingReqRef.delete()
     await fromBranchPendingReqRef.delete()
