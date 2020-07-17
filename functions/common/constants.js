@@ -64,7 +64,8 @@ define("TRANSACTIONS", "transactions");
 define("PENDING_REQUESTS", "pendingRequests");
 define("NEXT_PAGE_TOKEN","nextPageToken");
 define("PREV_PAGE_TOKEN","prevPageToken");
-define("PAGE_SIZE",3)
+//TODO : Need to modify page size before handing over
+define("PAGE_SIZE",3);
 
 // Action constants
 define("TRANSACTIONID", "transactionId");

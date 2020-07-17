@@ -1,4 +1,4 @@
-# /api/branch
+# /api/transactions
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -240,6 +240,8 @@
 
 #Pagination example
 # Endpoint : any GET query 
+# To include any query params for all the page loading sessions . In case of modified search, the request 
+# should start with default query with no tokens.
 
 #1. Default behavior Or Initial Request 
 Eg : http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchId}
