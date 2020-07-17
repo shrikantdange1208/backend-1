@@ -67,7 +67,7 @@ router.get("/:branchId", isAdminOrSuperAdmin, async (request, response, next) =>
     Promise.all(promises)
         .then(reports => {
             reports.forEach(productReport => {
-                if (hasTransactionrecordBeforeToDate(productReport)) {
+                if (hasTransactionRecordBeforeToDate(productReport)) {
                     branchReport[constants.REPORT].push(productReport)
                     totalProducts = totalProducts + 1
                 }
@@ -122,11 +122,13 @@ async function getReportForProduct(branchDocument, product, fromDate, toDate) {
         .orderBy(constants.DATE)
         .get()
 
+    delete product[constants.IS_BELOW_THRESHOLD]
+    delete product[constants.AVAILABLE_QUANTITY]
+    
     if (productTransactionRef.size > 0) {
         console.debug(`Transactions found between date range ${fromDate} and ${toDate} for product ${product[constants.PRODUCT]}`)
         getReportForProductFromTransactions(product, productTransactionRef)
     } else {
-
         // Transactions not found in th given date range. Use the last transaction to generate the report
         console.debug(`Transactions not found between date range ${fromDate} and ${toDate} for product ${product[constants.PRODUCT]}`)
         const lastTransaction = await branchDocument
@@ -147,8 +149,6 @@ async function getReportForProduct(branchDocument, product, fromDate, toDate) {
  * @param {*} productTransactionRef 
  */
 function getReportForProductFromTransactions(product, productTransactionRef) {
-    delete product[constants.IS_BELOW_THRESHOLD]
-    delete product[constants.AVAILABLE_QUANTITY]
     const productTransactions = productTransactionRef.docs
     const firstTransactionData = getFirstTransactionData(productTransactions)
     const lastTransactionData = getLastTransactionData(productTransactions)
@@ -166,6 +166,7 @@ function getReportForProductFromPreviousTransactions(product, lastTransaction) {
     product[constants.INITIAL_QUANTITY] = 0
     product[constants.ADDED_QUANTITY] = 0
     product[constants.CONSUMED_QUANTITY] = 0
+    product[constants.TRANSFERRED_QUANTITY] = 0
     product[constants.CLOSING_QUANTITY] = 0
 
     lastTransaction.forEach((transaction) => {
@@ -204,6 +205,7 @@ function getLastTransactionData(productTransactions) {
 function calculateQuantities(productData, productTransactions) {
     var addedQuantity = 0
     var consumedQuantity = 0
+    var transferredQuantity = 0
     for (const transaction of productTransactions) {
         const transactionData = transaction.data()
         transactionData[constants.DATE] = transactionData[constants.DATE].toDate()
@@ -214,8 +216,10 @@ function calculateQuantities(productData, productTransactions) {
                 addedQuantity = addedQuantity + transactionData[constants.OPERATIONAL_QUANTITY]
                 break
             case constants.ISSUE_PRODUCT:
-            case constants.TRANSFER_OUT:
                 consumedQuantity = consumedQuantity + transactionData[constants.OPERATIONAL_QUANTITY]
+                break
+            case constants.TRANSFER_OUT:
+                transferredQuantity = transferredQuantity + transactionData[constants.OPERATIONAL_QUANTITY]
                 break
             case constants.ADJUSTMENT:
                 if (transactionData[constants.CLOSING_QUANTITY] > transactionData[constants.INITIAL_QUANTITY]) {
@@ -230,6 +234,7 @@ function calculateQuantities(productData, productTransactions) {
     }
     productData[constants.ADDED_QUANTITY] = addedQuantity
     productData[constants.CONSUMED_QUANTITY] = consumedQuantity
+    productData[constants.TRANSFERRED_QUANTITY] = transferredQuantity
 }
 
 module.exports = router;

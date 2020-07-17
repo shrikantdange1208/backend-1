@@ -71,8 +71,6 @@ functions/*.log
 functions/package-lock.json
 functions/.eslintrc.json
 .firebaserc
-firestore.indexes.json
-firestore.rules
 package-lock.json
 public/
 functions/scratchpad.js

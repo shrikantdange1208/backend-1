@@ -203,6 +203,68 @@ router.post('/transferProduct', async (req, res, next) => {
     res.status(201).send({ transactionId: pendingRequestsId, toBranchTransactionId, fromBranchTransactionId })
 })
 
+/**
+ * Route to move products from headoffice to a branch(without request)
+ * @returns 201 Created
+ */
+router.post('/moveProduct', async (req, res, next) => {
+    const { error } = validateParams(req.body, constants.MOVE)
+    if (error) {
+        const err = new Error(error.details[0].message)
+        err.statusCode = 400
+        next(err)
+        return;
+    }
+    const { toBranch, fromBranch, toBranchName, fromBranchName, product, productName, operationalQuantity, note } = req.body
+
+    //check if branches exist
+    const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch);
+    const fromBranchRef = db.collection(constants.BRANCHES).doc(fromBranch);
+    const docs = await db.getAll(toBranchRef, fromBranchRef)
+    const toBranchDoc = docs[0]
+    const fromBranchDoc = docs[1]
+
+    if (!toBranchDoc.exists || !fromBranchDoc.exists) {
+        const error = new Error(`Branch does not exist. Can not transfer out products`)
+        error.statusCode = 404
+        next(error)
+        return
+    }
+
+    //create transferOut transaction
+    const fromBranchData = {
+        date: new Date(),
+        branch: fromBranch,
+        operationalQuantity,
+        product, 
+        productName,
+        note,
+        toBranchName,
+        user: req.user.email,
+        operation: constants.TRANSFER_OUT
+    }
+    fromBranchTransaction = createTransaction(fromBranchData)
+
+    //create transferIn transaction
+    const toBranchData = {
+        date: new Date(),
+        branch: toBranch,
+        operationalQuantity,
+        product, 
+        productName,
+        note,
+        fromBranchName,
+        user: req.user.email,
+        operation: constants.TRANSFER_IN
+    }
+    toBranchTransaction = createTransaction(toBranchData)
+
+    const fromBranchTransactionId = await fromBranchTransaction
+    const toBranchTransactionId = await toBranchTransaction
+
+    res.status(201).send({ fromBranchTransactionId, toBranchTransactionId })
+})
+
 function validateParams(body, type) {
     let schema
     switch (type) {
@@ -218,6 +280,7 @@ function validateParams(body, type) {
             })
             break
         case constants.REQUEST:
+        case constants.MOVE:
             schema = joi.object({
                 toBranch: joi.string().alphanum().length(20).required(),
                 fromBranch: joi.string().alphanum().length(20).required(),

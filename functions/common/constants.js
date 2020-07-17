@@ -84,7 +84,9 @@ define("CLOSING_QUANTITY", "closingQuantity");
 define("ADDED_QUANTITY", "addedQuantity");
 define("CONSUMED_QUANTITY", "consumedQuantity");
 define("OPERATIONAL_QUANTITY", "operationalQuantity");
+define("TRANSFERRED_QUANTITY", "transferredQuantity");
 define("NOTE", "note");
 
 define("REQUEST", "request");
 define("ACCEPT", "accept");
+define("MOVE", "move");
