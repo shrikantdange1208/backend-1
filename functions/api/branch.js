@@ -18,6 +18,12 @@ const db = admin.firestore();
  */
 router.get("/", async (request, response) => {
     logger.info("Retrieving all branches from firestore");
+    const branches = await getAllBranches()
+    logger.debug('Returning branches to client.');
+    response.status(200).send(branches);
+});
+
+const getAllBranches = async function() {
     const branches = {
         "branches": []
     }
@@ -32,9 +38,8 @@ router.get("/", async (request, response) => {
         branches.branches.push(branchData);
     })
     branches[constants.TOTAL_BRANCHES] = snapshot.size;
-    logger.debug('Returning branches to client.');
-    response.status(200).send(branches);
-});
+    return branches
+}
 
 /**
  * @description Route to retrieve single branch data from firestore
@@ -275,6 +280,7 @@ function validateParams(body, type) {
 }
 
 module.exports = router;
+module.exports.getAllBranches = getAllBranches
 
 /**
  * Trigger to execute actions when Branch is deleted

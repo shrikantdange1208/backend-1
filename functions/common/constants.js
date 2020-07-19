@@ -90,3 +90,5 @@ define("NOTE", "note");
 define("REQUEST", "request");
 define("ACCEPT", "accept");
 define("MOVE", "move");
+
+define("METADATA", "metadata");
