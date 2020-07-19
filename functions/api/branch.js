@@ -295,8 +295,8 @@ module.exports.addOrUpdateBranch = functions.firestore
  */
 async function deleteThresholdsFromAllProducts(branchId) {
     console.log(`Deleting thresholds for branch ${branchId} from all products`)
-    const productCollecton = db.collection(constants.PRODUCTS)
-    const productSnapshots = await productCollecton.get()
+    const productCollection = db.collection(constants.PRODUCTS)
+    const productSnapshots = await productCollection.get()
     productSnapshots.forEach(async product => {
         const productData = product.data()
         if(productData[constants.THRESHOLDS].hasOwnProperty(branchId)) {
