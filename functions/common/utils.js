@@ -1,3 +1,4 @@
+const constants = require('./constants');
 const capitalize = function (string) {
     return string
         .split(' ')
@@ -53,7 +54,6 @@ module.exports = {
     formatDate: formatDate,
     hasPreviousPage: hasPreviousPage,
     hasNextPage: hasNextPage,
-    formatDate: formatDate,
     prevDate: getPrevDate,
     nextDate: getNextDate
 }
