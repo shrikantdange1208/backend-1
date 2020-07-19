@@ -23,6 +23,9 @@ router.get("/", async (request, response) => {
     response.status(200).send(branches);
 });
 
+/**
+ * Utility method to retrieve all branches from firestore
+ */
 const getAllBranches = async function() {
     const branches = {
         "branches": []

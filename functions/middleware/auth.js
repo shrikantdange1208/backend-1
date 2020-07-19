@@ -43,11 +43,20 @@ const isAuthenticated = async function (request, response, next) {
         request.user = {
             uid: '5OGy1Jo2JXf2nXocHEVtZX7116K2',
             role: 'superadmin',
-            branch: 'kormangala',
+            branch: 'PKaItjoJdtxBhcR0VmQZ',
             firstName: 'Jesse',
             lastName: 'Pinkman',
             email: 'jesse@pinkman.com'
         }
+
+        // request.user = {
+        //     uid: '5OGy1Jo2JXf2nXocHEVtZX7116K2',
+        //     role: 'branch',
+        //     branch: 'PKaItjoJdtxBhcR0VmQZ',
+        //     firstName: 'Jesse',
+        //     lastName: 'Pinkman',
+        //     email: 'jesse@pinkman.com'
+        // }
         return next()
     } catch (err) {
         // logger.error(`In Catch of IsAuthenticated`)

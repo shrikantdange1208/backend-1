@@ -15,6 +15,7 @@ const actions = require('../api/action');
 const pendingRequests = require('../api/pendingRequests');
 const reports = require('../api/report');
 const metadata = require('../api/metadata')
+const dashboard = require('../api/dashboard')
 const { isAuthenticated } = require('../middleware/auth');
 const httperror = require('../middleware/error');
 
@@ -38,5 +39,6 @@ module.exports = function(app) {
     app.use('/api/pendingRequests', pendingRequests);
     app.use('/api/reports', reports);
     app.use('/api/metadata', metadata);
+    app.use('/api/dashboard', dashboard);
     app.use(httperror);
 }

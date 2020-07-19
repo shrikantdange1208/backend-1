@@ -22,6 +22,9 @@ router.get("/", async (request, response) => {
     response.status(200).send(categories);
 });
 
+/**
+ * Utility method to retrieve all categories from firestore
+ */
 const getAllCategories = async function() {
     const categories = {
         "categories": []
@@ -297,6 +300,7 @@ function validateParams(body, type) {
 
 module.exports = router;
 module.exports.getAllCategories = getAllCategories
+
 module.exports.addOrUpdateCategory = functions.firestore
     .document(`/${constants.CATEGORIES}/{categoryName}`)
     .onWrite(async (change, context) => {

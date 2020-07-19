@@ -91,3 +91,4 @@ define("ACCEPT", "accept");
 define("MOVE", "move");
 
 define("METADATA", "metadata");
+define("DASHBOARD", "dashboard");

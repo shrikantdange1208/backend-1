@@ -46,6 +46,14 @@ const { isAdminOrSuperAdmin } = require('../middleware/auth')
 2.SuperAdmin,Admin,Branch are the roles supported currently.
 */
 router.get('/', isAdminOrSuperAdmin, async (req, res, next) => {
+    let response = await getAllRoles()
+    res.status(200).send(response)
+})
+
+/**
+ * Utility method to retrieve all roles from firestore
+ */
+async function getAllRoles() {
     let rolesRef = db.collection(constants.ROLES)
     const snapshot = await rolesRef.get()
     const allRoles = []
@@ -58,8 +66,8 @@ router.get('/', isAdminOrSuperAdmin, async (req, res, next) => {
         roles: allRoles,
         totalRoles: allRoles.length
     }
-    res.status(200).send(response)
-})
+    return response
+}
 
 /*
 1.Returns a specific role and its permissions, description
@@ -168,3 +176,4 @@ router.get('/:role', isAdminOrSuperAdmin, async (req, res, next) => {
 //     return validate(schema, body)
 // }
 module.exports = router
+module.exports.getAllRoles = getAllRoles
