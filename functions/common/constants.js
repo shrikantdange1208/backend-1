@@ -64,7 +64,6 @@ define("TRANSACTIONS", "transactions");
 define("PENDING_REQUESTS", "pendingRequests");
 define("NEXT_PAGE_TOKEN","nextPageToken");
 define("PREV_PAGE_TOKEN","prevPageToken");
-define("PAGE_SIZE",3)
 define("FROM_DATE", "fromDate");
 define("TO_DATE", "toDate");
 define("REPORT", "report");
