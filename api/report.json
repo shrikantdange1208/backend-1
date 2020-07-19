@@ -1,0 +1,51 @@
+
+# REQUEST
+http://localhost:5001/local-parikrama/us-central1/api/api/reports/nmnpHFEB45FtMLQzqEBj?fromDate=2020-07-02&toDate=2020-07-17
+
+OR 
+
+http://localhost:5001/local-parikrama/us-central1/api/api/reports/nmnpHFEB45FtMLQzqEBj?fromDate=2020-07-02
+
+# RESPONSE
+
+{
+    "branch": "PKaItjoJdtxBhcR0VmQZ",
+    "name": "kormangala",
+    "fromDate": "2020-07-05T00:00:00.000Z",
+    "toDate": "2020-07-18T00:00:00.000Z",
+    "report": [
+        {
+            "threshold": 0,
+            "unit": "Il6dg4x4LywRTEONlBWF",
+            "category": "tr3ldCgOV9QPFn6YTnlj",
+            "product": "nj2s6re4dAcKUXoIKPBp",
+            "initialQuantity": 0,
+            "addedQuantity": 75,
+            "consumedQuantity": 39,
+            "transferredQuantity": 0,
+            "closingQuantity": 36
+        },
+        {
+            "threshold": 43,
+            "unit": "SZYf35oJqP992E7PdusL",
+            "category": "B7t3rfHbkGhXnahF5d26",
+            "product": "Hf5Ic5RFRh9RqN3l2e6f",
+            "initialQuantity": 0,
+            "addedQuantity": 25,
+            "consumedQuantity": 0,
+            "transferredQuantity": 0,
+            "closingQuantity": 25
+        },
+        {
+            "threshold": 32,
+            "unit": "SZYf35oJqP992E7PdusL",
+            "category": "B7t3rfHbkGhXnahF5d26",
+            "product": "qc9PSf6PsdBTnVxiqc0D",
+            "initialQuantity": 0,
+            "addedQuantity": 168,
+            "consumedQuantity": 84,
+            "transferredQuantity": 23,
+            "closingQuantity": 61
+        }
+    ]
+}

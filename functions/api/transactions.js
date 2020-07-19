@@ -16,7 +16,7 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
     let branchCollectionRef = db.collection(constants.BRANCHES);
     let documents = []
     documents = await branchCollectionRef.listDocuments();
-    const{user,product,fromDate,toDate} = request.query;    
+    var {user,product,fromDate,toDate} = request.query;    
     let alltransactions = []
     for(const doc of documents) {
         var branchtransactions = {}

@@ -131,8 +131,10 @@ module.exports.logEvent = function (eventMessage, request, oldData, newData) {
     db.collection(constants.AUDIT).add(eventData)
         .then(() => {
             logger.info(`Successfully logged event in audit.`)
+            return
         })
         .catch((err) => {
             logger.error(`Error occurred while writing audit log \n ${err}`)
+            return
         })
 }
