@@ -109,7 +109,7 @@ router.put('/', isAdminOrSuperAdmin, async (req, res, next) => {
         next(err)
         return
     }
-    const { role, branch, id, isActive } = req.body
+    const { role, branch, id, isActive, firstName, lastName } = req.body
     delete req.body.id
     let usersRef = db.collection(constants.USERS).doc(id)
     const doc = await usersRef.get()
