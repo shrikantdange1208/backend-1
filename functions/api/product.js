@@ -270,7 +270,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const productRef = await db.collection(constants.PRODUCTS).add(data)
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} added new product ${productName} to catalog`
+    const eventMessage = `User ${request.user.name} added new product ${productName} to catalog`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`${productName} document Created`)
@@ -315,7 +315,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} updated product ${oldData[constants.NAME]}`
+    const eventMessage = `User ${request.user.name} updated product ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
     logger.debug(`Updated product ${oldData[constants.NAME]}`)
@@ -343,7 +343,7 @@ router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     await productRef.delete()
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} deleted product ${productData[constants.NAME]}`
+    const eventMessage = `User ${request.user.name} deleted product ${productData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`Deleted product ${productData[constants.NAME]}`)

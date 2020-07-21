@@ -128,7 +128,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const branchRef = await db.collection(constants.BRANCHES).add(data)
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} created new branch ${branchName}`
+    const eventMessage = `User ${request.user.name} created new branch ${branchName}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`Created branch ${branchName}`)
@@ -171,7 +171,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     await branchRef.set(newData, { merge: true })
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} updated branch ${oldData[constants.NAME]}`
+    const eventMessage = `User ${request.user.name} updated branch ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
     logger.debug(`Updated branch ${oldData[constants.NAME]}`)
@@ -198,7 +198,7 @@ router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     await branchRef.delete()
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} deleted branch ${branchData[constants.NAME]}`
+    const eventMessage = `User ${request.user.name} deleted branch ${branchData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`Deleted branch ${branchData[constants.NAME]}`)

@@ -3,18 +3,18 @@ const validate = require('../common/validator')
 const logger = require('../middleware/logger');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
-const functions = require('firebase-functions');
 const express = require('express');
 const { data } = require('../middleware/logger');
 const router = express.Router();
 const db = admin.firestore();
+const audit = require('./audit')
 
 /**
  * Route to perform addProduct transaction
  * @returns 201 Created
  */
 router.post('/addProduct', async (request, response, next) => {
-    logger.info(`Adding product to inventory....`);
+    logger.info('Adding product to inventory....');
     // Validate parameters
     logger.debug('Validating params.')
     const { error } = validateParams(request.body, constants.ADD_PRODUCT)
@@ -39,7 +39,7 @@ router.post('/addProduct', async (request, response, next) => {
  * @returns 201 Created
  */
 router.post('/issueProduct', async (request, response, next) => {
-    logger.info(`Issuing product from the inventory....`);
+    logger.info('Issuing product from the inventory....');
     // Validate parameters
     logger.debug('Validating params.')
     const { error } = validateParams(request.body, constants.ISSUE_PRODUCT)
@@ -64,7 +64,7 @@ router.post('/issueProduct', async (request, response, next) => {
  * @returns 201 Created
  */
 router.post('/adjustment', async (request, response, next) => {
-    logger.info(`Adjusting product value in the inventory....`);
+    logger.info('Adjusting product value in the inventory....');
     // Validate parameters
     logger.debug('Validating params.')
     const { error } = validateParams(request.body, constants.ADJUSTMENT)
@@ -104,7 +104,7 @@ router.post('/requestProduct', async (req, res, next) => {
     const fromBranchDoc = docs[1]
 
     if (!toBranchDoc.exists || !fromBranchDoc.exists) {
-        const error = new Error(`Branch does not exist. Can not request products`)
+        const error = new Error('Branch does not exist. Can not request products')
         error.statusCode = 404
         next(error)
         return
@@ -145,7 +145,7 @@ router.post('/transferProduct', async (req, res, next) => {
         next(err)
         return;
     }
-    const { toBranch, fromBranch, toBranchName, fromBranchName, product, productName, operationalQuantity, pendingRequestsId } = req.body
+    const { toBranch, fromBranch, operationalQuantity, pendingRequestsId } = req.body
 
     //check if branches exist
     const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch);
@@ -155,7 +155,7 @@ router.post('/transferProduct', async (req, res, next) => {
     const fromBranchDoc = docs[1]
 
     if (!toBranchDoc.exists || !fromBranchDoc.exists) {
-        const error = new Error(`Branch does not exist. Can not transfer out products`)
+        const error = new Error('Branch does not exist. Can not transfer out products')
         error.statusCode = 404
         next(error)
         return
@@ -169,7 +169,7 @@ router.post('/transferProduct', async (req, res, next) => {
     const fromBranchPendingReqDoc = pendingReqDocs[1]
 
     if (!toBranchPendingReqDoc.exists || !fromBranchPendingReqDoc.exists) {
-        const error = new Error(`No pending requests to accept`)
+        const error = new Error('No pending requests to accept')
         error.statusCode = 404
         next(error)
         return
@@ -193,10 +193,10 @@ router.post('/transferProduct', async (req, res, next) => {
         operationalQuantity,
         transactionId: pendingRequestsId,
     }
-    tobranchTransaction = createTransaction(toBranchData)
+    toBranchTransaction = createTransaction(toBranchData)
 
     const fromBranchTransactionId = await fromBranchTransaction
-    const toBranchTransactionId = await tobranchTransaction
+    const toBranchTransactionId = await toBranchTransaction
     
     await toBranchPendingReqRef.delete()
     await fromBranchPendingReqRef.delete()
@@ -225,7 +225,7 @@ router.post('/moveProduct', async (req, res, next) => {
     const fromBranchDoc = docs[1]
 
     if (!toBranchDoc.exists || !fromBranchDoc.exists) {
-        const error = new Error(`Branch does not exist. Can not transfer out products`)
+        const error = new Error('Branch does not exist. Can not transfer out products')
         error.statusCode = 404
         next(error)
         return
@@ -265,6 +265,43 @@ router.post('/moveProduct', async (req, res, next) => {
     res.status(201).send({ fromBranchTransactionId, toBranchTransactionId })
 })
 
+/**
+ * Route to reject product by headoffice
+ * @returns 200
+ */
+router.post('/rejectRequest', async (req, res, next) => {
+    const { error } = validateParams(req.body, constants.REJECT)
+    if (error) {
+        const err = new Error(error.details[0].message)
+        err.statusCode = 400
+        next(err)
+        return;
+    }
+    const { toBranch, fromBranch, fromBranchName, productName, pendingRequestsId } = req.body
+
+    //check if pending requests exist
+    const toBranchPendingReqRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
+    const fromBranchPendingReqRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
+    const pendingReqDocs = await db.getAll(toBranchPendingReqRef, fromBranchPendingReqRef)
+    const toBranchPendingReqDoc = pendingReqDocs[0]
+    const fromBranchPendingReqDoc = pendingReqDocs[1]
+
+    if (!toBranchPendingReqDoc.exists || !fromBranchPendingReqDoc.exists) {
+        const error = new Error('No pending requests to reject')
+        error.statusCode = 404
+        next(error)
+        return
+    }
+    await toBranchPendingReqRef.delete()
+    await fromBranchPendingReqRef.delete()
+
+    // Fire and forget audit log
+    const eventMessage = `User ${req.user.name} rejected request from ${fromBranchName} for ${productName}`
+    audit.logEvent(eventMessage, req)
+
+    res.status(200).send({ message: 'Rejected successfully'})
+})
+
 function validateParams(body, type) {
     let schema
     switch (type) {
@@ -302,6 +339,17 @@ function validateParams(body, type) {
                 productName: joi.string().min(1).max(30).required(),
                 operationalQuantity: joi.number().integer().strict().required(),
                 note: joi.string(),
+                pendingRequestsId: joi.string().alphanum().length(20).required(),
+            })
+            break
+        case constants.REJECT:
+            schema = joi.object({
+                toBranch: joi.string().alphanum().length(20).required(),
+                fromBranch: joi.string().alphanum().length(20).required(),
+                fromBranchName: joi.string().min(1).max(30).required(),
+                toBranchName: joi.string().min(1).max(30).required(),
+                product: joi.string().alphanum().length(20).required(),
+                productName: joi.string().min(1).max(30).required(),
                 pendingRequestsId: joi.string().alphanum().length(20).required(),
             })
             break

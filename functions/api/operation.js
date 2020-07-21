@@ -152,7 +152,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
         .add(data)
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} created new operation ${operationName}`
+    const eventMessage = `User ${request.user.name} created new operation ${operationName}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`Created operation ${operationName}`)
@@ -194,7 +194,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     await operationRef.set(newData, { merge: true })
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} updated operation ${oldData[constants.NAME]}`
+    const eventMessage = `User ${request.user.name} updated operation ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
     logger.debug(`Updated operation ${oldData[constants.NAME]}`)
@@ -222,7 +222,7 @@ router.delete('/:id', isSuperAdmin, async(request, response, next) => {
     await operationRef.delete()
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} deleted operation ${operationData[constants.NAME]}`
+    const eventMessage = `User ${request.user.name} deleted operation ${operationData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`Deleted operation ${operationData[constants.NAME]}`)

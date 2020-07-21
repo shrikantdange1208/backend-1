@@ -6,6 +6,8 @@ function define(name, value) {
 }
 
 define("NAME", "name");
+define("FIRST_NAME", "firstName");
+define("LAST_NAME", "lastName");
 define("ID", "id");
 define("CATEGORY", "category");
 define("CATEGORIES", "categories");
@@ -89,6 +91,7 @@ define("NOTE", "note");
 define("REQUEST", "request");
 define("ACCEPT", "accept");
 define("MOVE", "move");
+define("REJECT", "reject");
 
 define("METADATA", "metadata");
 define("DASHBOARD", "dashboard");
