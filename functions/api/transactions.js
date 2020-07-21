@@ -159,5 +159,4 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
     response.status(200).send(res);
 });
 
-
 module.exports = router;
