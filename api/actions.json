@@ -112,13 +112,36 @@
 	"toBranchName": "madiwala",
 	"productId": "3V0TKHqOC2GLzzNceFKs",
 	"productName": "blankets",
-	"operationalQuantity": 10
+    "operationalQuantity": 10,
+    "note": "urgent requirement"
 }
 
 #Response
 {
     "toBranchTransactionId": "v8jszk47HSPQP2IG1a7w",
     "fromBranchTransactionId": "PgR3qYexQoOSHzprXbBT"
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Reject request for product from headoffice to branch (POST)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/rejectProduct
+#Request
+{
+	"fromBranch": "MxoS2K8t8jT7MATniD4x",
+	"toBranch": "R1vTnxSLWByLa7NocDDX",
+	"fromBranchName": "sarjapur",
+	"toBranchName": "madiwala",
+	"productId": "3V0TKHqOC2GLzzNceFKs",
+	"productName": "blankets",
+    "operationalQuantity": 10,  
+	"pendingRequestsId": "gnVACYkIFM6vd8baebkA"
+}
+
+#Response 200
+{
+    "message": "Rejected successfully"
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------
