@@ -14,7 +14,7 @@ const db = admin.firestore();
 router.get("/", async (request, response, next) => {
 
     const userRole = request.user.role
-    console.debug(`Retrieving Dashboard data for ${userRole.toUpperCase()}`)
+    console.debug(`Retrieving Dashboard data for ${userRole.toUpperCase()} user`)
     if (userRole === constants.ADMIN || userRole === constants.SUPER_ADMIN) {
 
         //Get dashboard data for all branches
@@ -61,15 +61,15 @@ async function getDashboardDataForAdminUser() {
  */
 async function getDashboardDataForBranchUser(branchId) {
     var dashboardData = {}
-    dashboardData['branch'] = branchId
+    dashboardData[constants.BRANCH] = branchId
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const productsBelowThresholdPromise = getProductsUnderThreshold(branchRef)
     const recentTransactionsPromise = getRecentTransactions(branchRef)
     const pendingRequestsPromise = getPendingRequests(branchRef)
 
-    dashboardData['productsBelowThreshold'] = await productsBelowThresholdPromise
-    dashboardData['recentActivity'] = await recentTransactionsPromise
-    dashboardData['pendingRequests'] = await pendingRequestsPromise
+    dashboardData[constants.PRODUCTS_BELOW_THRESHOLD] = await productsBelowThresholdPromise
+    dashboardData[constants.RECENT_ACTIVITY] = await recentTransactionsPromise
+    dashboardData[constants.PENDING_REQUESTS] = await pendingRequestsPromise
     return dashboardData
 }
 
