@@ -92,3 +92,5 @@ define("MOVE", "move");
 
 define("METADATA", "metadata");
 define("DASHBOARD", "dashboard");
+define("RECENT_ACTIVITY", "recentActivity")
+define("PRODUCTS_BELOW_THRESHOLD","productsBelowThreshold")
