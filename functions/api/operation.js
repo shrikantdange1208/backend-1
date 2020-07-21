@@ -16,6 +16,15 @@ const db = admin.firestore();
  */
 router.get("/", async (request, response, next) => {
     logger.info("Retrieving all operations from firestore");
+    const operations = await getAllOperations()
+    logger.debug('Returning operation list to client.');
+    response.status(200).send(operations);
+});
+
+/**
+ * Utility method to retrieve all operations from firestore
+ */
+async function getAllOperations() {
     const operations = {
         "operations": []
     }
@@ -29,9 +38,8 @@ router.get("/", async (request, response, next) => {
         operations.operations.push(operationData);
     })
     operations[constants.TOTAL_OPERATIONS] = snapshot.size;
-    logger.debug('Returning operation list to client.');
-    response.status(200).send(operations);
-});
+    return operations
+}
 
 /**
  * @description Route to retrieve single operation data from firestore
@@ -271,3 +279,4 @@ router.delete('/:id', isSuperAdmin, async(request, response, next) => {
 }
 
 module.exports = router;
+module.exports.getAllOperations = getAllOperations

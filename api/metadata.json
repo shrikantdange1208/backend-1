@@ -1,0 +1,130 @@
+# GET
+# Request
+
+http://localhost:5001/local-parikrama/us-central1/api/api/metadata
+
+{
+    "branches": [
+        {
+            "address": {
+                "country": "India",
+                "city": "Bengaluru",
+                "zipcode": 560035,
+                "street": "5th Street",
+                "state": "Karnataka"
+            },
+            "isActive": true,
+            "users": [
+                "Jesse Pink"
+            ],
+            "lastUpdatedDate": "2020-07-02T03:50:31.135Z",
+            "createdDate": "2020-07-02T03:50:31.135Z",
+            "name": "Sarjapur",
+            "isHeadOffice": false,
+            "id": "CqeSrtSXWAM5QkAPzt5y"
+        },
+        {
+            "address": {
+                "country": "India",
+                "city": "Bengaluru",
+                "zipcode": 560085,
+                "street": "10th Street",
+                "state": "Karnataka"
+            },
+            "isActive": true,
+            "users": [],
+            "lastUpdatedDate": "2020-07-02T03:50:17.045Z",
+            "createdDate": "2020-07-02T03:50:17.045Z",
+            "name": "Madiwala",
+            "isHeadOffice": false,
+            "id": "FropnRmUAWtZGX3GZUd8"
+        }
+    ],
+    "categories": [
+        {
+            "description": "Category for books",
+            "isActive": true,
+            "lastUpdatedDate": "2020-07-02T03:55:41.208Z",
+            "createdDate": "2020-07-02T03:55:41.208Z",
+            "name": "Books",
+            "id": "B7t3rfHbkGhXnahF5d26"
+        }
+    ],
+    "products": [
+        {
+            "isActive": true,
+            "unit": "SZYf35oJqP992E7PdusL",
+            "thresholds": {
+                "CqeSrtSXWAM5QkAPzt5y": 15,
+                "PKaItjoJdtxBhcR0VmQZ": 35,
+                "pAhsD46B6cTMUQltjmrl": 30,
+                "FropnRmUAWtZGX3GZUd8": 20
+            },
+            "lastUpdatedDate": "2020-07-02T04:04:27.988Z",
+            "createdDate": "2020-07-02T04:04:27.988Z",
+            "name": "Bread",
+            "category": "miSfk8RC2935IiDzC3fx",
+            "id": "3V0TKHqOC2GLzzNceFKs"
+        }
+    ],
+    "roles": [
+        {
+            "id": "admin",
+            "date": "2020-07-19T11:38:33.065Z",
+            "description": "admin role",
+            "permissions": [
+                "VIEW_BRANCH",
+                "MANAGE_BRANCH",
+                "MANAGE_INVENTORY"
+            ],
+            "name": "ADMIN"
+        },
+        {
+            "id": "branch",
+            "date": "2020-07-19T11:39:42.840Z",
+            "description": "branch user",
+            "permissions": [
+                "VIEW_BRANCH",
+                "TRANSFER_PRODUCT"
+            ],
+            "name": "BRANCH"
+        }
+    ],
+    "operations": [
+        {
+            "description": "Operation to perform Add Product",
+            "label": "Add Product",
+            "isActive": false,
+            "lastUpdatedDate": "2020-07-02T15:23:43.195Z",
+            "createdDate": "2020-07-02T15:23:43.195Z",
+            "name": "Addproduct",
+            "id": "t6chPV2Y71ywR53fPBUt"
+        }
+    ],
+    "units": [
+        {
+            "description": "Unit to measure products in litres",
+            "isActive": false,
+            "lastUpdatedDate": "2020-07-02T15:26:43.316Z",
+            "createdDate": "2020-07-02T03:58:38.478Z",
+            "name": "Litres",
+            "id": "3do7vedVa9udu9krhjWJ"
+        },
+        {
+            "description": "Unit to measure products in kilograms",
+            "isActive": true,
+            "lastUpdatedDate": "2020-07-02T03:59:11.327Z",
+            "createdDate": "2020-07-02T03:59:11.327Z",
+            "name": "Kilograms",
+            "id": "Il6dg4x4LywRTEONlBWF"
+        },
+        {
+            "description": "Unit to measure products in number",
+            "isActive": true,
+            "lastUpdatedDate": "2020-07-02T03:58:47.397Z",
+            "createdDate": "2020-07-02T03:58:47.397Z",
+            "name": "Number",
+            "id": "SZYf35oJqP992E7PdusL"
+        }
+    ]
+}
