@@ -269,7 +269,7 @@ router.post('/moveProduct', async (req, res, next) => {
  * Route to reject product by headoffice
  * @returns 200
  */
-router.post('/rejectProduct', async (req, res, next) => {
+router.post('/rejectRequest', async (req, res, next) => {
     const { error } = validateParams(req.body, constants.REJECT)
     if (error) {
         const err = new Error(error.details[0].message)

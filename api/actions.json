@@ -126,7 +126,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------
 
 # Reject request for product from headoffice to branch (POST)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/rejectProduct
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/actions/rejectRequest
 #Request
 {
 	"fromBranch": "MxoS2K8t8jT7MATniD4x",
