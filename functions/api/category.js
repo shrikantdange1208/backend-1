@@ -168,7 +168,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const categoryRef = await db.collection(constants.CATEGORIES).add(data)
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} added new category ${categoryName}`
+    const eventMessage = `User ${request.user.name} added new category ${categoryName}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`Created category ${categoryName}`)
@@ -212,7 +212,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
     
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} updated category ${oldData[constants.NAME]}`
+    const eventMessage = `User ${request.user.name} updated category ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
     logger.debug(`Updated category ${oldData[constants.NAME]}`)
@@ -240,7 +240,7 @@ router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     await categoryRef.delete()
 
     // Add event in Audit
-    const eventMessage = `User ${request.user.firstName} deleted category ${categoryData[constants.NAME]}`
+    const eventMessage = `User ${request.user.name} deleted category ${categoryData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
     logger.debug(`Deleted category ${categoryData[constants.NAME]}`)
