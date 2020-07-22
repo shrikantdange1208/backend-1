@@ -24,18 +24,19 @@ router.post('/', isAdminOrSuperAdmin, async (req, res, next) => {
         next(err)
         return
     }
-    const { role, branch } = req.body
-    const user = await admin.auth().getUserByEmail(req.body.email).catch(error => {
+    const { role, branch, firstName, lastName, email } = req.body
+    const user = await admin.auth().getUserByEmail(email).catch(error => {
         const err = new Error(error.message)
         err.statusCode = error.code === "auth/user-not-found" ? 404 : 500
         next(err)
         return
     })
+    console.log(`validated user email: ${email}`)
     const { uid } = user
     let usersRef = db.collection(constants.USERS).doc(uid)
     const doc = await usersRef.get()
     if (doc.exists) {
-        const err = new Error(`${req.body.email} already exists. Please update if needed.`)
+        const err = new Error(`${email} already exists. Please update if needed.`)
         err.statusCode = 400
         next(err)
         return
@@ -48,13 +49,14 @@ router.post('/', isAdminOrSuperAdmin, async (req, res, next) => {
     await usersRef.set({
         ...response
     })
+    console.log(`created user ${email}`)
     await admin.auth().setCustomUserClaims(uid, {
         role, branch, firstName, lastName
     })
-    logger.info(`${req.body.email} added to users list and claims have been set`)
+    console.log(`${email} added to users list and claims have been set`)
 
     // Fire and forget audit log
-    const eventMessage = `User ${req.user.name} created new user ${req.body.firstName}`
+    const eventMessage = `User ${req.user.name} created new user ${firstName} ${lastName}`
     audit.logEvent(eventMessage, req)
 
     res.status(201).send({ id: uid, ...response })
