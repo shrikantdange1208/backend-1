@@ -1,0 +1,149 @@
+# GET - For Admin or SuperAdmin
+
+# Request 
+https://local-parikrama.web.app/api/dashboard
+
+# Response
+{
+    "MxoS2K8t8jT7MATniD4x": {
+        "productsBelowThreshold": [
+            {
+                "availableQuantity": 45,
+                "category": "sCQNdrfdFUpvZ4NIClnE",
+                "threshold": 100,
+                "unit": "TUs5hHmh6lJBRcYigVTw",
+                "isBelowThreshold": true,
+                "product": "iG7jYzzQpWaQ0wvKvEVw"
+            },
+            {
+                "unit": "TUs5hHmh6lJBRcYigVTw",
+                "isBelowThreshold": true,
+                "availableQuantity": 10,
+                "category": "ZkxozRaZ66jWeGPv4ESH",
+                "threshold": 20,
+                "product": "ycCZuwUTxgYk63RnVHG6"
+            }
+        ],
+        "recentActivity": [
+            {
+                "toBranchName": "Madiwala",
+                "operationalQuantity": 31,
+                "operation": "transferOut",
+                "product": "KzsqGtZ7lUav9VVQMYow",
+                "productName": "Dolo",
+                "closingQuantity": 230111077,
+                "date": "2020-07-21T10:24:39.286Z",
+                "transactionId": "Fgbx5SmAodmTThiFz27C",
+                "user": "jesse@pinkman.com",
+                "note": "requesting dolo ",
+                "initialQuantity": 230111108
+            },
+            {
+                "user": "jesse@pinkman.com",
+                "note": "adding maths text books",
+                "initialQuantity": 0,
+                "operationalQuantity": 45,
+                "operation": "addProduct",
+                "product": "iG7jYzzQpWaQ0wvKvEVw",
+                "productName": "Mathsbooks",
+                "closingQuantity": 45,
+                "date": "2020-07-20T12:58:49.644Z"
+            }
+        ],
+        "pendingRequests": [
+            {
+                "operation": "transferOut",
+                "product": "iG7jYzzQpWaQ0wvKvEVw",
+                "productName": "Mathsbooks",
+                "date": "2020-07-21T10:00:05.187Z",
+                "user": "jesse@pinkman.com",
+                "note": "Need ",
+                "toBranchName": "Madiwala",
+                "operationalQuantity": 50
+            }
+        ]
+    },
+    "R1vTnxSLWByLa7NocDDX": {
+        "productsBelowThreshold": [],
+        "recentActivity": [
+            {
+                "operationalQuantity": 31,
+                "operation": "transferIn",
+                "product": "KzsqGtZ7lUav9VVQMYow",
+                "productName": "Dolo",
+                "closingQuantity": 31,
+                "date": "2020-07-21T10:24:39.287Z",
+                "transactionId": "Fgbx5SmAodmTThiFz27C",
+                "user": "jesse@pinkman.com",
+                "fromBranchName": "Sarjapur",
+                "note": "requesting dolo ",
+                "initialQuantity": 0
+            }
+        ],
+        "pendingRequests": [
+            {
+                "date": "2020-07-21T10:00:04.998Z",
+                "user": "jesse@pinkman.com",
+                "fromBranchName": "Sarjapur",
+                "note": "Need ",
+                "operationalQuantity": 50,
+                "operation": "transferIn",
+                "product": "iG7jYzzQpWaQ0wvKvEVw",
+                "productName": "Mathsbooks"
+            }
+        ]
+    },
+    "XCiht4ckQmmYFxbav7TV": {
+        "productsBelowThreshold": [],
+        "recentActivity": [],
+        "pendingRequests": []
+    },
+    "nYdsXP6wf4VqgLMcjCHd": {
+        "productsBelowThreshold": [],
+        "recentActivity": [],
+        "pendingRequests": []
+    }
+}
+
+
+# Request - FOR Branch User
+https://local-parikrama.web.app/api/dashboard
+
+{
+    "branch": "PKaItjoJdtxBhcR0VmQZ",
+    "productsBelowThreshold": [
+        {
+            "availableQuantity": 25,
+            "threshold": 43,
+            "unit": "SZYf35oJqP992E7PdusL",
+            "isBelowThreshold": true,
+            "category": "B7t3rfHbkGhXnahF5d26",
+            "product": "Hf5Ic5RFRh9RqN3l2e6f"
+        }
+    ],
+    "recentActivity": [
+        {
+            "date": "2020-07-15T10:47:23.934Z",
+            "note": "Some product",
+            "product": "nj2s6re4dAcKUXoIKPBp",
+            "initialQuantity": 0,
+            "productName": "SomeProduct",
+            "closingQuantity": 25,
+            "operationalQuantity": 25,
+            "operation": "addProduct",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-15T08:03:53.462Z",
+            "note": "Some Book",
+            "product": "Hf5Ic5RFRh9RqN3l2e6f",
+            "initialQuantity": 0,
+            "productName": "The Zahir",
+            "closingQuantity": 25,
+            "operationalQuantity": 25,
+            "operation": "addProduct",
+            "user": "jesse@pinkman.com"
+        }
+    ],
+    "pendingRequests": []
+}

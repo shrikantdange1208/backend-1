@@ -92,3 +92,8 @@ define("REQUEST", "request");
 define("ACCEPT", "accept");
 define("MOVE", "move");
 define("REJECT", "reject");
+
+define("METADATA", "metadata");
+define("DASHBOARD", "dashboard");
+define("RECENT_ACTIVITY", "recentActivity")
+define("PRODUCTS_BELOW_THRESHOLD","productsBelowThreshold")

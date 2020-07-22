@@ -17,6 +17,15 @@ const db = admin.firestore()
  */
 router.get("/", async (request, response, next) => {
     logger.info("Retrieving all products from firestore");
+    const products = await getAllProducts()
+    logger.debug('Returning product list to client.');
+    response.status(200).send(products);
+});
+
+/**
+ * Utility method to retrieve all products from firestore
+ */
+const getAllProducts = async function() { 
     const products = {
         "products": []
     }
@@ -30,9 +39,8 @@ router.get("/", async (request, response, next) => {
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = snapshot.size;
-    logger.debug('Returning product list to client.');
-    response.status(200).send(products);
-});
+    return products
+}
 
 /**
  * @description Route to retrieve single product data from firestore
@@ -397,6 +405,7 @@ function validateParams(body, type) {
 }
 
 module.exports = router;
+module.exports.getAllProducts = getAllProducts
 
 /**
  * Trigger to execute methods on product updates and deletes

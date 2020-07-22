@@ -16,6 +16,15 @@ const db = admin.firestore();
  */
 router.get("/", async (request, response, next) => {
     logger.info("Retrieving all units from firestore");
+    const units = await getAllUnits()
+    logger.debug('Returning all units to client.');
+    response.status(200).send(units);
+});
+
+/**
+ * Utility method to retrieve all units from firestore
+ */
+async function getAllUnits() {
     const units = {
         "units": []
     }
@@ -29,9 +38,8 @@ router.get("/", async (request, response, next) => {
         units.units.push(unitData);
     })
     units[constants.TOTAL_UNITS] = snapshot.size;
-    logger.debug('Returning all units to client.');
-    response.status(200).send(units);
-});
+    return units
+}
 
 /**
  * @description Route to retrieve single unit data from firestore
@@ -213,3 +221,4 @@ router.delete('/:id', isSuperAdmin, async(request, response, next) => {
 }
 
 module.exports = router;
+module.exports.getAllUnits = getAllUnits

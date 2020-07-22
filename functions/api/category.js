@@ -17,6 +17,15 @@ const db = admin.firestore();
  */
 router.get("/", async (request, response) => {
     logger.info("Retrieving all categories from firestore");
+    const categories = await getAllCategories()
+    logger.debug('Returning categories to client.');
+    response.status(200).send(categories);
+});
+
+/**
+ * Utility method to retrieve all categories from firestore
+ */
+const getAllCategories = async function() {
     const categories = {
         "categories": []
     }
@@ -30,10 +39,9 @@ router.get("/", async (request, response) => {
         delete categoryData[constants.PRODUCTS]
         categories.categories.push(categoryData);
     })
-    categories[constants.TOTAL_CATEGORIES] = snapshot.size;
-    logger.debug('Returning categories to client.');
-    response.status(200).send(categories);
-});
+    categories[constants.TOTAL_CATEGORIES] = snapshot.size; 
+    return categories
+}
 
 /**
  * @description Route to retrieve single category data from firestore
@@ -291,6 +299,8 @@ function validateParams(body, type) {
 }
 
 module.exports = router;
+module.exports.getAllCategories = getAllCategories
+
 module.exports.addOrUpdateCategory = functions.firestore
     .document(`/${constants.CATEGORIES}/{categoryName}`)
     .onWrite(async (change, context) => {
