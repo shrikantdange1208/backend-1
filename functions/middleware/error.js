@@ -1,5 +1,6 @@
 
 process.on('unhandledRejection', (err) => {
+    console.error(`Unhandled Error ${err}`)
     throw err;
 });
 

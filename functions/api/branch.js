@@ -25,7 +25,7 @@ router.get("/", async (request, response) => {
 /**
  * Utility method to retrieve all branches from firestore
  */
-const getAllBranches = async function() {
+const getAllBranches = async function () {
     const branches = {
         "branches": []
     }
@@ -119,6 +119,22 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
         return;
     }
 
+    // Check whether there is a branch which is a head office
+    const headOfficeSnapshot = await db.collection(constants.BRANCHES)
+        .where(constants.IS_HEAD_OFFICE, '==', true)
+        .get()
+
+    if (headOfficeSnapshot.size > 0) {
+        var headOffice = ""
+        headOfficeSnapshot.forEach(branch => {
+            headOffice = branch.data()[constants.NAME]
+        })
+        const err = new Error(`Cannot add ${branchName} as Head Office. ${headOffice} is already set as Head Office.`)
+        err.statusCode = 400
+        next(err)
+        return;
+    }
+
     let data = request.body
     data[constants.NAME] = branchName
     data[constants.CREATED_DATE] = new Date()
@@ -164,8 +180,26 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     }
     const oldData = branch.data()
     let newData = request.body
+    const branchName = newData[constants.NAME].toLocaleLowerCase()
+    if (newData[constants.IS_HEAD_OFFICE] === true) {
+        // Check whether there is a branch which is a head office
+        const headOfficeSnapshot = await db.collection(constants.BRANCHES)
+            .where(constants.IS_HEAD_OFFICE, '==', true)
+            .get()
+        if (headOfficeSnapshot.size > 0) {
+            var headOffice = ""
+            headOfficeSnapshot.forEach(branch => {
+                headOffice = branch.data()[constants.NAME]
+            })
+            const err = new Error(`Cannot set ${branchName} as Head Office. ${headOffice} is already set as Head Office.`)
+            err.statusCode = 400
+            next(err)
+            return;
+        }
+    }
+
     delete newData[constants.ID]
-    newData[constants.NAME] = newData[constants.NAME].toLocaleLowerCase()
+    newData[constants.NAME] = branchName
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
     await branchRef.set(newData, { merge: true })
@@ -308,10 +342,10 @@ async function deleteThresholdsFromAllProducts(branchId) {
     const productSnapshots = await productCollection.get()
     productSnapshots.forEach(async product => {
         const productData = product.data()
-        if(productData[constants.THRESHOLDS].hasOwnProperty(branchId)) {
+        if (productData[constants.THRESHOLDS].hasOwnProperty(branchId)) {
             console.log(`Deleting threshold for branch ${branchId} from product ${productData[constants.NAME]}`)
             delete productData[constants.THRESHOLDS][branchId]
-            await product.ref.update({'thresholds': productData[constants.THRESHOLDS]}, { merge: true })
+            await product.ref.update({ 'thresholds': productData[constants.THRESHOLDS] }, { merge: true })
         }
     })
 }

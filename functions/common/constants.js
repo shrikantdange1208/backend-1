@@ -22,6 +22,7 @@ define("THRESHOLDS", "thresholds");
 define("DESCRIPTION", "description");
 define("LABEL", "label");
 define("IS_ACTIVE", "isActive");
+define("IS_HEAD_OFFICE", "isHeadOffice");
 define("CREATED_DATE", "createdDate");
 define("LAST_UPDATED_DATE", "lastUpdatedDate");
 define("TOTAL_CATEGORIES", "totalCategories");
