@@ -65,7 +65,7 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
 router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
     logger.info("Retrieving all transactions under given branch for given user");
     var branchId = request.params.id
-    var{user,product,fromDate,toDate} = request.query;
+    var{user,product,fromDate,toDate,transactionId} = request.query;
     const pageSize = constants.PAGE_SIZE
     var nextPageToken = request.query.nextPageToken ? request.query.nextPageToken : null;
     var prevPageToken = request.query.prevPageToken ? request.query.prevPageToken : null;
@@ -89,6 +89,10 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
         // need to include the toDate for query .
         toDate.setDate(toDate.getDate()+1)
         transactionCollection = transactionCollection.where(constants.DATE,"<",toDate);
+    }
+    if(transactionId){
+        transactionCollection = transactionCollection
+                                .where(constants.TRANSACTION_ID,"==",transactionId);
     }
     if(nextPageToken !== null && prevPageToken !== null) {
         response.status(400)
@@ -153,5 +157,4 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
     }
     response.status(200).send(res);
 });
-
 module.exports = router;
