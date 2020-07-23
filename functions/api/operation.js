@@ -188,6 +188,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const oldData = operation.data()
     let newData = request.body
     delete newData[constants.ID]
+    newData[constants.NAME] = newData[constants.NAME].toLocaleLowerCase()
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
     await operationRef.set(newData, { merge: true })

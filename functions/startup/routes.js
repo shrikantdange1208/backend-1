@@ -8,7 +8,6 @@ const audits = require('../api/audit');
 const branches = require('../api/branch');
 const users = require('../api/users');
 const roles = require('../api/roles');
-//const permissions = require('../api/permissions');
 const transactions = require('../api/transactions');
 const inventories = require('../api/inventory');
 const actions = require('../api/action');

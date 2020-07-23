@@ -1,5 +1,4 @@
 const admin = require('firebase-admin');
-const logger = require('./logger')
 const constants = require('../common/constants')
 const db = admin.firestore()
 /**
@@ -10,23 +9,21 @@ const db = admin.firestore()
  */
 const isAuthenticated = async function (request, response, next) {
     const errMessage = 'Authorization token not found in header or is in invalid format!!'
-    
     const { authorization } = request.headers
     try {
         if (!authorization || !authorization.startsWith('Bearer')) {
-            logger.warn(errMessage)
+            console.warn(errMessage)
             throw new Error(constants.UNAUTHORIZED)
         }
         const split = authorization.split('Bearer ')
         if (split.length !== 2) {
-            logger.warn(errMessage)
+            console.warn(errMessage)
             throw new Error(constants.UNAUTHORIZED)
         }
         const authToken = split[1]
         const decodedToken = await admin.auth().verifyIdToken(authToken)
-        console.log(`${decodedToken.email} is authenticated`)
+        console.info(`${decodedToken.email} is authenticated`)
         const user = await admin.auth().getUser(decodedToken.uid)
-        
         const { role, branch, firstName, lastName } = user.customClaims
          request.user = { 
             uid: decodedToken.uid, 
@@ -46,8 +43,8 @@ const isAuthenticated = async function (request, response, next) {
         // }
         return next()
     } catch (err) {
-        // logger.error(`In Catch of IsAuthenticated`)
-        // logger.error(`${err.message}`)
+        // console.error(`In Catch of IsAuthenticated`)
+        // console.error(`${err.message}`)
         err.message = constants.UNAUTHENTICATED
         err.statusCode = 401
         next(err)
@@ -64,9 +61,9 @@ const isAuthenticated = async function (request, response, next) {
 
 const isAdminOrSuperAdmin = async function (request, response, next) {
     const role = request.user.role
-    logger.debug(`Current user has role ${role}`)
+    console.debug(`Current user has role ${role}`)
     if (!role || (role !== constants.ADMIN && role !== constants.SUPER_ADMIN)) {
-        logger.warn(`Current user is neither an admin or a super admin and has role ${role}`);
+        console.warn(`Current user is neither an admin or a super admin and has role ${role}`);
         const err =  new Error(`Unauthorized`)
         err.statusCode = 403
         next(err)
@@ -85,9 +82,9 @@ const isAdminOrSuperAdmin = async function (request, response, next) {
 
 const isSuperAdmin = async function (request, response, next) {
     const role = request.user.role
-    logger.debug(`Current user has role ${role}`)
+    console.debug(`Current user has role ${role}`)
     if (!role || role !== constants.SUPER_ADMIN) {
-        logger.warn(`Current user is not a super admin and has role ${role}`);
+        console.warn(`Current user is not a super admin and has role ${role}`);
         const err =  new Error(`Unauthorized`)
         err.statusCode = 403
         next(err)

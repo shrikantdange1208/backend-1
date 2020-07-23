@@ -1,6 +1,5 @@
 const constants = require('../common/constants');
 const utils = require('../common/utils')
-const logger = require('../middleware/logger');
 const { isAdminOrSuperAdmin } = require('../middleware/auth');
 const admin = require('firebase-admin');
 const express = require('express');
@@ -55,7 +54,8 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
         })
         alltransactions.push(branchtransactions);
     }
-    logger.debug('Returning all transactions for all branches.');
+
+    console.debug('Returning all transactions for all branches.');
     response.status(200).send(alltransactions);
 });
 /**
@@ -63,9 +63,9 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
  * @returns Json object containing all transactions under given branch for given user
  */
 router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.info("Retrieving all transactions under given branch for given user");
+    console.info("Retrieving all transactions under given branch for given user");
     var branchId = request.params.id
-    var{user,product,fromDate,toDate} = request.query;
+    var{user,product,fromDate,toDate,transactionId} = request.query;
     const pageSize = constants.PAGE_SIZE
     var nextPageToken = request.query.nextPageToken ? request.query.nextPageToken : null;
     var prevPageToken = request.query.prevPageToken ? request.query.prevPageToken : null;
@@ -89,6 +89,10 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
         // need to include the toDate for query .
         toDate.setDate(toDate.getDate()+1)
         transactionCollection = transactionCollection.where(constants.DATE,"<",toDate);
+    }
+    if(transactionId){
+        transactionCollection = transactionCollection
+                                .where(constants.TRANSACTION_ID,"==",transactionId);
     }
     if(nextPageToken !== null && prevPageToken !== null) {
         response.status(400)
@@ -153,5 +157,4 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
     }
     response.status(200).send(res);
 });
-
 module.exports = router;

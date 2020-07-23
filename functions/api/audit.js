@@ -15,14 +15,14 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
     const audits = {
         "audit": []
     }
-    var {user,fromDate,toDate} = request.query;
+    var {email,fromDate,toDate} = request.query;
     var nextPageToken = request.query.nextPageToken ? request.query.nextPageToken : null;
     var prevPageToken = request.query.prevPageToken ? request.query.prevPageToken : null;
     
     let auditCollection = db.collection(constants.AUDIT)
                             .orderBy(constants.DATE,'desc');
-    if(user){
-        auditCollection = auditCollection.where(constants.USER,"==",user)
+    if(email){
+        auditCollection = auditCollection.where(constants.EMAIL,"==",email)
     }
     if(fromDate){
         auditCollection = auditCollection.where(constants.DATE,">=",new Date(fromDate));

@@ -1,4 +1,4 @@
-const logger = require('./middleware/logger');
+
 const express = require('express');
 const config = require('config');
 
@@ -15,7 +15,7 @@ const products = require('./api/product');
 const users = require('./api/users');
 const inventory = require('./api/inventory');
 const branch = require('./api/branch');
-logger.info('Initializing Inventory Management System');
+console.info('Initializing Inventory Management System');
 // Initialize express
 const app = express();
 require('./startup/routes')(app);
