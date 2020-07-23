@@ -89,7 +89,8 @@
 	"productId": "3V0TKHqOC2GLzzNceFKs",
 	"productName": "bread",
 	"operationalQuantity": 10,
-	"pendingRequestsId": "gnVACYkIFM6vd8baebkA"
+    "pendingRequestsId": "gnVACYkIFM6vd8baebkA",
+    "note": "some note"
 }
 
 #Response

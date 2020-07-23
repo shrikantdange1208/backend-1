@@ -1,7 +1,6 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils')
-const logger = require('../middleware/logger')
 const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth')
 const audit = require('./audit')
 const joi = require('@hapi/joi');
@@ -16,9 +15,9 @@ const db = admin.firestore();
  * @returns Json object containing all categories
  */
 router.get("/", async (request, response) => {
-    logger.info("Retrieving all categories from firestore");
+    console.info("Retrieving all categories from firestore");
     const categories = await getAllCategories()
-    logger.debug('Returning categories to client.');
+    console.debug('Returning categories to client.');
     response.status(200).send(categories);
 });
 
@@ -50,7 +49,7 @@ const getAllCategories = async function() {
  */
 router.get('/:id', async (request, response, next) => {
     var categoryId = request.params.id
-    logger.info(`Retrieving category from firestore`)
+    console.info(`Retrieving category from firestore`)
     const doc = db.collection(constants.CATEGORIES).doc(categoryId);
     const category = await doc.get()
     if (!category.exists) {
@@ -64,7 +63,7 @@ router.get('/:id', async (request, response, next) => {
     categoryData[constants.NAME] = utils.capitalize(categoryData[constants.NAME])
     categoryData = utils.formatDate(categoryData)
     delete categoryData[constants.PRODUCTS]
-    logger.debug(`Returning details for category ${categoryData[constants.NAME]} to client.`);
+    console.debug(`Returning details for category ${categoryData[constants.NAME]} to client.`);
     response.status(200).send(categoryData);
 });
 
@@ -74,7 +73,7 @@ router.get('/:id', async (request, response, next) => {
  */
 router.get('/products/:id', async (request, response, next) => {
     var categoryId = request.params.id
-    logger.info(`Retrieving products for given category`)
+    console.info(`Retrieving products for given category`)
     const doc = db.collection(constants.CATEGORIES).doc(categoryId)
     const category = await doc.get()
     if (!category.exists) {
@@ -84,7 +83,7 @@ router.get('/products/:id', async (request, response, next) => {
         return;
     }
     var categoryData = category.data()
-    logger.debug(`Returning products from category ${categoryData[constants.NAME]} to client.`);
+    console.debug(`Returning products from category ${categoryData[constants.NAME]} to client.`);
     response.status(200).send(categoryData[constants.PRODUCTS]);
 });
 
@@ -93,7 +92,7 @@ router.get('/products/:id', async (request, response, next) => {
  * @returns Json object containing all categories
  */
 router.get("/all/active", async (request, response) => {
-    logger.info("Retrieving all active categories from firestore");
+    console.info("Retrieving all active categories from firestore");
     const categories = {
         "categories": []
     }
@@ -109,7 +108,7 @@ router.get("/all/active", async (request, response) => {
         categories.categories.push(categoryData)
     })
     categories[constants.TOTAL_CATEGORIES] = snapshot.size;
-    logger.debug('Returning categories to client.');
+    console.debug('Returning categories to client.');
     response.status(200).send(categories)
 });
 
@@ -118,7 +117,7 @@ router.get("/all/active", async (request, response) => {
  * @returns Json object containing all categories
  */
 router.get("/all/inactive", async (request, response) => {
-    logger.info("Retrieving all inactive categories from firestore");
+    console.info("Retrieving all inactive categories from firestore");
     const categories = {
         "categories": []
     }
@@ -134,7 +133,7 @@ router.get("/all/inactive", async (request, response) => {
         categories.categories.push(categoryData)
     })
     categories[constants.TOTAL_CATEGORIES] = snapshot.size;
-    logger.debug('Returning categories to client.');
+    console.debug('Returning categories to client.');
     response.status(200).send(categories)
 });
 
@@ -144,9 +143,9 @@ router.get("/all/inactive", async (request, response) => {
  * @throws 400 if category already exists or 404 if required params are missing
  */
 router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.info(`Creating category in firestore....`);
+    console.info(`Creating category in firestore....`);
     // Validate parameters
-    logger.debug('Validating params.')
+    console.debug('Validating params.')
     const { error } = validateParams(request.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -157,7 +156,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If category already exists, return 400
     var categoryName = request.body.name.toLocaleLowerCase()
-    logger.info(`Creating category ${categoryName} in firestore....`);
+    console.info(`Creating category ${categoryName} in firestore....`);
     const categorySnapshot = await db.collection(constants.CATEGORIES)
                             .where(constants.NAME, '==', categoryName)
                             .get()
@@ -179,7 +178,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} added new category ${categoryName}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Created category ${categoryName}`)
+    console.debug(`Created category ${categoryName}`)
     response.status(201).json({'id': categoryRef.id, ...data})
 });
 
@@ -189,7 +188,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
  * @throws 404/400 if category does not exist or has wrong params resp.
  */
 router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.debug(`Updating category in firestore....`);
+    console.debug(`Updating category in firestore....`);
 
     // Validate parameters
     const { error } = validateParams(request.body, constants.UPDATE)
@@ -202,7 +201,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If category does not exists, return 404
     var categoryId = request.body.id
-    logger.info(`Updating category in firestore....`);
+    console.info(`Updating category in firestore....`);
     const categoryRef = db.collection(constants.CATEGORIES).doc(categoryId);
     const category = await categoryRef.get()
     if (!category.exists) {
@@ -223,7 +222,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} updated category ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
-    logger.debug(`Updated category ${oldData[constants.NAME]}`)
+    console.debug(`Updated category ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -234,7 +233,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  */
 router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var categoryId = request.params.id
-    logger.info(`Deleting category with ID ${categoryId} from firestore`)
+    console.info(`Deleting category with ID ${categoryId} from firestore`)
 
     const categoryRef = db.collection(constants.CATEGORIES).doc(categoryId);
     const category = await categoryRef.get()
@@ -251,7 +250,7 @@ router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} deleted category ${categoryData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted category ${categoryData[constants.NAME]}`)
+    console.debug(`Deleted category ${categoryData[constants.NAME]}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
 
@@ -306,17 +305,17 @@ module.exports.addOrUpdateCategory = functions.firestore
     .onWrite(async (change, context) => {
         const categoryName = context.params.categoryName
         if (!change.before._fieldsProto) {
-            logger.debug(`New category ${change.after.id} has been created`)
+            console.debug(`New category ${change.after.id} has been created`)
         } else if (!change.after._fieldsProto) {
             var data = change.before.data()
-            logger.debug(`Category ${data[constants.NAME]} has been deleted`)
+            console.debug(`Category ${data[constants.NAME]} has been deleted`)
             deleteAllProductsFromCategory(change.before)
         } else {
-            logger.debug(`Category ${change.before.id} has been updated`)
+            console.debug(`Category ${change.before.id} has been updated`)
             var oldData = change.before.data()
             var newData = change.after.data()
             if(oldData.isActive !== newData.isActive) {
-                logger.debug(`Status of category ${categoryName} changed from ${oldData.isActive} to ${newData.isActive}`)
+                console.debug(`Status of category ${categoryName} changed from ${oldData.isActive} to ${newData.isActive}`)
                 changeStatusOfAllProducts(change.after)
             } else {
                 return

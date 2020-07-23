@@ -1,10 +1,8 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
-const logger = require('../middleware/logger');
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
 const express = require('express');
-const { data } = require('../middleware/logger');
 const router = express.Router();
 const db = admin.firestore();
 const audit = require('./audit')
@@ -14,9 +12,9 @@ const audit = require('./audit')
  * @returns 201 Created
  */
 router.post('/addProduct', async (request, response, next) => {
-    logger.info('Adding product to inventory....');
+    console.info('Adding product to inventory....');
     // Validate parameters
-    logger.debug('Validating params.')
+    console.debug('Validating params.')
     const { error } = validateParams(request.body, constants.ADD_PRODUCT)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -39,9 +37,9 @@ router.post('/addProduct', async (request, response, next) => {
  * @returns 201 Created
  */
 router.post('/issueProduct', async (request, response, next) => {
-    logger.info('Issuing product from the inventory....');
+    console.info('Issuing product from the inventory....');
     // Validate parameters
-    logger.debug('Validating params.')
+    console.debug('Validating params.')
     const { error } = validateParams(request.body, constants.ISSUE_PRODUCT)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -64,9 +62,9 @@ router.post('/issueProduct', async (request, response, next) => {
  * @returns 201 Created
  */
 router.post('/adjustment', async (request, response, next) => {
-    logger.info('Adjusting product value in the inventory....');
+    console.info('Adjusting product value in the inventory....');
     // Validate parameters
-    logger.debug('Validating params.')
+    console.debug('Validating params.')
     const { error } = validateParams(request.body, constants.ADJUSTMENT)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -89,6 +87,7 @@ router.post('/adjustment', async (request, response, next) => {
  * @returns 201 Created
  */
 router.post('/requestProduct', async (req, res, next) => {
+    console.info('Requesting product...');
     const { error } = validateParams(req.body, constants.REQUEST)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -114,6 +113,7 @@ router.post('/requestProduct', async (req, res, next) => {
         productName,
         operationalQuantity,
         fromBranchName,
+        fromBranch,
         operation: constants.TRANSFER_IN,
         note,
         date: new Date(),
@@ -125,11 +125,13 @@ router.post('/requestProduct', async (req, res, next) => {
         productName,
         operationalQuantity,
         toBranchName,
+        toBranch,
         note,
         operation: constants.TRANSFER_OUT,
         date: new Date(),
         user: req.user.email
     })
+    console.info(`Created pending transactions with ${id}`);
     res.status(201).send({ pendingRequestsId: id })
 })
 
@@ -138,6 +140,7 @@ router.post('/requestProduct', async (req, res, next) => {
  * @returns 201 Created
  */
 router.post('/transferProduct', async (req, res, next) => {
+    console.info('Accepting and transfering product to requested branch...');
     const { error } = validateParams(req.body, constants.ACCEPT)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -145,7 +148,7 @@ router.post('/transferProduct', async (req, res, next) => {
         next(err)
         return;
     }
-    const { toBranch, fromBranch, operationalQuantity, pendingRequestsId } = req.body
+    const { toBranch, fromBranch, toBranchName, fromBranchName, operationalQuantity, product, productName, pendingRequestsId, note } = req.body
 
     //check if branches exist
     const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch);
@@ -161,25 +164,23 @@ router.post('/transferProduct', async (req, res, next) => {
         return
     }
     
-    //check if pending requests exist
     const toBranchPendingReqRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
     const fromBranchPendingReqRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
     const pendingReqDocs = await db.getAll(toBranchPendingReqRef, fromBranchPendingReqRef)
     const toBranchPendingReqDoc = pendingReqDocs[0]
     const fromBranchPendingReqDoc = pendingReqDocs[1]
 
-    if (!toBranchPendingReqDoc.exists || !fromBranchPendingReqDoc.exists) {
-        const error = new Error('No pending requests to accept')
-        error.statusCode = 404
-        next(error)
-        return
-    }
     //create transferOut transaction
     const fromBranchData = {
-        ...fromBranchPendingReqDoc.data(),
         date: new Date(),
-        branch: fromBranch,
+        branch: fromBranch, //needed branch to reuse createTransaction fn
+        product,
+        productName,
         operationalQuantity,
+        toBranch,
+        toBranchName,
+        operation: constants.TRANSFER_OUT,
+        note,
         transactionId: pendingRequestsId,
         user: req.user.email //updating user to the one who accepts
     }
@@ -187,19 +188,27 @@ router.post('/transferProduct', async (req, res, next) => {
 
     //create transferIn transaction
     const toBranchData = {
-        ...toBranchPendingReqDoc.data(),
         date: new Date(),
         branch: toBranch,
+        product,
+        productName,
         operationalQuantity,
+        fromBranch,
+        fromBranchName,
+        operation: constants.TRANSFER_IN,
+        note,
         transactionId: pendingRequestsId,
+        user: req.user.email //updating user to the one who accepts
     }
     toBranchTransaction = createTransaction(toBranchData)
 
     const fromBranchTransactionId = await fromBranchTransaction
     const toBranchTransactionId = await toBranchTransaction
-    
-    await toBranchPendingReqRef.delete()
-    await fromBranchPendingReqRef.delete()
+    console.log(`Created transactions in ${toBranchName} and ${fromBranchName}`)
+
+    if(toBranchPendingReqDoc.exists) await toBranchPendingReqRef.delete()
+    if(fromBranchPendingReqDoc.exists) await fromBranchPendingReqRef.delete()
+
     res.status(201).send({ transactionId: pendingRequestsId, toBranchTransactionId, fromBranchTransactionId })
 })
 
@@ -208,6 +217,7 @@ router.post('/transferProduct', async (req, res, next) => {
  * @returns 201 Created
  */
 router.post('/moveProduct', async (req, res, next) => {
+    console.info('Moving products from headoffice to a branch...');
     const { error } = validateParams(req.body, constants.MOVE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -261,6 +271,7 @@ router.post('/moveProduct', async (req, res, next) => {
 
     const fromBranchTransactionId = await fromBranchTransaction
     const toBranchTransactionId = await toBranchTransaction
+    console.log(`Created transactions in ${toBranchName} and ${fromBranchName}`)
 
     res.status(201).send({ fromBranchTransactionId, toBranchTransactionId })
 })
@@ -270,6 +281,7 @@ router.post('/moveProduct', async (req, res, next) => {
  * @returns 200
  */
 router.post('/rejectRequest', async (req, res, next) => {
+    console.info('Rejecting request to transfer product...');
     const { error } = validateParams(req.body, constants.REJECT)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -294,7 +306,7 @@ router.post('/rejectRequest', async (req, res, next) => {
     }
     await toBranchPendingReqRef.delete()
     await fromBranchPendingReqRef.delete()
-
+    console.log('Deleting pending requests', pendingRequestsId )
     // Fire and forget audit log
     const eventMessage = `User ${req.user.name} rejected request from ${fromBranchName} for ${productName}`
     audit.logEvent(eventMessage, req)
@@ -395,7 +407,7 @@ const createTransaction = async function (data) {
         const resultTransaction = await transactionRef.add(data)
         return resultTransaction.id
     } catch (err) {
-        logger.error(err)
+        console.error(err)
         throw err
     }
 }
