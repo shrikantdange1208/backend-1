@@ -221,91 +221,91 @@ function validateInput(body, type) {
 
 module.exports = router
 
-/*
+/*TODO: remove later
 Trigger on users collection
 Updates the users info in branch collection for every create, update, delete of users in users collection
 */
-module.exports.modifyUsers = functions.firestore
-    .document(`/${constants.USERS}/{userId}`)
-    .onWrite(async (change, context) => {
-        if (!change.before._fieldsProto) {
-            await addUserToBranch(change.after)
-        } else if (!change.after._fieldsProto) {
-            await deleteUserFromBranch(change.before)
-        } else {
-            var oldData = change.before.data()
-            var newData = change.after.data()
-            if (oldData.branch !== newData.branch) {
-                await deleteUserFromBranch(change.before)
-                await addUserToBranch(change.after)
-            }else if(oldData.firstName !== newData.firstName || newData.lastName !== newData.lastName){
-                await updateUserInBranch(change.after)
-            }
-        }
-    })
+// module.exports.modifyUsers = functions.firestore
+//     .document(`/${constants.USERS}/{userId}`)
+//     .onWrite(async (change, context) => {
+//         if (!change.before._fieldsProto) {
+//             await addUserToBranch(change.after)
+//         } else if (!change.after._fieldsProto) {
+//             await deleteUserFromBranch(change.before)
+//         } else {
+//             var oldData = change.before.data()
+//             var newData = change.after.data()
+//             if (oldData.branch !== newData.branch) {
+//                 await deleteUserFromBranch(change.before)
+//                 await addUserToBranch(change.after)
+//             }else if(oldData.firstName !== newData.firstName || newData.lastName !== newData.lastName){
+//                 await updateUserInBranch(change.after)
+//             }
+//         }
+//     })
 
-async function addUserToBranch(user) {
-    try {
-        var { firstName, lastName, branch } = user.data()
-        const branchRef = db.doc(`${constants.BRANCHES}/${branch}`)
-        const doc = await branchRef.get()
-        // Check if branch is present in the collection
-        if (!doc.exists) {
-            throw new Error(`Branch ${branch} is not present in firestore!!!!`)
-        }
-        const user = `${firstName} ${lastName}`
-        const users = doc.data().users
-        users.push(user)
-        await branchRef.update({ users })
-        console.log(`Added ${user} to ${branch}`)
-    }
-    catch (error) {
-        console.log(error)
-    }
-}
+// async function addUserToBranch(user) {
+//     try {
+//         var { firstName, lastName, branch } = user.data()
+//         const branchRef = db.doc(`${constants.BRANCHES}/${branch}`)
+//         const doc = await branchRef.get()
+//         // Check if branch is present in the collection
+//         if (!doc.exists) {
+//             throw new Error(`Branch ${branch} is not present in firestore!!!!`)
+//         }
+//         const user = `${firstName} ${lastName}`
+//         const users = doc.data().users
+//         users.push(user)
+//         await branchRef.update({ users })
+//         console.log(`Added ${user} to ${branch}`)
+//     }
+//     catch (error) {
+//         console.log(error)
+//     }
+// }
 
-async function deleteUserFromBranch(user) {
-    try {
-        var { firstName, lastName, branch } = user.data()
-        const branchRef = db.doc(`${constants.BRANCHES}/${branch}`)
-        const doc = await branchRef.get()
-        // Check if branch is present in the collection
-        if (!doc.exists) {
-            throw new Error(`Branch ${branch} is not present in firestore!!!!`)
-        }
-        const user = `${firstName} ${lastName}`
-        const users = doc.data().users
-        var index = users.indexOf(user)
-        if (index > -1) {
-            users.splice(index, 1)
-            await branchRef.update({ users })
-            console.log(`Deleted ${user} from ${branch}`)
-        }
-    }
-    catch (error) {
-        console.log(error)
-    }
-}
+// async function deleteUserFromBranch(user) {
+//     try {
+//         var { firstName, lastName, branch } = user.data()
+//         const branchRef = db.doc(`${constants.BRANCHES}/${branch}`)
+//         const doc = await branchRef.get()
+//         // Check if branch is present in the collection
+//         if (!doc.exists) {
+//             throw new Error(`Branch ${branch} is not present in firestore!!!!`)
+//         }
+//         const user = `${firstName} ${lastName}`
+//         const users = doc.data().users
+//         var index = users.indexOf(user)
+//         if (index > -1) {
+//             users.splice(index, 1)
+//             await branchRef.update({ users })
+//             console.log(`Deleted ${user} from ${branch}`)
+//         }
+//     }
+//     catch (error) {
+//         console.log(error)
+//     }
+// }
 
-async function updateUserInBranch(user){
-    try {
-        var { firstName, lastName, branch } = user.data()
-        const branchRef = db.doc(`${constants.BRANCHES}/${branch}`)
-        const doc = await branchRef.get()
-        // Check if branch is present in the collection
-        if (!doc.exists) {
-            throw new Error(`Branch ${branch} is not present in firestore!!!!`)
-        }
-        const user = `${firstName} ${lastName}`
-        const users = doc.data().users
-        var index = users.indexOf(user)
-        if (index > -1) {
-            users[index] = user
-            await branchRef.update({ users })
-            console.log(`Updated ${user} in ${branch}`)
-        }
-    }
-    catch (error) {
-        console.log(error)
-    }
-}
+// async function updateUserInBranch(user){
+//     try {
+//         var { firstName, lastName, branch } = user.data()
+//         const branchRef = db.doc(`${constants.BRANCHES}/${branch}`)
+//         const doc = await branchRef.get()
+//         // Check if branch is present in the collection
+//         if (!doc.exists) {
+//             throw new Error(`Branch ${branch} is not present in firestore!!!!`)
+//         }
+//         const user = `${firstName} ${lastName}`
+//         const users = doc.data().users
+//         var index = users.indexOf(user)
+//         if (index > -1) {
+//             users[index] = user
+//             await branchRef.update({ users })
+//             console.log(`Updated ${user} in ${branch}`)
+//         }
+//     }
+//     catch (error) {
+//         console.log(error)
+//     }
+// }
