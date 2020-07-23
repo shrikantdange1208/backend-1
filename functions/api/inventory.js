@@ -1,5 +1,4 @@
 const constants = require('../common/constants')
-const logger = require('../middleware/logger');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const express = require('express');
@@ -13,7 +12,7 @@ const db = admin.firestore();
  */
 router.get('/:id', async (request, response, next) => {
     var branchId = request.params.id
-    logger.info(`Retrieving inventory for a branch from firestore`)
+    console.info(`Retrieving inventory for a branch from firestore`)
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const branchSnapshot = await branchRef.get()
     if (!branchSnapshot.exists) {
@@ -24,7 +23,7 @@ router.get('/:id', async (request, response, next) => {
     }
     const inventory = await getInventory(branchRef, branchId, false)
 
-    logger.debug(`Returning inventory for branch ${branchSnapshot.data().name} to client.`);
+    console.debug(`Returning inventory for branch ${branchSnapshot.data().name} to client.`);
     response.status(200).send(inventory);
 });
 
@@ -35,7 +34,7 @@ router.get('/:id', async (request, response, next) => {
  */
 router.get('/:id/belowthreshold/', async (request, response, next) => {
     var branchId = request.params.id
-    logger.info(`Retrieving inventory for a branch from firestore`)
+    console.info(`Retrieving inventory for a branch from firestore`)
 
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const branchSnapshot = await branchRef.get()
@@ -47,7 +46,7 @@ router.get('/:id/belowthreshold/', async (request, response, next) => {
     }
     const inventory = await getInventory(branchRef, branchId, true)
 
-    logger.debug(`Returning inventory for branch ${branchSnapshot.data().name} to client.`);
+    console.debug(`Returning inventory for branch ${branchSnapshot.data().name} to client.`);
     response.status(200).send(inventory);
 });
 
@@ -62,7 +61,7 @@ router.get('/', async (request, response, next) => {
 
     const branchCollectionRef = db.collection(constants.BRANCHES)
     const branchDocuments = await branchCollectionRef.listDocuments();
-    logger.info(`Retrieving inventory for  ${branchDocuments.length} branches from firestore`)
+    console.info(`Retrieving inventory for  ${branchDocuments.length} branches from firestore`)
     const inventoryArray = []
     for (const doc of branchDocuments) {
         const p1 = getInventory(branchCollectionRef.doc(doc.id), doc.id, false)
@@ -71,7 +70,7 @@ router.get('/', async (request, response, next) => {
     Promise.all(inventoryArray).then(inventory => {
         inventories.inventories.push(inventory)
         inventories[constants.TOTAL_BRANCHES] = branchDocuments.length
-        logger.debug(`Returning inventory for all products for all branches.`);
+        console.debug(`Returning inventory for all products for all branches.`);
         return response.status(200).send(inventories);
     }).catch(err => {
         err.statusCode = 500
@@ -91,7 +90,7 @@ router.get('/all/branches/belowthreshold/', async (request, response, next) => {
 
     const branchCollectionRef = db.collection(constants.BRANCHES)
     const branchDocuments = await branchCollectionRef.listDocuments();
-    logger.info(`Retrieving inventory for  ${branchDocuments.length} branches from firestore`)
+    console.info(`Retrieving inventory for  ${branchDocuments.length} branches from firestore`)
     const inventoryArray = []
     for (const doc of branchDocuments) {
         const p1 = getInventory(branchCollectionRef.doc(doc.id), doc.id, true)
@@ -100,7 +99,7 @@ router.get('/all/branches/belowthreshold/', async (request, response, next) => {
     Promise.all(inventoryArray).then(inventory => {
         inventories.inventories.push(inventory)
         inventories[constants.TOTAL_BRANCHES] = branchDocuments.length
-        logger.debug(`Returning inventory for all products for all branches.`);
+        console.debug(`Returning inventory for all products for all branches.`);
         return response.status(200).send(inventories);
     }).catch(err => {
         err.statusCode = 500
@@ -152,7 +151,7 @@ module.exports.updateAvailableQuantityInInventory = functions.firestore
         const transactionRecord = snapshot.after.data()
         const branchId = context.params.branch
         const productId = transactionRecord[constants.PRODUCT]
-        logger.info(`Updating availableQuantity for product ${transactionRecord[constants.PRODUCT]} in branch ${branchId}`)
+        console.info(`Updating availableQuantity for product ${transactionRecord[constants.PRODUCT]} in branch ${branchId}`)
 
         const inventoryRef = await db.collection(constants.BRANCHES).doc(branchId)
             .collection(constants.INVENTORY)

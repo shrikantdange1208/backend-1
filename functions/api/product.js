@@ -1,7 +1,6 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils');
-const logger = require('../middleware/logger')
 const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth')
 const audit = require('./audit')
 const joi = require('@hapi/joi')
@@ -16,9 +15,9 @@ const db = admin.firestore()
  * @returns Json object containing all products
  */
 router.get("/", async (request, response, next) => {
-    logger.info("Retrieving all products from firestore");
+    console.info("Retrieving all products from firestore");
     const products = await getAllProducts()
-    logger.debug('Returning product list to client.');
+    console.debug('Returning product list to client.');
     response.status(200).send(products);
 });
 
@@ -49,7 +48,7 @@ const getAllProducts = async function() {
  */
 router.get('/:id', async (request, response, next) => {
     var productId = request.params.id
-    logger.info(`Retrieving product from firestore`)
+    console.info(`Retrieving product from firestore`)
     const doc = db.collection(constants.PRODUCTS).doc(productId);
     const product = await doc.get()
     if (!product.exists) {
@@ -62,7 +61,7 @@ router.get('/:id', async (request, response, next) => {
     productData[constants.NAME] = utils.capitalize(productData[constants.NAME])
     productData[constants.ID] = product.id
     productData = utils.formatDate(productData)
-    logger.debug(`Returning details for product ${productData[constants.NAME]} to client.`);
+    console.debug(`Returning details for product ${productData[constants.NAME]} to client.`);
     response.status(200).send(productData);
 });
 
@@ -72,7 +71,7 @@ router.get('/:id', async (request, response, next) => {
  */
 router.get('/category/:categoryId', async (request, response, next) => {
     var categoryId = request.params.categoryId
-    logger.info(`Retrieving products from a category from firestore`)
+    console.info(`Retrieving products from a category from firestore`)
     const products = {
         "products": []
     }
@@ -88,7 +87,7 @@ router.get('/category/:categoryId', async (request, response, next) => {
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
-    logger.debug(`Returning products to client.`);
+    console.debug(`Returning products to client.`);
     response.status(200).send(products);
 });
 
@@ -97,7 +96,7 @@ router.get('/category/:categoryId', async (request, response, next) => {
  * @returns Json object containing requested products
  */
 router.get('/all/active', async (request, response, next) => {
-    logger.info(`Retrieving all active products from firestore`)
+    console.info(`Retrieving all active products from firestore`)
     const products = {
         "products": []
     }
@@ -113,7 +112,7 @@ router.get('/all/active', async (request, response, next) => {
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
-    logger.debug(`Returning active products to client.`);
+    console.debug(`Returning active products to client.`);
     response.status(200).send(products);
 });
 
@@ -122,7 +121,7 @@ router.get('/all/active', async (request, response, next) => {
  * @returns Json object containing requested products
  */
 router.get('/all/inactive', async (request, response, next) => {
-    logger.info(`Retrieving all inactive products from firestore`)
+    console.info(`Retrieving all inactive products from firestore`)
     const products = {
         "products": []
     }
@@ -137,7 +136,7 @@ router.get('/all/inactive', async (request, response, next) => {
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
-    logger.debug(`Returning inactive products to client.`);
+    console.debug(`Returning inactive products to client.`);
     response.status(200).send(products);
 });
 
@@ -148,7 +147,7 @@ router.get('/all/inactive', async (request, response, next) => {
 router.get('/category/:categoryId/:active', async (request, response, next) => {
     var status = JSON.parse(request.params.active.toLocaleLowerCase());
     var categoryId = request.params.categoryId;
-    logger.info(`Retrieving all active/inActive products from a given category from firestore`)
+    console.info(`Retrieving all active/inActive products from a given category from firestore`)
     const products = {
         "products": []
     }
@@ -164,7 +163,7 @@ router.get('/category/:categoryId/:active', async (request, response, next) => {
         products.products.push(productData);
     })
     products[constants.TOTAL_PRODUCTS] = productSnapshot.size;
-    logger.debug(`Returning products to client.`);
+    console.debug(`Returning products to client.`);
     response.status(200).send(products);
 });
 
@@ -174,7 +173,7 @@ router.get('/category/:categoryId/:active', async (request, response, next) => {
  */
 router.get('/thresholds/:id', async (request, response, next) => {
     var productId = request.params.id
-    logger.info(`Retrieving all thresholds for a given product from firestore`)
+    console.info(`Retrieving all thresholds for a given product from firestore`)
     const doc = db.collection(constants.PRODUCTS).doc(productId);
     const product = await doc.get()
     if (!product.exists) {
@@ -187,7 +186,7 @@ router.get('/thresholds/:id', async (request, response, next) => {
     const thresholds = {}
     thresholds[constants.PRODUCT] = productData[constants.NAME]
     thresholds[constants.THRESHOLDS] = productData[constants.THRESHOLDS]
-    logger.debug(`Returning details for all thresholds for a given product ${productData[constants.NAME]} to client.`);
+    console.debug(`Returning details for all thresholds for a given product ${productData[constants.NAME]} to client.`);
     response.status(200).send(thresholds);
 });
 
@@ -196,7 +195,7 @@ router.get('/thresholds/:id', async (request, response, next) => {
  * @returns Json object containing thresholds for all products for a branch
  */
 router.get('/thresholds/all/:branchId', async (request, response, next) => {
-    logger.info(`Retrieving thresholds for all products for a branch from firestore`)
+    console.info(`Retrieving thresholds for all products for a branch from firestore`)
     var branchId = request.params.branchId
     const doc = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await doc.get()
@@ -222,7 +221,7 @@ router.get('/thresholds/all/:branchId', async (request, response, next) => {
     })
     thresholds.thresholds.push(data);
     thresholds[constants.BRANCH] = branchData[constants.NAME];
-    logger.debug(`Returning thresholds for all products for a branch to client.`);
+    console.debug(`Returning thresholds for all products for a branch to client.`);
     response.status(200).send(thresholds);
 });
 
@@ -233,9 +232,9 @@ router.get('/thresholds/all/:branchId', async (request, response, next) => {
  */
 router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
-    logger.info(`Creating product in firestore....`);
+    console.info(`Creating product in firestore....`);
     // Validate parameters
-    logger.debug('Validating params.')
+    console.debug('Validating params.')
     const { error } = validateParams(request.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -246,7 +245,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If product already exists, return 400
     var productName = request.body.name.toLocaleLowerCase()
-    logger.info(`Creating product ${productName} in firestore....`);
+    console.info(`Creating product ${productName} in firestore....`);
     const productSnapshot = await db.collection(constants.PRODUCTS)
         .where(constants.NAME, '==', productName)
         .get()
@@ -273,7 +272,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} added new product ${productName} to catalog`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`${productName} document Created`)
+    console.debug(`${productName} document Created`)
     response.status(201).json({ 'id': productRef.id, ...data })
 });
 
@@ -283,7 +282,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
  * @throws 404 if product does not exist or 400 if request has wrong params
  */
 router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.info(`Updating product in firestore....`);
+    console.info(`Updating product in firestore....`);
 
     // Validate parameters
     const { error } = validateParams(request.body, constants.UPDATE)
@@ -296,7 +295,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If product does not exists, return 400
     var productId = request.body.id
-    logger.info(`Updating a product in firestore....`);
+    console.info(`Updating a product in firestore....`);
     const productRef = db.collection(constants.PRODUCTS).doc(productId);
     const product = await productRef.get()
     if (!product.exists) {
@@ -318,7 +317,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} updated product ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
-    logger.debug(`Updated product ${oldData[constants.NAME]}`)
+    console.debug(`Updated product ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -329,7 +328,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  */
 router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var productid = request.params.id
-    logger.info(`Deleting a product from firestore`)
+    console.info(`Deleting a product from firestore`)
 
     const productRef = db.collection(constants.PRODUCTS).doc(productid);
     const product = await productRef.get()
@@ -346,7 +345,7 @@ router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} deleted product ${productData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted product ${productData[constants.NAME]}`)
+    console.debug(`Deleted product ${productData[constants.NAME]}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
 
@@ -415,28 +414,28 @@ module.exports.addOrUpdateProduct = functions.firestore
     .onWrite(async (change, context) => {
         const productId = context.params.productId
         if (!change.before._fieldsProto) {
-            logger.debug(`New product ${change.after.data()[(constants.NAME)]} has been created`)
+            console.debug(`New product ${change.after.data()[(constants.NAME)]} has been created`)
             addProductToCategory(change.after)
         } else if (!change.after._fieldsProto) {
-            logger.debug(`Product ${change.before.data()[(constants.NAME)]} has been deleted`)
+            console.debug(`Product ${change.before.data()[(constants.NAME)]} has been deleted`)
             deleteProductFromCategory(change.before)
         } else {
             var oldData = change.before.data()
             var newData = change.after.data()
-            logger.debug(`Product ${oldData[constants.NAME]} has been updated`)
+            console.debug(`Product ${oldData[constants.NAME]} has been updated`)
             if (oldData.category !== newData.category) {
-                logger.debug(`Category of product ${oldData[constants.NAME]} changed from ${oldData.category} to ${newData.category}`)
+                console.debug(`Category of product ${oldData[constants.NAME]} changed from ${oldData.category} to ${newData.category}`)
                 deleteProductFromCategory(change.before)
                 addProductToCategory(change.after)
                 await updateCategoryOrUnitInInventory(productId, newData.category)
             }
             if (oldData.unit !== newData.unit) {
-                logger.debug(`Unit of product ${oldData[constants.NAME]} changed from ${oldData.unit} to ${newData.unit}`)
+                console.debug(`Unit of product ${oldData[constants.NAME]} changed from ${oldData.unit} to ${newData.unit}`)
                 await updateCategoryOrUnitInInventory(productId, null, newData.unit)
             }
 
             if (oldData.isActive !== newData.isActive) {
-                logger.debug(`Status of product ${oldData[constants.NAME]} changed from ${oldData.isActive} to ${newData.isActive}`)
+                console.debug(`Status of product ${oldData[constants.NAME]} changed from ${oldData.isActive} to ${newData.isActive}`)
                 if (newData.isActive) {
                     addProductToCategory(change.after)
                 } else {
@@ -445,7 +444,7 @@ module.exports.addOrUpdateProduct = functions.firestore
             }
 
             if (Object.entries(oldData.thresholds).toString() !== Object.entries(newData.thresholds).toString()) {
-                logger.debug(`Thresholds of product ${oldData[constants.NAME]} has been updated`)
+                console.debug(`Thresholds of product ${oldData[constants.NAME]} has been updated`)
                 updateThresholdInInventories(productId, oldData, newData)
             }
         }
@@ -462,7 +461,7 @@ async function addProductToCategory(newProduct) {
     const categorySnapshot = await categoryRef.get()
     // Check if category is present in the collection
     if (!categorySnapshot.exists) {
-        logger.error(`Category ${categoryId} is not present in firestore!!!!`)
+        console.error(`Category ${categoryId} is not present in firestore!!!!`)
         throw new Error(`Category ${categoryId} is not present in firestore!!!!`)
     }
     const products = categorySnapshot.data().products;
@@ -481,7 +480,7 @@ async function deleteProductFromCategory(deletedProduct) {
     const categorySnapshot = await categoryRef.get()
     // Check if category is present in the collection
     if (!categorySnapshot.exists) {
-        logger.error(`Category ${categoryId} is not present in firestore!!!!`)
+        console.error(`Category ${categoryId} is not present in firestore!!!!`)
         throw new Error(`Category ${categoryId} is not present in firestore!!!!`)
     }
     const products = categorySnapshot.data().products;

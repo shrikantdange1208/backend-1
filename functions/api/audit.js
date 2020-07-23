@@ -1,6 +1,5 @@
 const constants = require('../common/constants')
 const utils = require('../common/utils')
-const logger = require('../middleware/logger');
 const { isSuperAdmin, isAdminOrSuperAdmin} = require('../middleware/auth');
 const admin = require('firebase-admin');
 const express = require('express');
@@ -12,7 +11,7 @@ const db = admin.firestore();
  * @returns Json object containing all audit logs
  */
 router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.info("Retrieving audit logs from firestore");
+    console.info("Retrieving audit logs from firestore");
     const audits = {
         "audit": []
     }
@@ -50,7 +49,6 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
             .collection(constants.AUDIT)
             .doc(nextPageToken)
             .get()
-        console.log (lastVisibleDoc.id);
         if(lastVisibleDoc){
             auditCollection = auditCollection
                 .startAfter(lastVisibleDoc)
@@ -63,7 +61,6 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
             .collection(constants.AUDIT)
             .doc(prevPageToken)
             .get()
-        console.log (prevVisibleDoc.id);
         if(prevVisibleDoc){
             auditCollection = auditCollection
                 .endBefore(prevVisibleDoc)
@@ -95,7 +92,7 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
         audits[constants.NEXT_PAGE_TOKEN]= hasNext ? snapshot.docs[size-1].id : null;
         audits[constants.PREV_PAGE_TOKEN]= hasPrevious ? snapshot.docs[0].id : null;
     }
-    logger.debug('Returning audit log to client.');
+    console.debug('Returning audit log to client.');
     response.status(200).send(audits);
 });
 
@@ -127,14 +124,14 @@ module.exports.logEvent = function (eventMessage, request, oldData, newData) {
         eventData[constants.BEFORE] = oldData
         eventData[constants.AFTER] = newData
     }
-    logger.info('Writing event to audit')
+    console.info('Writing event to audit')
     db.collection(constants.AUDIT).add(eventData)
         .then(() => {
-            logger.info(`Successfully logged event in audit.`)
+            console.info(`Successfully logged event in audit.`)
             return
         })
         .catch((err) => {
-            logger.error(`Error occurred while writing audit log \n ${err}`)
+            console.error(`Error occurred while writing audit log \n ${err}`)
             return
         })
 }

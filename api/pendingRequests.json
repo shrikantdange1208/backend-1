@@ -1,0 +1,42 @@
+# Getting pending requests for a branch (GET)
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/pendingTransactions/branches/MxoS2K8t8jT7MATniD4x
+
+#Response 200
+{
+    "pendingRequests": [
+      {
+        "id": "GDzC2DEs9IFxAkxy1hXk",
+        "date": "2020-07-22T10:28:21.139Z",
+        "user": "user3@yahoo.com",
+        "fromBranchName": "Madiwala",
+        "note": "requesting english books",
+        "operationalQuantity": 2,
+        "operation": "transferIn",
+        "product": "ycCZuwUTxgYk63RnVHG6",
+        "productName": "Englishbooks"
+      },
+      {
+        "id": "LDskryk4uGECniQNwK98",
+        "date": "2020-07-22T09:44:31.190Z",
+        "user": "pari@pari.com",
+        "note": "requesting from other branch",
+        "toBranchName": "Madiwala",
+        "operationalQuantity": 10,
+        "operation": "transferOut",
+        "product": "iG7jYzzQpWaQ0wvKvEVw",
+        "productName": "Mathsbooks"
+      },
+      {
+        "id": "g7jrTCokPOymvOzWZR73",
+        "date": "2020-07-22T10:07:31.037Z",
+        "user": "user3@yahoo.com",
+        "fromBranchName": "Madiwala",
+        "note": "request for books",
+        "operationalQuantity": 5,
+        "operation": "transferIn",
+        "product": "iG7jYzzQpWaQ0wvKvEVw",
+        "productName": "Mathsbooks"
+      }
+    ],
+    "totalPendingRequests": 3
+}

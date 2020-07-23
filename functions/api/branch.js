@@ -1,7 +1,6 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils')
-const logger = require('../middleware/logger');
 const formatDate = require('../common/dateFormatter')
 const joi = require('@hapi/joi');
 const admin = require('firebase-admin');
@@ -17,9 +16,9 @@ const db = admin.firestore();
  * @returns Json object containing all branches
  */
 router.get("/", async (request, response) => {
-    logger.info("Retrieving all branches from firestore");
+    console.info("Retrieving all branches from firestore");
     const branches = await getAllBranches()
-    logger.debug('Returning branches to client.');
+    console.debug('Returning branches to client.');
     response.status(200).send(branches);
 });
 
@@ -51,7 +50,7 @@ const getAllBranches = async function() {
  */
 router.get('/:id', async (request, response, next) => {
     var branchId = request.params.id
-    logger.info(`Retrieving branch from firestore`)
+    console.info(`Retrieving branch from firestore`)
     const doc = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await doc.get()
     if (!branch.exists) {
@@ -65,7 +64,7 @@ router.get('/:id', async (request, response, next) => {
     branchData[constants.NAME] = utils.capitalize(branchData[constants.NAME])
     branchData = formatDate(branchData)
     delete branchData[constants.INVENTORY]
-    logger.debug(`Returning details for branch ${branchData[constants.NAME]} to client.`);
+    console.debug(`Returning details for branch ${branchData[constants.NAME]} to client.`);
     response.status(200).send(branchData);
 });
 
@@ -76,7 +75,7 @@ router.get('/:id', async (request, response, next) => {
  */
 router.get('/:id', async (request, response, next) => {
     var branchId = request.params.id
-    logger.info(`Retrieving branch from firestore`)
+    console.info(`Retrieving branch from firestore`)
     const doc = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await doc.get()
     if (!branch.exists) {
@@ -86,7 +85,7 @@ router.get('/:id', async (request, response, next) => {
         return;
     }
     var branchData = branch.data()
-    logger.debug(`Returning details for branch ${branchData[constants.NAME]} to client.`);
+    console.debug(`Returning details for branch ${branchData[constants.NAME]} to client.`);
     response.status(200).send(branchData[constants.USERS]);
 });
 
@@ -96,9 +95,9 @@ router.get('/:id', async (request, response, next) => {
  * @throws 400 if branch already exists or 404 if required params are missing
  */
 router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.info(`Creating branch in firestore....`);
+    console.info(`Creating branch in firestore....`);
     // Validate parameters
-    logger.debug('Validating params.')
+    console.debug('Validating params.')
     const { error } = validateParams(request.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -109,7 +108,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If category already exists, return 400
     var branchName = request.body.name.toLocaleLowerCase()
-    logger.info(`Creating branch ${branchName} in firestore....`);
+    console.info(`Creating branch ${branchName} in firestore....`);
     const branchSnapshot = await db.collection(constants.BRANCHES)
         .where(constants.NAME, '==', branchName)
         .get()
@@ -131,7 +130,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} created new branch ${branchName}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Created branch ${branchName}`)
+    console.debug(`Created branch ${branchName}`)
     response.status(201).json({ 'id': branchRef.id, ...data })
 });
 
@@ -141,7 +140,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
  * @throws 404/400 if branch does not exist or has wrong params resp.
  */
 router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.debug(`Updating branch in firestore....`);
+    console.debug(`Updating branch in firestore....`);
 
     // Validate parameters
     const { error } = validateParams(request.body, constants.UPDATE)
@@ -154,7 +153,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If category does not exists, return 404
     var branchId = request.body.id
-    logger.info(`Updating branch in firestore....`);
+    console.info(`Updating branch in firestore....`);
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await branchRef.get()
     if (!branch.exists) {
@@ -174,7 +173,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} updated branch ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
-    logger.debug(`Updated branch ${oldData[constants.NAME]}`)
+    console.debug(`Updated branch ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -184,7 +183,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  */
 router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var branchId = request.params.id
-    logger.info(`Deleting branch from firestore`)
+    console.info(`Deleting branch from firestore`)
 
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await branchRef.get()
@@ -201,7 +200,7 @@ router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} deleted branch ${branchData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted branch ${branchData[constants.NAME]}`)
+    console.debug(`Deleted branch ${branchData[constants.NAME]}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
 
@@ -293,7 +292,7 @@ module.exports.addOrUpdateBranch = functions.firestore
     .onWrite(async (change, context) => {
         const branchId = context.params.branchId
         if (!change.after._fieldsProto) {
-            logger.debug(`Branch ${change.before.data()[(constants.NAME)]} has been deleted`)
+            console.debug(`Branch ${change.before.data()[(constants.NAME)]} has been deleted`)
             deleteThresholdsFromAllProducts(branchId)
         }
     });
