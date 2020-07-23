@@ -166,6 +166,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const oldData = branch.data()
     let newData = request.body
     delete newData[constants.ID]
+    newData[constants.NAME] = newData[constants.NAME].toLocaleLowerCase()
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
     await branchRef.set(newData, { merge: true })
@@ -174,7 +175,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} updated branch ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
-    logger.debug(`Updated branch ${oldData[constants.NAME]}`)
+    console.debug(`Updated branch ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -184,7 +185,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  */
 router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     var branchId = request.params.id
-    logger.info(`Deleting branch from firestore`)
+    console.info(`Deleting branch from firestore`)
 
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const branch = await branchRef.get()
@@ -201,7 +202,7 @@ router.delete('/:id', isSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} deleted branch ${branchData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted branch ${branchData[constants.NAME]}`)
+    console.debug(`Deleted branch ${branchData[constants.NAME]}`)
     response.status(200).json({ "message": "deleted successfully" })
 })
 
@@ -293,7 +294,7 @@ module.exports.addOrUpdateBranch = functions.firestore
     .onWrite(async (change, context) => {
         const branchId = context.params.branchId
         if (!change.after._fieldsProto) {
-            logger.debug(`Branch ${change.before.data()[(constants.NAME)]} has been deleted`)
+            console.debug(`Branch ${change.before.data()[(constants.NAME)]} has been deleted`)
             deleteThresholdsFromAllProducts(branchId)
         }
     });

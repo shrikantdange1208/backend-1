@@ -1,7 +1,6 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils')
-const logger = require('../middleware/logger')
 const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth');
 const audit = require('./audit')
 const joi = require('@hapi/joi');
@@ -15,9 +14,9 @@ const db = admin.firestore();
  * @returns Json object containing all products
  */
 router.get("/", async (request, response, next) => {
-    logger.info("Retrieving all units from firestore");
+    console.info("Retrieving all units from firestore");
     const units = await getAllUnits()
-    logger.debug('Returning all units to client.');
+    console.debug('Returning all units to client.');
     response.status(200).send(units);
 });
 
@@ -48,7 +47,7 @@ async function getAllUnits() {
  */
 router.get('/:id', async (request, response, next) => {
     var unitId = request.params.id
-    logger.info(`Retrieving unit from firestore`)
+    console.info(`Retrieving unit from firestore`)
     const doc = db.collection(constants.UNITS).doc(unitId);
     const unit = await doc.get()
     if (!unit.exists) {
@@ -61,7 +60,7 @@ router.get('/:id', async (request, response, next) => {
     unitData[constants.ID] = unit.id
     unitData[constants.NAME] = utils.capitalize(unitData[constants.NAME])
     unitData = utils.formatDate(unitData)
-    logger.debug(`Returning details for unit ${unitData[constants.NAME]} to client.`);
+    console.debug(`Returning details for unit ${unitData[constants.NAME]} to client.`);
     response.status(200).send(unitData);
 });
 
@@ -71,9 +70,9 @@ router.get('/:id', async (request, response, next) => {
  * @throws 400 if unit already exists or if required params are missing
  */
 router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.info(`Creating unit in firestore....`);
+    console.info(`Creating unit in firestore....`);
     // Validate parameters
-    logger.debug('Validating params.')
+    console.debug('Validating params.')
     const { error } = validateParams(request.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -84,7 +83,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If unit already exists, return 400
     var unitName = request.body.name.toLocaleLowerCase()
-    logger.info(`Creating unit ${unitName} in firestore....`);
+    console.info(`Creating unit ${unitName} in firestore....`);
     const unitSnapshot = await db.collection(constants.UNITS)
                     .where(constants.NAME, '==', unitName)
                     .get()
@@ -96,6 +95,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
         return;
     }
     let data = request.body
+    data[constants.NAME] = unitName
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
     const unitRef = await db.collection(constants.UNITS).add(data)
@@ -104,7 +104,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} created new unit ${utils.capitalize(unitName)}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`${unitName} document created`)
+    console.debug(`${unitName} document created`)
     response.status(201).json({'id': unitRef.id, ...data})
 });
 
@@ -114,7 +114,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
  * @throws 404/400 if unit does not exist or has wrong params resp.
  */
 router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.debug(`Updating unit in firestore....`);
+    console.debug(`Updating unit in firestore....`);
 
     // Validate parameters
     const { error } = validateParams(request.body, constants.UPDATE)
@@ -127,7 +127,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If unit does not exists, return 404
     var unitId = request.body.id
-    logger.info(`Updating unit with ID ${unitId} in firestore....`);
+    console.info(`Updating unit with ID ${unitId} in firestore....`);
     const unitRef = db.collection(constants.UNITS).doc(unitId);
     const unit = await unitRef.get()
     if (!unit.exists) {
@@ -139,6 +139,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const oldData = unit.data()
     let newData = request.body
     delete newData[constants.ID]
+    newData[constants.NAME] = newData[constants.NAME].toLocaleLowerCase()
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
     await unitRef.set(newData, { merge: true })
@@ -147,7 +148,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} updated unit ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
-    logger.debug(`Updated unit ${oldData[constants.NAME]}`)
+    console.debug(`Updated unit ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -158,7 +159,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  */
 router.delete('/:id', isSuperAdmin, async(request, response, next) => {
     var unitId = request.params.id
-    logger.info(`Deleting unit with ID ${unitId} from firestore`)
+    console.info(`Deleting unit with ID ${unitId} from firestore`)
     
     const unitRef = db.collection(constants.UNITS).doc(unitId);
     const unit = await unitRef.get()
@@ -175,7 +176,7 @@ router.delete('/:id', isSuperAdmin, async(request, response, next) => {
     const eventMessage = `User ${request.user.name} deleted unit ${unitData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted unit ${unitData[constants.NAME]}`)
+    console.debug(`Deleted unit ${unitData[constants.NAME]}`)
     response.status(200).json({"message": "deleted successfully"})
 })
 

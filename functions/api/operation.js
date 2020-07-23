@@ -1,7 +1,6 @@
 const constants = require('../common/constants')
 const validate = require('../common/validator')
 const utils = require('../common/utils')
-const logger = require('../middleware/logger');
 const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth');
 const audit = require('./audit')
 const joi = require('@hapi/joi');
@@ -15,9 +14,9 @@ const db = admin.firestore();
  * @returns Json object containing all operations
  */
 router.get("/", async (request, response, next) => {
-    logger.info("Retrieving all operations from firestore");
+    console.info("Retrieving all operations from firestore");
     const operations = await getAllOperations()
-    logger.debug('Returning operation list to client.');
+    console.debug('Returning operation list to client.');
     response.status(200).send(operations);
 });
 
@@ -48,7 +47,7 @@ async function getAllOperations() {
  */
 router.get('/:id', async (request, response, next) => {
     var  operationId = request.params.id
-    logger.info(`Retrieving operation from firestore`)
+    console.info(`Retrieving operation from firestore`)
     const doc = db.collection(constants.OPERATIONS).doc(operationId);
     const operation = await doc.get()
     if (!operation.exists) {
@@ -61,7 +60,7 @@ router.get('/:id', async (request, response, next) => {
     operationData[constants.NAME] = utils.capitalize(operationData[constants.NAME])
     operationData[constants.ID] = operation.id
     operationData = utils.formatDate(operationData)
-    logger.debug(`Returning details for operation to client.`);
+    console.debug(`Returning details for operation to client.`);
     response.status(200).send(operationData);
 });
 
@@ -70,7 +69,7 @@ router.get('/:id', async (request, response, next) => {
  * @returns Json object containing requested operations
  */
 router.get('/all/active', async (request, response, next) => {
-    logger.info(`Retrieving all active operations from firestore`)
+    console.info(`Retrieving all active operations from firestore`)
     const operations = {
         "operations": []
     }
@@ -86,7 +85,7 @@ router.get('/all/active', async (request, response, next) => {
         operations.operations.push(operationData);
     })
     operations[constants.TOTAL_OPERATIONS] = operationSnapshot.size;
-    logger.debug(`Returning operations to client.`);
+    console.debug(`Returning operations to client.`);
     response.status(200).send(operations);
 });
 
@@ -95,7 +94,7 @@ router.get('/all/active', async (request, response, next) => {
  * @returns Json object containing requested operations
  */
 router.get('/all/inactive', async (request, response, next) => {
-    logger.info(`Retrieving all inActive operations from firestore`)
+    console.info(`Retrieving all inActive operations from firestore`)
     const operations = {
         "operations": []
     }
@@ -111,7 +110,7 @@ router.get('/all/inactive', async (request, response, next) => {
         operations.operations.push(operationData);
     })
     operations[constants.TOTAL_OPERATIONS] = operationSnapshot.size;
-    logger.debug(`Returning operations to client.`);
+    console.debug(`Returning operations to client.`);
     response.status(200).send(operations);
 });
 
@@ -121,9 +120,9 @@ router.get('/all/inactive', async (request, response, next) => {
  * @throws 400 if operation already exists or 404 if required params are missing
  */
 router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.info(`Creating Operation in firestore....`);
+    console.info(`Creating Operation in firestore....`);
     // Validate parameters
-    logger.debug('Validating params.')
+    console.debug('Validating params.')
     const { error } = validateParams(request.body, constants.CREATE)
     if (error) {
         const err = new Error(error.details[0].message)
@@ -134,7 +133,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
 
     // If category already exists, return 400
     var operationName = request.body.name.toLocaleLowerCase()
-    logger.info(`Creating operation ${operationName} in firestore....`);
+    console.info(`Creating operation ${operationName} in firestore....`);
     const operationSnapshot = await db.collection(constants.OPERATIONS)
         .where(constants.NAME, '==', operationName)
         .get()
@@ -155,7 +154,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} created new operation ${operationName}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Created operation ${operationName}`)
+    console.debug(`Created operation ${operationName}`)
     response.status(201).json({ 'id': operationRef.id, ...data })
 });
 
@@ -165,7 +164,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
  * @throws 404 if operation does not exist or 400 has wrong params
  */
 router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
-    logger.info(`Updating a operation in firestore....`);
+    console.info(`Updating a operation in firestore....`);
     
     // Validate parameters
     const { error } = validateParams(request.body, constants.UPDATE)
@@ -189,6 +188,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const oldData = operation.data()
     let newData = request.body
     delete newData[constants.ID]
+    newData[constants.NAME] = newData[constants.NAME].toLocaleLowerCase()
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
     await operationRef.set(newData, { merge: true })
@@ -197,7 +197,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const eventMessage = `User ${request.user.name} updated operation ${oldData[constants.NAME]}`
     audit.logEvent(eventMessage, request, oldData, newData)
 
-    logger.debug(`Updated operation ${oldData[constants.NAME]}`)
+    console.debug(`Updated operation ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
 
@@ -208,7 +208,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
  */
 router.delete('/:id', isSuperAdmin, async(request, response, next) => {
     var operationid = request.params.id
-    logger.info(`Deleting operation from firestore`)
+    console.info(`Deleting operation from firestore`)
     
     const operationRef = db.collection(constants.OPERATIONS).doc(operationid);
     const operation = await operationRef.get()
@@ -225,7 +225,7 @@ router.delete('/:id', isSuperAdmin, async(request, response, next) => {
     const eventMessage = `User ${request.user.name} deleted operation ${operationData[constants.NAME]}`
     audit.logEvent(eventMessage, request)
 
-    logger.debug(`Deleted operation ${operationData[constants.NAME]}`)
+    console.debug(`Deleted operation ${operationData[constants.NAME]}`)
     response.status(200).json({"message": "deleted successfully"})
 })
 

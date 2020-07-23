@@ -1,7 +1,8 @@
+
 require('express-async-errors');
-const {createLogger, transports} = require('winston');
+const {createlogger, transports} = require('winston');
 const winston = require('winston');
-const logger = createLogger({
+const logger = createlogger({
     level: 'debug',
     transports: [
         new transports.Console({
