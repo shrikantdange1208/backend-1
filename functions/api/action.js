@@ -113,6 +113,7 @@ router.post('/requestProduct', async (req, res, next) => {
         productName,
         operationalQuantity,
         fromBranchName,
+        fromBranch,
         operation: constants.TRANSFER_IN,
         note,
         date: new Date(),
@@ -124,6 +125,7 @@ router.post('/requestProduct', async (req, res, next) => {
         productName,
         operationalQuantity,
         toBranchName,
+        toBranch,
         note,
         operation: constants.TRANSFER_OUT,
         date: new Date(),
@@ -146,7 +148,7 @@ router.post('/transferProduct', async (req, res, next) => {
         next(err)
         return;
     }
-    const { toBranch, fromBranch, toBranchName, fromBranchName, operationalQuantity, pendingRequestsId } = req.body
+    const { toBranch, fromBranch, toBranchName, fromBranchName, operationalQuantity, product, productName, pendingRequestsId, note } = req.body
 
     //check if branches exist
     const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch);
@@ -162,26 +164,23 @@ router.post('/transferProduct', async (req, res, next) => {
         return
     }
     
-    //check if pending requests exist
     const toBranchPendingReqRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
     const fromBranchPendingReqRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
     const pendingReqDocs = await db.getAll(toBranchPendingReqRef, fromBranchPendingReqRef)
     const toBranchPendingReqDoc = pendingReqDocs[0]
     const fromBranchPendingReqDoc = pendingReqDocs[1]
 
-    if (!toBranchPendingReqDoc.exists || !fromBranchPendingReqDoc.exists) {
-        console.error('No pending requests to accept');
-        const error = new Error('No pending requests to accept')
-        error.statusCode = 404
-        next(error)
-        return
-    }
     //create transferOut transaction
     const fromBranchData = {
-        ...fromBranchPendingReqDoc.data(),
         date: new Date(),
-        branch: fromBranch,
+        branch: fromBranch, //needed branch to reuse createTransaction fn
+        product,
+        productName,
         operationalQuantity,
+        toBranch,
+        toBranchName,
+        operation: constants.TRANSFER_OUT,
+        note,
         transactionId: pendingRequestsId,
         user: req.user.email //updating user to the one who accepts
     }
@@ -189,11 +188,17 @@ router.post('/transferProduct', async (req, res, next) => {
 
     //create transferIn transaction
     const toBranchData = {
-        ...toBranchPendingReqDoc.data(),
         date: new Date(),
         branch: toBranch,
+        product,
+        productName,
         operationalQuantity,
+        fromBranch,
+        fromBranchName,
+        operation: constants.TRANSFER_IN,
+        note,
         transactionId: pendingRequestsId,
+        user: req.user.email //updating user to the one who accepts
     }
     toBranchTransaction = createTransaction(toBranchData)
 
@@ -201,9 +206,8 @@ router.post('/transferProduct', async (req, res, next) => {
     const toBranchTransactionId = await toBranchTransaction
     console.log(`Created transactions in ${toBranchName} and ${fromBranchName}`)
 
-    await toBranchPendingReqRef.delete()
-    await fromBranchPendingReqRef.delete()
-    console.log(`Transfer done and deleting pending requests`, pendingRequestsId )
+    if(toBranchPendingReqDoc.exists) await toBranchPendingReqRef.delete()
+    if(fromBranchPendingReqDoc.exists) await fromBranchPendingReqRef.delete()
 
     res.status(201).send({ transactionId: pendingRequestsId, toBranchTransactionId, fromBranchTransactionId })
 })
