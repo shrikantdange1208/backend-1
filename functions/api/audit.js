@@ -22,7 +22,7 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
     let auditCollection = db.collection(constants.AUDIT)
                             .orderBy(constants.DATE,'desc');
     if(user){
-        auditCollection = auditCollection.where(constants.USER,"==",user)
+        auditCollection = auditCollection.where(constants.EMAIL,"==",user)
     }
     if(fromDate){
         auditCollection = auditCollection.where(constants.DATE,">=",new Date(fromDate));

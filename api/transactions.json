@@ -235,6 +235,36 @@
   "nextPageToken": "kY60SHyOS6G8JB08XYrr",
   "prevPageToken": "zDJTQWoTuOtNCkVlgdLk"
 }
+
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+# Get all transactions under a branch (GET) filter by pending transaction id 
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transactions/{branchId}?transactionId={id}
+
+#Response
+
+{
+    "transactions": [
+        {
+            "operationalQuantity": 10,
+            "operation": "transferIn",
+            "product": "3V0TKHqOC2GLzzNceFKs",
+            "productName": "bread",
+            "closingQuantity": 10,
+            "date": "2020-07-04T11:00:03.761Z",
+            "transactionId": "061NpSYROZeaerAtDkdm",
+            "user": "jesse@pinkman.com",
+            "fromBranchName": "sarjapur",
+            "note": "urgent requirement",
+            "initialQuantity": 0,
+            "id": "GK84YnOoUrL2MnIZw09v"
+        }
+    ],
+    "nextPageToken": null,
+    "prevPageToken": null
+}
+
 -----------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------
 
