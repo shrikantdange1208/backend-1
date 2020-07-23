@@ -5,22 +5,23 @@ const router = express.Router();
 const db = admin.firestore();
 
 /**
- * @description Route to retrieve pending transactions for a branch
- * @returns Json object containing all pending transactions
+ * @description Route to retrieve pending requests for a branch
+ * @returns Json object containing all pending requests
  */
 router.get("/branches/:id", async (req, res, next) => {
     const branchId = req.params.id
     const allPendingRequests = []
-    let pendingTransactions = db.collection(constants.BRANCHES).doc(branchId).collection(constants.PENDING_REQUESTS);
-    let snapshot = await pendingTransactions.get()
+    let pendingRequests = db.collection(constants.BRANCHES).doc(branchId).collection(constants.PENDING_REQUESTS);
+    console.log('Getting pending requests...')
+    let snapshot = await pendingRequests.get()
     snapshot.forEach(transaction => {
         const trxData = transaction.data()
         trxData[constants.DATE] = trxData[constants.DATE].toDate()
         allPendingRequests.push({ id: transaction.id, ...trxData })
     })
     const response = {
-        pendingTransactions: allPendingRequests,
-        totalPendingTransactions: allPendingRequests.length
+        pendingRequests: allPendingRequests,
+        totalPendingRequests: allPendingRequests.length
     }
     res.status(200).send(response);
 });

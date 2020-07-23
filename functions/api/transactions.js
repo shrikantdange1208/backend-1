@@ -40,7 +40,6 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
             // adding a day to the given query date as the new Date function returns 00:00:00 and we 
             // need to include the toDate for query .
             toDate.setDate(toDate.getDate()+1)
-            console.log(toDate);
             subCollectionDocRef = subCollectionDocRef.where(constants.DATE,"<",new Date(toDate));
         }
         let snapshot = await subCollectionDocRef.get()
@@ -55,7 +54,7 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
         })
         alltransactions.push(branchtransactions);
     }
-    //console.log(alltransactions)
+
     console.debug('Returning all transactions for all branches.');
     response.status(200).send(alltransactions);
 });
@@ -89,7 +88,6 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
         // adding a day to the given query date as the new Date function returns 00:00:00 and we 
         // need to include the toDate for query .
         toDate.setDate(toDate.getDate()+1)
-        console.log(toDate);
         transactionCollection = transactionCollection.where(constants.DATE,"<",toDate);
     }
     if(nextPageToken !== null && prevPageToken !== null) {
@@ -111,7 +109,6 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
             .collection(constants.TRANSACTIONS)
             .doc(nextPageToken)
             .get()
-        console.log (lastVisibleDoc.id);
         if(lastVisibleDoc){
             transactionCollection = transactionCollection
                 .startAfter(lastVisibleDoc)
@@ -125,7 +122,6 @@ router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
             .collection(constants.TRANSACTIONS)
             .doc(prevPageToken)
             .get()
-        console.log (prevVisibleDoc.id);
         if(prevVisibleDoc){
             transactionCollection = transactionCollection
                 .endBefore(prevVisibleDoc)
