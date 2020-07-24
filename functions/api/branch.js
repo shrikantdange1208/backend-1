@@ -109,33 +109,27 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
     // If category already exists, return 400
     var branchName = request.body.name.toLocaleLowerCase()
     console.info(`Creating branch ${branchName} in firestore....`);
-    const branchSnapshot = await db.collection(constants.BRANCHES)
-        .where(constants.NAME, '==', branchName)
-        .get()
-    if (branchSnapshot.size > 0) {
+
+    var { exists } = await branchAlreadyExists(branchName)
+    if (exists) {
         const err = new Error(`The branch ${branchName} already exists. Please update if needed.`)
         err.statusCode = 400
         next(err)
         return;
     }
 
-    // Check whether there is a branch which is a head office
-    const headOfficeSnapshot = await db.collection(constants.BRANCHES)
-        .where(constants.IS_HEAD_OFFICE, '==', true)
-        .get()
-
-    if (headOfficeSnapshot.size > 0) {
-        var headOffice = ""
-        headOfficeSnapshot.forEach(branch => {
-            headOffice = branch.data()[constants.NAME]
-        })
-        const err = new Error(`Cannot add ${branchName} as Head Office. ${headOffice} is already set as Head Office.`)
-        err.statusCode = 400
-        next(err)
-        return;
+    let data = request.body
+    // Check if head office already exists
+    if (data[constants.IS_HEAD_OFFICE]) {
+        var { exists, branchData } = await headOfficeAlreadyExists()
+        if (exists) {
+            const err = new Error(`Cannot add ${branchName} as Head Office. ${branchData[constants.NAME]} is already set as Head Office.`)
+            err.statusCode = 400
+            next(err)
+            return;
+        }
     }
 
-    let data = request.body
     data[constants.NAME] = branchName
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
@@ -181,17 +175,11 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const oldData = branch.data()
     let newData = request.body
     const branchName = newData[constants.NAME].toLocaleLowerCase()
-    if (newData[constants.IS_HEAD_OFFICE] === true) {
+    if (newData[constants.IS_HEAD_OFFICE]) {
         // Check whether there is a branch which is a head office
-        const headOfficeSnapshot = await db.collection(constants.BRANCHES)
-            .where(constants.IS_HEAD_OFFICE, '==', true)
-            .get()
-        if (headOfficeSnapshot.size > 0) {
-            var headOffice = ""
-            headOfficeSnapshot.forEach(branch => {
-                headOffice = branch.data()[constants.NAME]
-            })
-            const err = new Error(`Cannot set ${branchName} as Head Office. ${headOffice} is already set as Head Office.`)
+        var { exists, branchData } = await headOfficeAlreadyExists()
+        if (exists) {
+            const err = new Error(`Cannot set ${branchName} as Head Office. ${branchData[constants.NAME]} is already set as Head Office.`)
             err.statusCode = 400
             next(err)
             return;
@@ -211,6 +199,44 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     console.debug(`Updated branch ${oldData[constants.NAME]}`)
     response.sendStatus(204)
 })
+
+/**
+ * Utility function to check if branch with same name already exists
+ * @param {*} branchName 
+ */
+async function branchAlreadyExists(branchName) {
+    var branchData = {}
+    const branchSnapshot = await db.collection(constants.BRANCHES)
+        .where(constants.NAME, '==', branchName)
+        .get()
+    if (branchSnapshot.size > 0) {
+        branchSnapshot.forEach(snapshot => {
+            branchData = snapshot.data()
+        })
+        return{exists: true, "branchData": branchData}
+    } else {
+        return{exists: false, "branchData": null}
+    }
+}
+
+/**
+ * Utility function to check if head office already exists
+ * @param {*} branchName 
+ */
+async function headOfficeAlreadyExists(params) {
+    var branchData = {}
+    const branchSnapshot = await db.collection(constants.BRANCHES)
+        .where(constants.IS_HEAD_OFFICE, '==', true)
+        .get()
+    if (branchSnapshot.size > 0) {
+        branchSnapshot.forEach(snapshot => {
+            branchData = snapshot.data()
+        })
+        return{exists: true, "branchData": branchData}
+    } else {
+        return{exists: false, "branchData": null}
+    }
+}
 
 /**
  * @description Route to delete a branch
