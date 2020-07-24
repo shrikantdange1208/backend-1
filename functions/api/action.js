@@ -28,7 +28,13 @@ router.post('/addProduct', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await createTransaction(data)
+    var transactionId = ""
+    try {
+        transactionId = await createTransaction(data)
+    } catch(error) {
+        next(error)
+        return;
+    }
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -53,7 +59,13 @@ router.post('/issueProduct', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await createTransaction(data)
+    var transactionId = ""
+    try {
+        transactionId = await createTransaction(data)
+    } catch(error) {
+        next(error)
+        return;
+    }
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -69,7 +81,7 @@ router.post('/adjustment', async (request, response, next) => {
     if (error) {
         const err = new Error(error.details[0].message)
         err.statusCode = 400
-        next(err)
+        next(error)
         return;
     }
 
@@ -78,7 +90,14 @@ router.post('/adjustment', async (request, response, next) => {
     data[constants.USER] = request.user.email
     data[constants.DATE] = new Date()
 
-    const transactionId = await createTransaction(data)
+
+    var transactionId = ""
+    try {
+        transactionId = await createTransaction(data)
+    } catch(error) {
+        next(error)
+        return;
+    }
     response.status(201).json({ 'transactionId': transactionId })
 });
 
@@ -406,9 +425,8 @@ const createTransaction = async function (data) {
             data[constants.OPERATIONAL_QUANTITY])
         const resultTransaction = await transactionRef.add(data)
         return resultTransaction.id
-    } catch (err) {
-        console.error(err)
-        throw err
+    } catch (error) {
+        throw error
     }
 }
 
@@ -428,10 +446,18 @@ function getClosingQuantity(operation, initialQuantity, operationalQuantity) {
             if(operationalQuantity > initialQuantity) {
                 const error = new Error(`Requested quantity ${operationalQuantity} is greater than the available quantity ${initialQuantity}`)
                 error.statusCode = 400
+                console.error(error)
                 throw  error
             }
             return initialQuantity - operationalQuantity
         case constants.ADJUSTMENT:
+            if(operationalQuantity < 0) {
+                const error = new Error(`Quantity cannot be set to negative value: ${operationalQuantity}`)
+                error.statusCode = 400
+                console.log('IN CLOSING QUANTITY')
+                console.error(error)
+                throw  error
+            }
             return operationalQuantity
     }
 }
