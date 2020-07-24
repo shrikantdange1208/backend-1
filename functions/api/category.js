@@ -213,6 +213,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const oldData = category.data()
     let newData = request.body
     delete newData[constants.ID]
+    newData[constants.NAME] = newData[constants.NAME].toLocaleLowerCase()
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
     await categoryRef.set(newData, { merge: true })

@@ -95,6 +95,7 @@ router.post('/', isAdminOrSuperAdmin, async (request, response, next) => {
         return;
     }
     let data = request.body
+    data[constants.NAME] = unitName
     data[constants.CREATED_DATE] = new Date()
     data[constants.LAST_UPDATED_DATE] = new Date()
     const unitRef = await db.collection(constants.UNITS).add(data)
@@ -138,6 +139,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const oldData = unit.data()
     let newData = request.body
     delete newData[constants.ID]
+    newData[constants.NAME] = newData[constants.NAME].toLocaleLowerCase()
     newData[constants.LAST_UPDATED_DATE] = new Date()
     delete newData[constants.CREATED_DATE]
     await unitRef.set(newData, { merge: true })
