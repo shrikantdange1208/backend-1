@@ -454,7 +454,6 @@ function getClosingQuantity(operation, initialQuantity, operationalQuantity) {
             if(operationalQuantity < 0) {
                 const error = new Error(`Quantity cannot be set to negative value: ${operationalQuantity}`)
                 error.statusCode = 400
-                console.log('IN CLOSING QUANTITY')
                 console.error(error)
                 throw  error
             }
