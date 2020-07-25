@@ -58,13 +58,27 @@ router.get("/", isAdminOrSuperAdmin, async (request, response, next) => {
     console.debug('Returning all transactions for all branches.');
     response.status(200).send(alltransactions);
 });
+
 /**
  * @description Route to retireve all transactions under given branch for given user
  * @returns Json object containing all transactions under given branch for given user
  */
-router.get("/:id", isAdminOrSuperAdmin, async (request, response, next) => {
+router.get("/:id", async (request, response, next) => {
     console.info("Retrieving all transactions under given branch for given user");
     var branchId = request.params.id
+
+    const userRole = request.user.role
+    const userName = request.user.name
+    if (userRole === constants.BRANCH) {
+        if (request.user.branch !== branchId) {
+            console.warn(`User ${userName} belongs branch ${request.user.branch}`)
+            const error = new Error(`User ${userName} is not allowed view transactions for branch ${branchId}`)
+            error.statusCode = 403
+            next(error)
+            return;
+        }
+    }
+
     var{user,product,fromDate,toDate,transactionId} = request.query;
     const pageSize = constants.PAGE_SIZE
     var nextPageToken = request.query.nextPageToken ? request.query.nextPageToken : null;
