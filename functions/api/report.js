@@ -11,8 +11,21 @@ const db = admin.firestore();
  * @description Route to generate report for all products for a given branch
  * @returns Json object containing report for all products for a given branch
  */
-router.get("/:branchId", isAdminOrSuperAdmin, async (request, response, next) => {
+router.get("/:branchId", async (request, response, next) => {
     var branchId = request.params.branchId
+
+    const userRole = request.user.role
+    const userName = request.user.name
+    if (userRole === constants.BRANCH) {
+        if (request.user.branch !== branchId) {
+            console.warn(`User ${userName} belongs branch ${request.user.branch}`)
+            const error = new Error(`User ${userName} is not allowed view reports for branch ${branchId}`)
+            error.statusCode = 403
+            next(error)
+            return;
+        }
+    }
+
     var { fromDate, toDate } = request.query;
 
     //  Return error if fromDate is not supplied
@@ -80,10 +93,10 @@ router.get("/:branchId", isAdminOrSuperAdmin, async (request, response, next) =>
  * @param {*} productReport 
  */
 function hasTransactionRecordBeforeToDate(productReport) {
-    if(productReport[constants.INITIAL_QUANTITY] === 0 
+    if (productReport[constants.INITIAL_QUANTITY] === 0
         && productReport[constants.CLOSING_QUANTITY] === 0) {
-            return false
-        }
+        return false
+    }
     return true
 }
 
@@ -122,7 +135,7 @@ async function getReportForProduct(branchDocument, product, fromDate, toDate) {
 
     delete product[constants.IS_BELOW_THRESHOLD]
     delete product[constants.AVAILABLE_QUANTITY]
-    
+
     if (productTransactionRef.size > 0) {
         console.debug(`Transactions found between date range ${fromDate} and ${toDate} for product ${product[constants.PRODUCT]}`)
         getReportForProductFromTransactions(product, productTransactionRef)
@@ -136,7 +149,7 @@ async function getReportForProduct(branchDocument, product, fromDate, toDate) {
             .orderBy(constants.DATE, 'desc')
             .limit(1)
             .get();
-         getReportForProductFromPreviousTransactions(product, lastTransaction)
+        getReportForProductFromPreviousTransactions(product, lastTransaction)
     }
     return product
 }
