@@ -157,9 +157,6 @@ router.post('/requestProduct', async (req, res, next) => {
 /**
  * Route to accept the transfer of products to a branch
  * @returns 201 Created
- * 
- * ko - PR user
- * mad, sarjapur -PR
  */
 router.post('/transferProduct', async (req, res, next) => {
     console.info('Accepting and transfering product to requested branch...');
