@@ -3,15 +3,15 @@ var router = express.Router()
 const admin = require('firebase-admin')
 const db = admin.firestore()
 const joi = require('@hapi/joi')
+const atob = require('atob')
 const validate = require('../common/validator')
 const formatDate = require('../common/dateFormatter')
 const constants = require('../common/constants')
-const functions = require('firebase-functions')
 const audit = require('./audit')
 const { isAdminOrSuperAdmin, isSuperAdmin } = require('../middleware/auth')
 /*
 This rest api is invoked during signup of users
-1.Gets the user uid using email
+1.Decrypts password and creates user using ADMIN SDK
 2.Saves the user record in users collection
 3.Sets the custom claims for the uid
 */
@@ -23,14 +23,18 @@ router.post('/', isAdminOrSuperAdmin, async (req, res, next) => {
         next(err)
         return
     }
-    const { role, branch, firstName, lastName, email } = req.body
-    const user = await admin.auth().getUserByEmail(email).catch(error => {
+    const { role, branch, firstName, lastName, email, password } = req.body
+    const decryptPassword = atob(password)
+    const user = await admin.auth().createUser({
+        email,
+        password: decryptPassword
+    }).catch(error => {
         const err = new Error(error.message)
-        err.statusCode = error.code === "auth/user-not-found" ? 404 : 500
+        err.statusCode = error.code === "auth/invalid-password" ? 400 : 500
         next(err)
         return
     })
-    console.log(`validated user email: ${email}`)
+    console.log(`User ${email} is created in auth`)
     const { uid } = user
     let usersRef = db.collection(constants.USERS).doc(uid)
     const doc = await usersRef.get()
@@ -40,6 +44,7 @@ router.post('/', isAdminOrSuperAdmin, async (req, res, next) => {
         next(err)
         return
     }
+    delete req.body.password
     const response = {
         ...req.body,
         createdDate: new Date(),
@@ -142,19 +147,19 @@ router.put('/', isAdminOrSuperAdmin, async (req, res, next) => {
     }
 
     //disable users account in authentication
-    if(isActive == false){
+    if (isActive == false) {
         await admin.auth().updateUser(id, {
             disabled: true
         })
         console.log('disabled user account')
-    }else {
+    } else {
         await admin.auth().updateUser(id, {
             disabled: false
         })
         console.log('enabled user account')
     }
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
-    
+
     // Fire and forget audit log
     const eventMessage = `User ${req.user.name} updated user ${oldData[constants.FIRST_NAME]} ${oldData[constants.LAST_NAME]}`
     audit.logEvent(eventMessage, req, oldData, newData)
@@ -183,7 +188,7 @@ router.delete('/:id', isSuperAdmin, async (req, res, next) => {
     // Fire and forget audit log
     const eventMessage = `User ${req.user.name} deleted user ${req.body.firstName}`
     audit.logEvent(eventMessage, req)
-    
+
     res.status(200).send({ 'message': 'deleted successfully' })
 })
 
@@ -198,7 +203,8 @@ function validateInput(body, type) {
                 lastName: joi.string().min(1).max(30).required(),
                 contact: joi.string().required(),
                 isActive: joi.bool().required(),
-                email: joi.string().email({ minDomainSegments: 2 }).required()
+                email: joi.string().email({ minDomainSegments: 2 }).required(),
+                password: joi.string().required()
             })
             break
         case constants.UPDATE:
