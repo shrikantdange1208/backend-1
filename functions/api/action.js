@@ -157,6 +157,9 @@ router.post('/requestProduct', async (req, res, next) => {
 /**
  * Route to accept the transfer of products to a branch
  * @returns 201 Created
+ * 
+ * ko - PR user
+ * mad, sarjapur -PR
  */
 router.post('/transferProduct', async (req, res, next) => {
     console.info('Accepting and transfering product to requested branch...');
@@ -167,7 +170,7 @@ router.post('/transferProduct', async (req, res, next) => {
         next(err)
         return;
     }
-    const { toBranch, fromBranch, toBranchName, fromBranchName, operationalQuantity, product, productName, pendingRequestsId, note } = req.body
+    const { toBranch, fromBranch, toBranchName, fromBranchName, operationalQuantity, product, productName, pendingRequestsId, note, user } = req.body
 
     //check if branches exist
     const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch);
@@ -217,7 +220,7 @@ router.post('/transferProduct', async (req, res, next) => {
         operation: constants.TRANSFER_IN,
         note,
         transactionId: pendingRequestsId,
-        user: req.user.email //updating user to the one who accepts
+        user //updating user to the one who actually requested
     }
     toBranchTransaction = createTransaction(toBranchData)
 
@@ -371,6 +374,7 @@ function validateParams(body, type) {
                 operationalQuantity: joi.number().integer().strict().required(),
                 note: joi.string(),
                 pendingRequestsId: joi.string().alphanum().length(20).required(),
+                user: joi.string().email({ minDomainSegments: 2 }).required()
             })
             break
         case constants.REJECT:
