@@ -45,7 +45,7 @@ const { isAdminOrSuperAdmin } = require('../middleware/auth')
 1.Returns all roles in roles collection along with permissions, description, status.
 2.SuperAdmin,Admin,Branch are the roles supported currently.
 */
-router.get('/', isAdminOrSuperAdmin, async (req, res, next) => {
+router.get('/', async (req, res, next) => {
     let response = await getAllRoles()
     res.status(200).send(response)
 })

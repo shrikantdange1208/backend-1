@@ -81,7 +81,8 @@
 	"branch": "R1vTnxSLWByLa7NocDDX",
 	"contact": "9876543210",
 	"lastName": "Buffay",
-	"email": "user3@yahoo.com"
+  "email": "user3@yahoo.com",
+  "password": "abc123==" //encrypted
 }
 
 #Response 201 

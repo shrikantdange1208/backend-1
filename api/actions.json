@@ -90,7 +90,8 @@
 	"productName": "bread",
 	"operationalQuantity": 10,
     "pendingRequestsId": "gnVACYkIFM6vd8baebkA",
-    "note": "some note"
+    "note": "some note",
+    "user": "abc@gmail.com"
 }
 
 #Response
