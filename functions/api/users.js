@@ -159,6 +159,7 @@ router.put('/', isAdminOrSuperAdmin, async (req, res, next) => {
         console.log('enabled user account')
     }
     newData[constants.CREATED_DATE] = oldData[constants.CREATED_DATE]
+    newData[constants.EMAIL] = req.body.email;
 
     // Fire and forget audit log
     const eventMessage = `User ${req.user.name} updated user ${oldData[constants.FIRST_NAME]} ${oldData[constants.LAST_NAME]}`
