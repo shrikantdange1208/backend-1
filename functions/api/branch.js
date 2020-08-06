@@ -175,7 +175,7 @@ router.put('/', isAdminOrSuperAdmin, async (request, response, next) => {
     const oldData = branch.data()
     let newData = request.body
     const branchName = newData[constants.NAME].toLocaleLowerCase()
-    if (newData[constants.IS_HEAD_OFFICE]) {
+    if (newData[constants.IS_HEAD_OFFICE] && !oldData[constants.IS_HEAD_OFFICE]) {
         // Check whether there is a branch which is a head office
         var { exists, branchData } = await headOfficeAlreadyExists()
         if (exists) {

@@ -35,8 +35,8 @@ const isAuthenticated = async function (request, response, next) {
         //TODO:when auth piece working is confirmed
         // request.user = {
         //     uid: '5OGy1Jo2JXf2nXocHEVtZX7116K2',
-        //     role: 'branch',
-        //     branch: 'nmnpHFEB45FtMLQzqEBj',
+        //     role: 'admin',
+        //     branch: 'PKaItjoJdtxBhcR0VmQZ',
         //     name: 'Jesse Pinkman',
         //     email: 'jesse@pinkman.com'
         // }

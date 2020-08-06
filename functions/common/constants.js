@@ -99,3 +99,5 @@ define("METADATA", "metadata");
 define("DASHBOARD", "dashboard");
 define("RECENT_ACTIVITY", "recentActivity")
 define("PRODUCTS_BELOW_THRESHOLD","productsBelowThreshold")
+define("TOTAL_PRODUCTS_IN_INVENTORY","totalProductsInInventory")
+define("TOTAL_PRODUCTS_BELOW_THRESHOLD","totalProductsBelowThreshold")

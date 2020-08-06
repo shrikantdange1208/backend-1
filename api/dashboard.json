@@ -5,103 +5,173 @@ https://local-parikrama.web.app/api/dashboard
 
 # Response
 {
-    "MxoS2K8t8jT7MATniD4x": {
+    "PKaItjoJdtxBhcR0VmQZ": {
+        "pendingRequests": [
+            {
+                "date": "2020-08-06T15:11:51.702Z",
+                "note": "Some Note 1",
+                "product": "hqbtsmcxZaVmXye1uXRK",
+                "operationalQuantity": 20,
+                "operation": "transferOut",
+                "productName": "Someproduct",
+                "toBranch": "CqeSrtSXWAM5QkAPzt5y",
+                "branchName": "sarjapur",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-08-06T15:14:37.358Z",
+                "note": "Some Note 1",
+                "operationalQuantity": 30,
+                "operation": "transferIn",
+                "user": "walter@walter.com",
+                "branchName": "madiwala",
+                "product": "Hf5Ic5RFRh9RqN3l2e6f",
+                "productName": "The Zahir",
+                "fromBranch": "FropnRmUAWtZGX3GZUd8"
+            }
+        ],
+        "recentTransactions": [
+            {
+                "date": "2020-07-15T10:47:23.934Z",
+                "note": "Some product",
+                "product": "nj2s6re4dAcKUXoIKPBp",
+                "initialQuantity": 0,
+                "productName": "SomeProduct",
+                "closingQuantity": 25,
+                "operationalQuantity": 25,
+                "operation": "addProduct",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-15T08:03:53.462Z",
+                "note": "Some Book",
+                "product": "Hf5Ic5RFRh9RqN3l2e6f",
+                "initialQuantity": 0,
+                "productName": "The Zahir",
+                "closingQuantity": 25,
+                "operationalQuantity": 25,
+                "operation": "addProduct",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-02T15:41:14.452Z",
+                "product": "9UIL52tQTYwk5Hb7gkJ6",
+                "initialQuantity": 40,
+                "closingQuantity": 40,
+                "operationalQuantity": 40,
+                "operation": "adjustment",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-02T09:22:30.002Z",
+                "product": "9UIL52tQTYwk5Hb7gkJ6",
+                "initialQuantity": 10,
+                "closingQuantity": 40,
+                "operationalQuantity": 40,
+                "operation": "adjustment",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-02T09:18:43.410Z",
+                "product": "9UIL52tQTYwk5Hb7gkJ6",
+                "initialQuantity": 30,
+                "closingQuantity": 10,
+                "operationalQuantity": 20,
+                "operation": "issueProduct",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-02T09:15:39.720Z",
+                "product": "9UIL52tQTYwk5Hb7gkJ6",
+                "initialQuantity": 0,
+                "closingQuantity": 30,
+                "operationalQuantity": 30,
+                "operation": "addProduct",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-02T09:14:24.397Z",
+                "product": "3V0TKHqOC2GLzzNceFKs",
+                "initialQuantity": 275,
+                "closingQuantity": 300,
+                "operationalQuantity": 25,
+                "operation": "addProduct",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-02T09:14:13.295Z",
+                "product": "3V0TKHqOC2GLzzNceFKs",
+                "initialQuantity": 250,
+                "closingQuantity": 275,
+                "operationalQuantity": 25,
+                "operation": "addProduct",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-02T09:13:13.172Z",
+                "product": "3V0TKHqOC2GLzzNceFKs",
+                "initialQuantity": 225,
+                "closingQuantity": 250,
+                "operationalQuantity": 25,
+                "operation": "addProduct",
+                "user": "jesse@pinkman.com"
+            },
+            {
+                "date": "2020-07-02T09:12:18.972Z",
+                "product": "3V0TKHqOC2GLzzNceFKs",
+                "initialQuantity": 200,
+                "closingQuantity": 225,
+                "operationalQuantity": 25,
+                "operation": "addProduct",
+                "user": "jesse@pinkman.com"
+            }
+        ],
+        "totalProductsBelowThreshold": 1,
+        "totalProductsInInventory": 4,
         "productsBelowThreshold": [
             {
-                "availableQuantity": 45,
-                "category": "sCQNdrfdFUpvZ4NIClnE",
-                "threshold": 100,
-                "unit": "TUs5hHmh6lJBRcYigVTw",
+                "availableQuantity": 25,
+                "threshold": 43,
+                "unit": "SZYf35oJqP992E7PdusL",
                 "isBelowThreshold": true,
-                "product": "iG7jYzzQpWaQ0wvKvEVw"
-            },
-            {
-                "unit": "TUs5hHmh6lJBRcYigVTw",
-                "isBelowThreshold": true,
-                "availableQuantity": 10,
-                "category": "ZkxozRaZ66jWeGPv4ESH",
-                "threshold": 20,
-                "product": "ycCZuwUTxgYk63RnVHG6"
-            }
-        ],
-        "recentActivity": [
-            {
-                "toBranchName": "Madiwala",
-                "operationalQuantity": 31,
-                "operation": "transferOut",
-                "product": "KzsqGtZ7lUav9VVQMYow",
-                "productName": "Dolo",
-                "closingQuantity": 230111077,
-                "date": "2020-07-21T10:24:39.286Z",
-                "transactionId": "Fgbx5SmAodmTThiFz27C",
-                "user": "jesse@pinkman.com",
-                "note": "requesting dolo ",
-                "initialQuantity": 230111108
-            },
-            {
-                "user": "jesse@pinkman.com",
-                "note": "adding maths text books",
-                "initialQuantity": 0,
-                "operationalQuantity": 45,
-                "operation": "addProduct",
-                "product": "iG7jYzzQpWaQ0wvKvEVw",
-                "productName": "Mathsbooks",
-                "closingQuantity": 45,
-                "date": "2020-07-20T12:58:49.644Z"
-            }
-        ],
-        "pendingRequests": [
-            {
-                "operation": "transferOut",
-                "product": "iG7jYzzQpWaQ0wvKvEVw",
-                "productName": "Mathsbooks",
-                "date": "2020-07-21T10:00:05.187Z",
-                "user": "jesse@pinkman.com",
-                "note": "Need ",
-                "toBranchName": "Madiwala",
-                "operationalQuantity": 50
+                "category": "B7t3rfHbkGhXnahF5d26",
+                "product": "Hf5Ic5RFRh9RqN3l2e6f"
             }
         ]
     },
-    "R1vTnxSLWByLa7NocDDX": {
-        "productsBelowThreshold": [],
-        "recentActivity": [
+    "CqeSrtSXWAM5QkAPzt5y": {
+        "totalProductsBelowThreshold": 0,
+        "totalProductsInInventory": 1,
+        "productsBelowThreshold": []
+    },
+    "FropnRmUAWtZGX3GZUd8": {
+        "totalProductsBelowThreshold": 1,
+        "totalProductsInInventory": 2,
+        "productsBelowThreshold": [
             {
-                "operationalQuantity": 31,
-                "operation": "transferIn",
-                "product": "KzsqGtZ7lUav9VVQMYow",
-                "productName": "Dolo",
-                "closingQuantity": 31,
-                "date": "2020-07-21T10:24:39.287Z",
-                "transactionId": "Fgbx5SmAodmTThiFz27C",
-                "user": "jesse@pinkman.com",
-                "fromBranchName": "Sarjapur",
-                "note": "requesting dolo ",
-                "initialQuantity": 0
-            }
-        ],
-        "pendingRequests": [
-            {
-                "date": "2020-07-21T10:00:04.998Z",
-                "user": "jesse@pinkman.com",
-                "fromBranchName": "Sarjapur",
-                "note": "Need ",
-                "operationalQuantity": 50,
-                "operation": "transferIn",
-                "product": "iG7jYzzQpWaQ0wvKvEVw",
-                "productName": "Mathsbooks"
+                "availableQuantity": 8,
+                "threshold": 75,
+                "unit": "SZYf35oJqP992E7PdusL",
+                "isBelowThreshold": true,
+                "category": "B7t3rfHbkGhXnahF5d26",
+                "product": "ufjGAgxFsq0FpAs864ha"
             }
         ]
     },
-    "XCiht4ckQmmYFxbav7TV": {
-        "productsBelowThreshold": [],
-        "recentActivity": [],
-        "pendingRequests": []
+    "h3mPLhA1VuWGxV9U4RRK": {
+        "totalProductsBelowThreshold": 0,
+        "totalProductsInInventory": 0,
+        "productsBelowThreshold": []
     },
-    "nYdsXP6wf4VqgLMcjCHd": {
-        "productsBelowThreshold": [],
-        "recentActivity": [],
-        "pendingRequests": []
+    "nmnpHFEB45FtMLQzqEBj": {
+        "totalProductsBelowThreshold": 0,
+        "totalProductsInInventory": 2,
+        "productsBelowThreshold": []
+    },
+    "pAhsD46B6cTMUQltjmrl": {
+        "totalProductsBelowThreshold": 0,
+        "totalProductsInInventory": 3,
+        "productsBelowThreshold": []
     }
 }
 
@@ -111,16 +181,6 @@ https://local-parikrama.web.app/api/dashboard
 
 {
     "branch": "PKaItjoJdtxBhcR0VmQZ",
-    "productsBelowThreshold": [
-        {
-            "availableQuantity": 25,
-            "threshold": 43,
-            "unit": "SZYf35oJqP992E7PdusL",
-            "isBelowThreshold": true,
-            "category": "B7t3rfHbkGhXnahF5d26",
-            "product": "Hf5Ic5RFRh9RqN3l2e6f"
-        }
-    ],
     "recentActivity": [
         {
             "date": "2020-07-15T10:47:23.934Z",
@@ -143,7 +203,114 @@ https://local-parikrama.web.app/api/dashboard
             "operationalQuantity": 25,
             "operation": "addProduct",
             "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-02T15:41:14.452Z",
+            "product": "9UIL52tQTYwk5Hb7gkJ6",
+            "initialQuantity": 40,
+            "closingQuantity": 40,
+            "operationalQuantity": 40,
+            "operation": "adjustment",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-02T09:22:30.002Z",
+            "product": "9UIL52tQTYwk5Hb7gkJ6",
+            "initialQuantity": 10,
+            "closingQuantity": 40,
+            "operationalQuantity": 40,
+            "operation": "adjustment",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-02T09:18:43.410Z",
+            "product": "9UIL52tQTYwk5Hb7gkJ6",
+            "initialQuantity": 30,
+            "closingQuantity": 10,
+            "operationalQuantity": 20,
+            "operation": "issueProduct",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-02T09:15:39.720Z",
+            "product": "9UIL52tQTYwk5Hb7gkJ6",
+            "initialQuantity": 0,
+            "closingQuantity": 30,
+            "operationalQuantity": 30,
+            "operation": "addProduct",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-02T09:14:24.397Z",
+            "product": "3V0TKHqOC2GLzzNceFKs",
+            "initialQuantity": 275,
+            "closingQuantity": 300,
+            "operationalQuantity": 25,
+            "operation": "addProduct",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-02T09:14:13.295Z",
+            "product": "3V0TKHqOC2GLzzNceFKs",
+            "initialQuantity": 250,
+            "closingQuantity": 275,
+            "operationalQuantity": 25,
+            "operation": "addProduct",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-02T09:13:13.172Z",
+            "product": "3V0TKHqOC2GLzzNceFKs",
+            "initialQuantity": 225,
+            "closingQuantity": 250,
+            "operationalQuantity": 25,
+            "operation": "addProduct",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-07-02T09:12:18.972Z",
+            "product": "3V0TKHqOC2GLzzNceFKs",
+            "initialQuantity": 200,
+            "closingQuantity": 225,
+            "operationalQuantity": 25,
+            "operation": "addProduct",
+            "user": "jesse@pinkman.com"
         }
     ],
-    "pendingRequests": []
+    "pendingRequests": [
+        {
+            "date": "2020-08-06T15:11:51.702Z",
+            "note": "Some Note 1",
+            "product": "hqbtsmcxZaVmXye1uXRK",
+            "operationalQuantity": 20,
+            "operation": "transferOut",
+            "productName": "Someproduct",
+            "toBranch": "CqeSrtSXWAM5QkAPzt5y",
+            "branchName": "sarjapur",
+            "user": "jesse@pinkman.com"
+        },
+        {
+            "date": "2020-08-06T15:14:37.358Z",
+            "note": "Some Note 1",
+            "operationalQuantity": 30,
+            "operation": "transferIn",
+            "user": "walter@walter.com",
+            "branchName": "madiwala",
+            "product": "Hf5Ic5RFRh9RqN3l2e6f",
+            "productName": "The Zahir",
+            "fromBranch": "FropnRmUAWtZGX3GZUd8"
+        }
+    ],
+    "totalProductsInInventory": 4,
+    "totalProductsBelowThreshold": 1,
+    "productsBelowThreshold": [
+        {
+            "availableQuantity": 25,
+            "threshold": 43,
+            "unit": "SZYf35oJqP992E7PdusL",
+            "isBelowThreshold": true,
+            "category": "B7t3rfHbkGhXnahF5d26",
+            "product": "Hf5Ic5RFRh9RqN3l2e6f"
+        }
+    ]
 }
