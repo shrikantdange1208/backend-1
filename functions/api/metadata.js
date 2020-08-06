@@ -5,6 +5,7 @@ const { getAllProducts } = require('./product')
 const { getAllOperations } = require('./operation')
 const { getAllUnits } = require('./unit')
 const { getAllRoles } = require('./roles')
+const { getAllUsers } = require('./users')
 const express = require('express')
 const router = express.Router();
 
@@ -36,6 +37,9 @@ router.get("/", async (request, response) => {
     const unitPromise = getAllUnits()
     metadataPromises.push(unitPromise)
 
+    const usersPromise = getAllUsers()
+    metadataPromises.push(usersPromise)
+
     Promise.all(metadataPromises)
         .then(promiseArray => {
             promiseArray.forEach(collectionData => {
@@ -65,6 +69,8 @@ function addCollectionDataToResponse(metadata, collectionData) {
         metadata[constants.OPERATIONS] = collectionData[constants.OPERATIONS]
     } else if (collectionData.hasOwnProperty(constants.UNITS)) {
         metadata[constants.UNITS] = collectionData[constants.UNITS]
+    } else if (collectionData.hasOwnProperty(constants.USERS)) {
+        metadata[constants.USERS] = collectionData[constants.USERS]
     }
 }
 

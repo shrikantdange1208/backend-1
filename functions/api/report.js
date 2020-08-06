@@ -26,6 +26,53 @@ router.get("/:branchId", async (request, response, next) => {
         }
     }
 
+    var { fromDate, toDate } = getFromAndToDate(request)
+    const branchReport = await getReportForBranch(branchId, fromDate, toDate)
+    response.status(200).json(branchReport)
+})
+
+/**
+ * @description Route to generate report for all products for all branches
+ * @returns Json object containing report for all products for all branches
+ */
+router.get("/all/branches", async (request, response, next) => {
+
+    const userRole = request.user.role
+    const userName = request.user.name
+
+    // Allow only admin/superadmin users to retrieve reports for all the branches
+    if (userRole === constants.BRANCH) {
+        console.warn(`User ${userName} has role ${constants.BRANCH}`)
+        const error = new Error(`User ${userName} is not allowed view reports for all branches`)
+        error.statusCode = 403
+        next(error)
+        return;
+    }
+
+    
+    var { fromDate, toDate } = getFromAndToDate(request)
+    var reports = {}
+    const branchCollectionRef = db.collection(constants.BRANCHES)
+    const branchDocuments = await branchCollectionRef.listDocuments();
+    const branchReportPromises = []
+    
+    for (const doc of branchDocuments) {
+        const p1 = getReportForBranch(doc.id, fromDate, toDate)
+        branchReportPromises.push(p1)
+    }
+    Promise.all(branchReportPromises)
+        .then(branchReports => {
+            branchReports.forEach(branchReport => {
+                console.log(branchReport)
+                const branchId = branchReport[constants.BRANCH]
+                delete branchReport[constants.BRANCH]
+                reports[branchId] = branchReport
+            })
+            response.status(200).json(reports)
+        })
+})
+
+function getFromAndToDate(request) {
     var { fromDate, toDate } = request.query;
 
     //  Return error if fromDate is not supplied
@@ -44,6 +91,15 @@ router.get("/:branchId", async (request, response, next) => {
         toDate = new Date(toDate)
     }
 
+    return {fromDate, toDate}
+}
+
+/**
+ * @description Route to generate report for all products for a given branch
+ * @returns Json object containing report for all products for a given branch
+ */
+const getReportForBranch = async function(branchId, fromDate, toDate) {
+   
     // Check if branch is valid
     console.info(`Generating report for branch ${branchId} for period ${fromDate} to ${toDate}`)
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
@@ -65,28 +121,36 @@ router.get("/:branchId", async (request, response, next) => {
     // Get current inventory for the given branch
     const branchInventory = await getInventory(branchRef, branchId, false)
     const inventoryProducts = branchInventory[constants.INVENTORY]
-
-    // Calculate report for each product in inventory
+    const reports = await getReportForAllProductsInBranch(branchRef, inventoryProducts, fromDate, toDate)
     var totalProducts = 0
+    reports.forEach(productReport => {
+        if (hasTransactionRecordBeforeToDate(productReport)) {
+                    branchReport[constants.REPORT].push(productReport)
+                    totalProducts = totalProducts + 1
+                }
+
+    })
+    branchReport[constants.TOTAL_PRODUCTS] = totalProducts
+    return branchReport
+}
+
+/**
+ * Utility method to get report for all products in branch inventory
+ * @param {*} branchRef 
+ * @param {*} inventoryProducts 
+ * @param {*} fromDate 
+ * @param {*} toDate 
+ */
+async function getReportForAllProductsInBranch(branchRef, inventoryProducts, fromDate, toDate) {
+    // Calculate report for each product in inventory
     const promises = []
     for (const product of inventoryProducts) {
         const productPromise = getReportForProduct(branchRef, product, fromDate, toDate)
         promises.push(productPromise)
-    }
+    }    
+    return Promise.all(promises)
 
-    // Wait for completing all promises
-    Promise.all(promises)
-        .then(reports => {
-            reports.forEach(productReport => {
-                if (hasTransactionRecordBeforeToDate(productReport)) {
-                    branchReport[constants.REPORT].push(productReport)
-                    totalProducts = totalProducts + 1
-                }
-            })
-            branchReport[constants.TOTAL_PRODUCTS] = totalProducts
-            response.status(200).json(branchReport)
-        })
-})
+}
 
 /**
  * Method to check if product had a transaction before toDate

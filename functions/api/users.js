@@ -70,6 +70,14 @@ router.post('/', isAdminOrSuperAdmin, async (req, res, next) => {
 1.Returns all users in users collection.
 */
 router.get('/', async (req, res) => {
+    const response = await getAllUsers()
+    res.status(200).send(response)
+})
+
+/**
+ * Utility method to retrieve all users from firestore
+ */
+const getAllUsers = async function () {
     let usersRef = db.collection(constants.USERS)
     const snapshot = await usersRef.get()
     const allUsers = []
@@ -77,12 +85,12 @@ router.get('/', async (req, res) => {
         const users = formatDate(doc.data())
         allUsers.push({ id: doc.id, ...users })
     })
-    const response = {
+    const users = {
         users: allUsers,
         totalUsers: allUsers.length
     }
-    res.status(200).send(response)
-})
+    return users
+}
 
 /*
 1.Returns a specific user
@@ -227,6 +235,7 @@ function validateInput(body, type) {
 }
 
 module.exports = router
+module.exports.getAllUsers = getAllUsers
 
 /*TODO: remove later
 Trigger on users collection

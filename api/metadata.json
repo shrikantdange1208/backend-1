@@ -128,3 +128,69 @@ http://localhost:5001/local-parikrama/us-central1/api/api/metadata
         }
     ]
 }
+
+
+{
+    "metadata": [
+        {
+            "branches": [
+                {
+                    "address": {
+                        "country": "India",
+                        "city": "Bengaluru",
+                        "zipcode": 560035,
+                        "street": "5th Street",
+                        "state": "Karnataka"
+                    },
+                    "isActive": true,
+                    "users": [
+                        "Jesse Pink"
+                    ],
+                    "lastUpdatedDate": "2020-07-02T03:50:31.135Z",
+                    "createdDate": "2020-07-02T03:50:31.135Z",
+                    "name": "Sarjapur",
+                    "isHeadOffice": false,
+                    "id": "CqeSrtSXWAM5QkAPzt5y"
+                },
+                {
+                    "address": {
+                        "country": "India",
+                        "city": "Bengaluru",
+                        "zipcode": 560085,
+                        "street": "10th Street",
+                        "state": "Karnataka"
+                    },
+                    "isActive": true,
+                    "users": [],
+                    "lastUpdatedDate": "2020-07-02T03:50:17.045Z",
+                    "createdDate": "2020-07-02T03:50:17.045Z",
+                    "name": "Madiwala",
+                    "isHeadOffice": false,
+                    "id": "FropnRmUAWtZGX3GZUd8"
+                },
+            ],
+            "totalBranches": 2
+        },
+        {
+            "categories": [
+                {
+                    "description": "Category for books",
+                    "isActive": true,
+                    "lastUpdatedDate": "2020-07-02T03:55:41.208Z",
+                    "createdDate": "2020-07-02T03:55:41.208Z",
+                    "name": "Books",
+                    "id": "B7t3rfHbkGhXnahF5d26"
+                },
+                {
+                    "description": "Category for furniture",
+                    "isActive": true,
+                    "lastUpdatedDate": "2020-07-02T03:54:49.959Z",
+                    "createdDate": "2020-07-02T03:54:49.959Z",
+                    "name": "Furniture",
+                    "id": "HRuVZ91TViBpfwKsw0Pf"
+                }
+            ],
+            "totalCategories": 2
+        }
+    ]
+}

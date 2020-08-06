@@ -14,24 +14,17 @@ const db = admin.firestore();
 router.get("/", async (request, response, next) => {
 
     const userRole = request.user.role
+    const branchId = request.user.branch
     console.debug(`Retrieving Dashboard data for ${userRole.toUpperCase()} user`)
     if (userRole === constants.ADMIN || userRole === constants.SUPER_ADMIN) {
-
         //Get dashboard data for all branches
-        const dashboardDataForAllBranches = {}
-        const dashboardData = await getDashboardDataForAdminUser()
-        dashboardData.forEach(dashboard => {
-            const branchId = dashboard[constants.BRANCH]
-            delete dashboard[constants.BRANCH]
-            dashboardDataForAllBranches[branchId] = dashboard
-        })
+        const dashboardDataForAllBranches = await getDashboardDataForAdminUser(branchId)
         console.debug('Retrieved dashboard data for all the branches')    
         response.status(200).json(dashboardDataForAllBranches)
 
     } else if (userRole === constants.BRANCH) {
         
         // Get dashboard data for branch 
-        const branchId = request.user.branch
         console.log(`Retrieving Dashboard data for branch ${branchId}`)
         const dashboardData = await getDashboardDataForBranchUser(branchId)
         response.status(200).json(dashboardData)
@@ -43,12 +36,41 @@ router.get("/", async (request, response, next) => {
  * @description Method to generate dashboard data for admin users
  * Internally calls getDashboardDataForBranchUser method for all branches
  */
-async function getDashboardDataForAdminUser() {
+async function getDashboardDataForAdminUser(adminBranchId) {
+
+    var dashboardData = {}
+    dashboardData[adminBranchId] = {}
+    const branchRef = db.collection(constants.BRANCHES).doc(adminBranchId);
+
+    // Get pendingRequests for Admin/SuperAdmin's branch
+    const pendingRequests = await getPendingRequests(branchRef)
+    dashboardData[adminBranchId]['pendingRequests'] = pendingRequests
+
+    // Get recentTransactions for Admin/SuperAdmin's branch
+    const recentTransactions = await getRecentTransactions(branchRef)
+    dashboardData[adminBranchId]['recentTransactions'] = recentTransactions
     
+    // Get productsBelowThreshold for all the branches
+    const branchArray = await getProductsBelowThresholdForAllBranches()
+        branchArray.forEach(inventoryData => {
+            const currentbBranchId = inventoryData['branch']
+            delete inventoryData['branch']
+            if(adminBranchId !== currentbBranchId) {
+                dashboardData[currentbBranchId] = {}
+            }
+            dashboardData[currentbBranchId]['totalProductsBelowThreshold'] = inventoryData['totalProductsBelowThreshold']
+            dashboardData[currentbBranchId]['totalProductsInInventory'] = inventoryData['totalProductsInInventory']
+            dashboardData[currentbBranchId]['productsBelowThreshold'] = inventoryData['productList']
+        })
+    return dashboardData
+}
+
+async function getProductsBelowThresholdForAllBranches() {
     const branchDocuments = await db.collection(constants.BRANCHES).listDocuments()
     var dashboardPromises = []
-    branchDocuments.map(branch => {
-        const p1 = getDashboardDataForBranchUser(branch.id)
+    branchDocuments.map(async branch => {
+        const branchRef = db.collection(constants.BRANCHES).doc(branch.id);
+        const p1 = getProductsBelowThreshold(branchRef)
         dashboardPromises.push(p1)  
     })
     return Promise.all(dashboardPromises)
@@ -63,13 +85,17 @@ async function getDashboardDataForBranchUser(branchId) {
     var dashboardData = {}
     dashboardData[constants.BRANCH] = branchId
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
-    const productsBelowThresholdPromise = getProductsUnderThreshold(branchRef)
+    const productsBelowThresholdPromise = getProductsBelowThreshold(branchRef)
     const recentTransactionsPromise = getRecentTransactions(branchRef)
     const pendingRequestsPromise = getPendingRequests(branchRef)
 
-    dashboardData[constants.PRODUCTS_BELOW_THRESHOLD] = await productsBelowThresholdPromise
+    var inventoryData = await productsBelowThresholdPromise
     dashboardData[constants.RECENT_ACTIVITY] = await recentTransactionsPromise
     dashboardData[constants.PENDING_REQUESTS] = await pendingRequestsPromise
+
+    dashboardData[constants.TOTAL_PRODUCTS_IN_INVENTORY] = inventoryData["totalProductsInInventory"]
+    dashboardData[constants.TOTAL_PRODUCTS_BELOW_THRESHOLD] = inventoryData["totalProductsBelowThreshold"]
+    dashboardData[constants.PRODUCTS_BELOW_THRESHOLD] = inventoryData["productList"]
     return dashboardData
 }
 
@@ -77,9 +103,33 @@ async function getDashboardDataForBranchUser(branchId) {
  * Method to retrieve products under threshold for a given branch
  * @param {*} branchId 
  */
-async function getProductsUnderThreshold(branchRef) {
-    const products = await getInventory(branchRef, branchRef.id, true)
-    return products.inventory
+async function getProductsBelowThreshold(branchRef) {
+    const allProductsInventory = await getInventory(branchRef, branchRef.id, false)
+    const products = allProductsInventory.inventory
+    const totalProductsInInventory = products.length
+    const productsBelowThreshold = []
+    
+    var responseCount = 0;
+    var totalProductsBelowThresholdCount = 0;
+
+    products.forEach(product => {
+        if (product[constants.IS_BELOW_THRESHOLD] === true) {
+            totalProductsBelowThresholdCount = totalProductsBelowThresholdCount + 1
+            responseCount = responseCount + 1
+            if(responseCount <= 5) {
+                productsBelowThreshold.push(product)
+            }
+        }    
+    })
+
+    const response = {
+        "totalProductsBelowThreshold": totalProductsBelowThresholdCount,
+        "totalProductsInInventory": totalProductsInInventory,
+        "productList": productsBelowThreshold,
+        "branch": branchRef.id
+    }
+
+    return response
 }
 
 /**

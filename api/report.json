@@ -49,3 +49,156 @@ http://localhost:5001/local-parikrama/us-central1/api/api/reports/nmnpHFEB45FtML
         }
     ]
 }
+
+
+# REQUEST
+http://localhost:5001/local-parikrama/us-central1/api/api/reports/all/branches?fromDate=2020-07-02&toDate=2020-07-17
+
+OR 
+
+http://localhost:5001/local-parikrama/us-central1/api/api/reports/all/branches?fromDate=2020-07-02
+
+# RESPONSE
+
+{
+    "CqeSrtSXWAM5QkAPzt5y": {
+        "name": "sarjapur",
+        "fromDate": "2020-07-02T00:00:00.000Z",
+        "toDate": "2020-08-06T18:03:04.109Z",
+        "report": [],
+        "totalProducts": 0
+    },
+    "FropnRmUAWtZGX3GZUd8": {
+        "name": "madiwala",
+        "fromDate": "2020-07-02T00:00:00.000Z",
+        "toDate": "2020-08-06T18:03:04.109Z",
+        "report": [],
+        "totalProducts": 0
+    },
+    "PKaItjoJdtxBhcR0VmQZ": {
+        "name": "kormangala",
+        "fromDate": "2020-07-02T00:00:00.000Z",
+        "toDate": "2020-08-06T18:03:04.109Z",
+        "report": [
+            {
+                "threshold": 43,
+                "unit": "SZYf35oJqP992E7PdusL",
+                "category": "B7t3rfHbkGhXnahF5d26",
+                "product": "Hf5Ic5RFRh9RqN3l2e6f",
+                "initialQuantity": 0,
+                "addedQuantity": 25,
+                "consumedQuantity": 0,
+                "transferredQuantity": 0,
+                "closingQuantity": 25
+            },
+            {
+                "threshold": 0,
+                "unit": "Il6dg4x4LywRTEONlBWF",
+                "category": "tr3ldCgOV9QPFn6YTnlj",
+                "product": "nj2s6re4dAcKUXoIKPBp",
+                "initialQuantity": 0,
+                "addedQuantity": 25,
+                "consumedQuantity": 0,
+                "transferredQuantity": 0,
+                "closingQuantity": 25
+            },
+            {
+                "threshold": 15,
+                "unit": "SZYf35oJqP992E7PdusL",
+                "category": "HaqTU6zqgo33uqVeYe6t",
+                "product": "9UIL52tQTYwk5Hb7gkJ6",
+                "initialQuantity": 0,
+                "addedQuantity": 60,
+                "consumedQuantity": 20,
+                "transferredQuantity": 0,
+                "closingQuantity": 40
+            },
+            {
+                "threshold": 35,
+                "unit": "SZYf35oJqP992E7PdusL",
+                "category": "miSfk8RC2935IiDzC3fx",
+                "product": "3V0TKHqOC2GLzzNceFKs",
+                "initialQuantity": 0,
+                "addedQuantity": 300,
+                "consumedQuantity": 0,
+                "transferredQuantity": 0,
+                "closingQuantity": 300
+            }
+        ],
+        "totalProducts": 4
+    },
+    "h3mPLhA1VuWGxV9U4RRK": {
+        "name": "somebranch",
+        "fromDate": "2020-07-02T00:00:00.000Z",
+        "toDate": "2020-08-06T18:03:04.109Z",
+        "report": [],
+        "totalProducts": 0
+    },
+    "nmnpHFEB45FtMLQzqEBj": {
+        "name": "Katraj",
+        "fromDate": "2020-07-02T00:00:00.000Z",
+        "toDate": "2020-08-06T18:03:04.109Z",
+        "report": [
+            {
+                "threshold": 0,
+                "unit": "Il6dg4x4LywRTEONlBWF",
+                "category": "tr3ldCgOV9QPFn6YTnlj",
+                "product": "nj2s6re4dAcKUXoIKPBp",
+                "initialQuantity": 0,
+                "addedQuantity": 75,
+                "consumedQuantity": 39,
+                "transferredQuantity": 0,
+                "closingQuantity": 36
+            },
+            {
+                "threshold": 32,
+                "product": "qc9PSf6PsdBTnVxiqc0D",
+                "initialQuantity": 0,
+                "addedQuantity": 168,
+                "consumedQuantity": 84,
+                "transferredQuantity": 0,
+                "closingQuantity": 84
+            }
+        ],
+        "totalProducts": 2
+    },
+    "pAhsD46B6cTMUQltjmrl": {
+        "name": "dhankawadi",
+        "fromDate": "2020-07-02T00:00:00.000Z",
+        "toDate": "2020-08-06T18:03:04.109Z",
+        "report": [
+            {
+                "threshold": 45,
+                "unit": "Il6dg4x4LywRTEONlBWF",
+                "category": "miSfk8RC2935IiDzC3fx",
+                "product": "tV90MxDDZGHoIvBkCpr9",
+                "initialQuantity": 0,
+                "addedQuantity": 50,
+                "consumedQuantity": 0,
+                "transferredQuantity": 0,
+                "closingQuantity": 50
+            },
+            {
+                "threshold": 75,
+                "unit": "SZYf35oJqP992E7PdusL",
+                "category": "B7t3rfHbkGhXnahF5d26",
+                "product": "ufjGAgxFsq0FpAs864ha",
+                "initialQuantity": 0,
+                "addedQuantity": 60,
+                "consumedQuantity": 0,
+                "transferredQuantity": 0,
+                "closingQuantity": 60
+            },
+            {
+                "threshold": 10,
+                "product": "QryLWEPZwMz5okojBIZ9",
+                "initialQuantity": 0,
+                "addedQuantity": 138,
+                "consumedQuantity": 72,
+                "transferredQuantity": 0,
+                "closingQuantity": 66
+            }
+        ],
+        "totalProducts": 3
+    }
+}
