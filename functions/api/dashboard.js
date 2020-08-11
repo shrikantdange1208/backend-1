@@ -53,14 +53,14 @@ async function getDashboardDataForAdminUser(adminBranchId) {
     // Get productsBelowThreshold for all the branches
     const branchArray = await getProductsBelowThresholdForAllBranches()
         branchArray.forEach(inventoryData => {
-            const currentbBranchId = inventoryData['branch']
+            const currentBranchId = inventoryData['branch']
             delete inventoryData['branch']
-            if(adminBranchId !== currentbBranchId) {
-                dashboardData[currentbBranchId] = {}
+            if(adminBranchId !== currentBranchId) {
+                dashboardData[currentBranchId] = {}
             }
-            dashboardData[currentbBranchId]['totalProductsBelowThreshold'] = inventoryData['totalProductsBelowThreshold']
-            dashboardData[currentbBranchId]['totalProductsInInventory'] = inventoryData['totalProductsInInventory']
-            dashboardData[currentbBranchId]['productsBelowThreshold'] = inventoryData['productList']
+            dashboardData[currentBranchId]['totalProductsBelowThreshold'] = inventoryData['totalProductsBelowThreshold']
+            dashboardData[currentBranchId]['totalProductsInInventory'] = inventoryData['totalProductsInInventory']
+            dashboardData[currentBranchId]['productsBelowThreshold'] = inventoryData['productList']
         })
     return dashboardData
 }

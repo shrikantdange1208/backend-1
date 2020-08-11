@@ -12,6 +12,7 @@ const db = admin.firestore();
  * @returns Json object containing report for all products for a given branch
  */
 router.get("/:branchId", async (request, response, next) => {
+
     var branchId = request.params.branchId
 
     const userRole = request.user.role
@@ -35,21 +36,8 @@ router.get("/:branchId", async (request, response, next) => {
  * @description Route to generate report for all products for all branches
  * @returns Json object containing report for all products for all branches
  */
-router.get("/all/branches", async (request, response, next) => {
+router.get("/all/branches", isAdminOrSuperAdmin, async (request, response, next) => {
 
-    const userRole = request.user.role
-    const userName = request.user.name
-
-    // Allow only admin/superadmin users to retrieve reports for all the branches
-    if (userRole === constants.BRANCH) {
-        console.warn(`User ${userName} has role ${constants.BRANCH}`)
-        const error = new Error(`User ${userName} is not allowed view reports for all branches`)
-        error.statusCode = 403
-        next(error)
-        return;
-    }
-
-    
     var { fromDate, toDate } = getFromAndToDate(request)
     var reports = {}
     const branchCollectionRef = db.collection(constants.BRANCHES)
@@ -63,7 +51,6 @@ router.get("/all/branches", async (request, response, next) => {
     Promise.all(branchReportPromises)
         .then(branchReports => {
             branchReports.forEach(branchReport => {
-                console.log(branchReport)
                 const branchId = branchReport[constants.BRANCH]
                 delete branchReport[constants.BRANCH]
                 reports[branchId] = branchReport
