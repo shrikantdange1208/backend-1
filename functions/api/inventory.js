@@ -123,9 +123,12 @@ async function getInventory(branchRef, branchId, belowthreshold) {
         productCollection = await branchRef
             .collection(constants.INVENTORY)
             .where(constants.IS_BELOW_THRESHOLD, '==', true)
+            .orderBy(constants.AVAILABLE_QUANTITY)
             .get()
     } else {
-        productCollection = await branchRef.collection(constants.INVENTORY)
+        productCollection = await branchRef
+            .collection(constants.INVENTORY)
+            .orderBy(constants.AVAILABLE_QUANTITY)
             .get()
     }
     productCollection.forEach((product) => {
