@@ -31,7 +31,7 @@ router.post('/addProduct', async (request, response, next) => {
     var transactionId = ""
     try {
         transactionId = await createTransaction(data)
-    } catch(error) {
+    } catch (error) {
         next(error)
         return;
     }
@@ -62,7 +62,7 @@ router.post('/issueProduct', async (request, response, next) => {
     var transactionId = ""
     try {
         transactionId = await createTransaction(data)
-    } catch(error) {
+    } catch (error) {
         next(error)
         return;
     }
@@ -94,7 +94,7 @@ router.post('/adjustment', async (request, response, next) => {
     var transactionId = ""
     try {
         transactionId = await createTransaction(data)
-    } catch(error) {
+    } catch (error) {
         next(error)
         return;
     }
@@ -182,9 +182,9 @@ router.post('/transferProduct', async (req, res, next) => {
         next(error)
         return
     }
-    
-    const toBranchPendingReqRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
-    const fromBranchPendingReqRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
+
+    const toBranchPendingReqRef = toBranchRef.collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
+    const fromBranchPendingReqRef = fromBranchRef.collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
     const pendingReqDocs = await db.getAll(toBranchPendingReqRef, fromBranchPendingReqRef)
     const toBranchPendingReqDoc = pendingReqDocs[0]
     const fromBranchPendingReqDoc = pendingReqDocs[1]
@@ -225,8 +225,26 @@ router.post('/transferProduct', async (req, res, next) => {
     const toBranchTransactionId = await toBranchTransaction
     console.log(`Created transactions in ${toBranchName} and ${fromBranchName}`)
 
-    if(toBranchPendingReqDoc.exists) await toBranchPendingReqRef.delete()
-    if(fromBranchPendingReqDoc.exists) await fromBranchPendingReqRef.delete()
+    if (toBranchPendingReqDoc.exists) {
+        const toBranchData = {
+            ...toBranchPendingReqDoc.data(),
+            id: toBranchPendingReqDoc.id,
+            accepted: true
+        }
+        //fire and forget request state tracker
+        toBranchRef.collection("requestsHistory").add(toBranchData)
+        await toBranchPendingReqRef.delete()
+    }
+    if (fromBranchPendingReqDoc.exists) {
+        const fromBranchData = {
+            ...fromBranchPendingReqDoc.data(),
+            id: fromBranchPendingReqDoc.id,
+            accepted: true
+        }
+        //fire and forget request state tracker
+        fromBranchRef.collection("requestsHistory").add(fromBranchData)
+        await fromBranchPendingReqRef.delete()
+    }
 
     res.status(201).send({ transactionId: pendingRequestsId, toBranchTransactionId, fromBranchTransactionId })
 })
@@ -265,7 +283,7 @@ router.post('/moveProduct', async (req, res, next) => {
         date: new Date(),
         branch: fromBranch,
         operationalQuantity,
-        product, 
+        product,
         productName,
         note,
         toBranchName,
@@ -279,7 +297,7 @@ router.post('/moveProduct', async (req, res, next) => {
         date: new Date(),
         branch: toBranch,
         operationalQuantity,
-        product, 
+        product,
         productName,
         note,
         fromBranchName,
@@ -309,28 +327,42 @@ router.post('/rejectRequest', async (req, res, next) => {
         return;
     }
     const { toBranch, fromBranch, fromBranchName, productName, pendingRequestsId } = req.body
-
+    const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch)
+    const fromBranchRef = db.collection(constants.BRANCHES).doc(fromBranch)
     //check if pending requests exist
-    const toBranchPendingReqRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
-    const fromBranchPendingReqRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
+    const toBranchPendingReqRef = toBranchRef.collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
+    const fromBranchPendingReqRef = fromBranchRef.collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
     const pendingReqDocs = await db.getAll(toBranchPendingReqRef, fromBranchPendingReqRef)
     const toBranchPendingReqDoc = pendingReqDocs[0]
     const fromBranchPendingReqDoc = pendingReqDocs[1]
-
     if (!toBranchPendingReqDoc.exists || !fromBranchPendingReqDoc.exists) {
         const error = new Error('No pending requests to reject')
         error.statusCode = 404
         next(error)
         return
     }
+    const toBranchData = {
+        ...toBranchPendingReqDoc.data(),
+        id: toBranchPendingReqDoc.id,
+        accepted: false
+    }
+    const fromBranchData = {
+        ...fromBranchPendingReqDoc.data(),
+        id: fromBranchPendingReqDoc.id,
+        accepted: false
+    }
+    //fire and forget request state tracker
+    toBranchRef.collection("requestsHistory").add(toBranchData)
+    fromBranchRef.collection("requestsHistory").add(fromBranchData)
+    //delete from pendingRequests collection
     await toBranchPendingReqRef.delete()
     await fromBranchPendingReqRef.delete()
-    console.log('Deleting pending requests', pendingRequestsId )
+    console.log('Deleting pending requests', pendingRequestsId)
     // Fire and forget audit log
     const eventMessage = `User ${req.user.name} rejected request from ${fromBranchName} for ${productName}`
     audit.logEvent(eventMessage, req)
 
-    res.status(200).send({ message: 'Rejected successfully'})
+    res.status(200).send({ message: 'Rejected successfully' })
 })
 
 function validateParams(body, type) {
@@ -444,22 +476,20 @@ function getClosingQuantity(operation, initialQuantity, operationalQuantity) {
             return initialQuantity + operationalQuantity
         case constants.ISSUE_PRODUCT:
         case constants.TRANSFER_OUT:
-            if(operationalQuantity > initialQuantity) {
+            if (operationalQuantity > initialQuantity) {
                 const error = new Error(`Requested quantity ${operationalQuantity} is greater than the available quantity ${initialQuantity}`)
                 error.statusCode = 400
                 console.error(error)
-                throw  error
+                throw error
             }
             return initialQuantity - operationalQuantity
         case constants.ADJUSTMENT:
-            if(operationalQuantity < 0) {
+            if (operationalQuantity < 0) {
                 const error = new Error(`Quantity cannot be set to negative value: ${operationalQuantity}`)
                 error.statusCode = 400
                 console.error(error)
-                throw  error
+                throw error
             }
             return operationalQuantity
     }
 }
-
-
