@@ -87,11 +87,11 @@ async function getDashboardDataForBranchUser(branchId) {
     const branchRef = db.collection(constants.BRANCHES).doc(branchId);
     const productsBelowThresholdPromise = getProductsBelowThreshold(branchRef)
     const recentTransactionsPromise = getRecentTransactions(branchRef)
-    const pendingRequestsPromise = getPendingRequests(branchRef)
+    const transferRequestsPromise = getTransferRequests(branchRef)
 
     var inventoryData = await productsBelowThresholdPromise
     dashboardData[constants.RECENT_ACTIVITY] = await recentTransactionsPromise
-    dashboardData[constants.PENDING_REQUESTS] = await pendingRequestsPromise
+    dashboardData[constants.PENDING_REQUESTS] = await transferRequestsPromise
 
     dashboardData[constants.TOTAL_PRODUCTS_IN_INVENTORY] = inventoryData["totalProductsInInventory"]
     dashboardData[constants.TOTAL_PRODUCTS_BELOW_THRESHOLD] = inventoryData["totalProductsBelowThreshold"]
@@ -156,19 +156,20 @@ async function getRecentTransactions(branchRef) {
  * Method to retrieve pending requests for a given branch
  * @param {} branchRef 
  */
-async function getPendingRequests(branchRef) {
-    let pendingRequestSnapshot = await branchRef
-        .collection(constants.PENDING_REQUESTS)
+async function getTransferRequests(branchRef) {
+    let transferRequestsnapshot = await branchRef
+        .collection(constants.TRANSFER_REQUESTS)
+        .where('state', '==', 'PENDING')
         .orderBy(constants.DATE)
         .get()
 
-    const pendingRequests = []
-    pendingRequestSnapshot.forEach(pendingRequest => {
-        var pendingRequestData = pendingRequest.data()
-        pendingRequestData[constants.DATE] = pendingRequestData[constants.DATE].toDate()
-        pendingRequests.push(pendingRequestData)
+    const transferRequests = []
+    transferRequestsnapshot.forEach(TransferRequest => {
+        var transferRequestData = TransferRequest.data()
+        transferRequestData[constants.DATE] = transferRequestData[constants.DATE].toDate()
+        transferRequests.push(transferRequestData)
     })
-    return pendingRequests
+    return transferRequests
 }
 
 module.exports = router;

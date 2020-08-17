@@ -31,7 +31,7 @@ router.post('/addProduct', async (request, response, next) => {
     var transactionId = ""
     try {
         transactionId = await createTransaction(data)
-    } catch(error) {
+    } catch (error) {
         next(error)
         return;
     }
@@ -62,7 +62,7 @@ router.post('/issueProduct', async (request, response, next) => {
     var transactionId = ""
     try {
         transactionId = await createTransaction(data)
-    } catch(error) {
+    } catch (error) {
         next(error)
         return;
     }
@@ -94,7 +94,7 @@ router.post('/adjustment', async (request, response, next) => {
     var transactionId = ""
     try {
         transactionId = await createTransaction(data)
-    } catch(error) {
+    } catch (error) {
         next(error)
         return;
     }
@@ -127,7 +127,7 @@ router.post('/requestProduct', async (req, res, next) => {
         next(error)
         return
     }
-    const branchDocRef = await db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).add({
+    const branchDocRef = await db.collection(constants.BRANCHES).doc(toBranch).collection(constants.TRANSFER_REQUESTS).add({
         product,
         productName,
         operationalQuantity,
@@ -136,10 +136,11 @@ router.post('/requestProduct', async (req, res, next) => {
         operation: constants.TRANSFER_IN,
         note,
         date: new Date(),
-        user: req.user.email
+        user: req.user.email,
+        state: 'PENDING'
     })
     const id = branchDocRef.id
-    await db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(id).set({
+    await db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.TRANSFER_REQUESTS).doc(id).set({
         product,
         productName,
         operationalQuantity,
@@ -148,10 +149,11 @@ router.post('/requestProduct', async (req, res, next) => {
         note,
         operation: constants.TRANSFER_OUT,
         date: new Date(),
-        user: req.user.email
+        user: req.user.email,
+        state: 'PENDING'
     })
-    console.info(`Created pending transactions with ${id}`);
-    res.status(201).send({ pendingRequestsId: id })
+    console.info(`Created transfer request ${id} with state: PENDING`);
+    res.status(201).send({ transferRequestsId: id })
 })
 
 /**
@@ -167,7 +169,7 @@ router.post('/transferProduct', async (req, res, next) => {
         next(err)
         return;
     }
-    const { toBranch, fromBranch, toBranchName, fromBranchName, operationalQuantity, product, productName, pendingRequestsId, note, user } = req.body
+    const { toBranch, fromBranch, toBranchName, fromBranchName, operationalQuantity, product, productName, transferRequestsId, note, user } = req.body
 
     //check if branches exist
     const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch);
@@ -182,12 +184,12 @@ router.post('/transferProduct', async (req, res, next) => {
         next(error)
         return
     }
-    
-    const toBranchPendingReqRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
-    const fromBranchPendingReqRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
-    const pendingReqDocs = await db.getAll(toBranchPendingReqRef, fromBranchPendingReqRef)
-    const toBranchPendingReqDoc = pendingReqDocs[0]
-    const fromBranchPendingReqDoc = pendingReqDocs[1]
+
+    const toBranchTransferReqRef = toBranchRef.collection(constants.TRANSFER_REQUESTS).doc(transferRequestsId)
+    const fromBranchTransferReqRef = fromBranchRef.collection(constants.TRANSFER_REQUESTS).doc(transferRequestsId)
+    const transferReqDocs = await db.getAll(toBranchTransferReqRef, fromBranchTransferReqRef)
+    const toBranchTransferReqDoc = transferReqDocs[0]
+    const fromBranchTransferReqDoc = transferReqDocs[1]
 
     //create transferOut transaction
     const fromBranchData = {
@@ -200,7 +202,7 @@ router.post('/transferProduct', async (req, res, next) => {
         toBranchName,
         operation: constants.TRANSFER_OUT,
         note,
-        transactionId: pendingRequestsId,
+        transactionId: transferRequestsId,
         user: req.user.email //updating user to the one who accepts
     }
     fromBranchTransaction = createTransaction(fromBranchData)
@@ -216,7 +218,7 @@ router.post('/transferProduct', async (req, res, next) => {
         fromBranchName,
         operation: constants.TRANSFER_IN,
         note,
-        transactionId: pendingRequestsId,
+        transactionId: transferRequestsId,
         user //updating user to the one who actually requested
     }
     toBranchTransaction = createTransaction(toBranchData)
@@ -225,10 +227,24 @@ router.post('/transferProduct', async (req, res, next) => {
     const toBranchTransactionId = await toBranchTransaction
     console.log(`Created transactions in ${toBranchName} and ${fromBranchName}`)
 
-    if(toBranchPendingReqDoc.exists) await toBranchPendingReqRef.delete()
-    if(fromBranchPendingReqDoc.exists) await fromBranchPendingReqRef.delete()
-
-    res.status(201).send({ transactionId: pendingRequestsId, toBranchTransactionId, fromBranchTransactionId })
+    if (toBranchTransferReqDoc.exists) {
+        const toBranchData = {
+            ...toBranchTransferReqDoc.data(),
+            date: new Date(),
+            state: 'ACCEPTED'
+        }
+        await toBranchTransferReqRef.set(toBranchData, {merge: true})
+    }
+    if (fromBranchTransferReqDoc.exists) {
+        const fromBranchData = {
+            ...fromBranchTransferReqDoc.data(),
+            date: new Date(),
+            state: 'ACCEPTED'
+        }
+        await fromBranchTransferReqRef.set(fromBranchData, {merge: true})
+    }
+    console.log('Updated transfer request state to ACCEPTED')
+    res.status(201).send({ transactionId: transferRequestsId, toBranchTransactionId, fromBranchTransactionId })
 })
 
 /**
@@ -265,7 +281,7 @@ router.post('/moveProduct', async (req, res, next) => {
         date: new Date(),
         branch: fromBranch,
         operationalQuantity,
-        product, 
+        product,
         productName,
         note,
         toBranchName,
@@ -279,7 +295,7 @@ router.post('/moveProduct', async (req, res, next) => {
         date: new Date(),
         branch: toBranch,
         operationalQuantity,
-        product, 
+        product,
         productName,
         note,
         fromBranchName,
@@ -308,29 +324,40 @@ router.post('/rejectRequest', async (req, res, next) => {
         next(err)
         return;
     }
-    const { toBranch, fromBranch, fromBranchName, productName, pendingRequestsId } = req.body
-
+    const { toBranch, fromBranch, fromBranchName, productName, transferRequestsId } = req.body
+    const toBranchRef = db.collection(constants.BRANCHES).doc(toBranch)
+    const fromBranchRef = db.collection(constants.BRANCHES).doc(fromBranch)
     //check if pending requests exist
-    const toBranchPendingReqRef = db.collection(constants.BRANCHES).doc(toBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
-    const fromBranchPendingReqRef = db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.PENDING_REQUESTS).doc(pendingRequestsId)
-    const pendingReqDocs = await db.getAll(toBranchPendingReqRef, fromBranchPendingReqRef)
-    const toBranchPendingReqDoc = pendingReqDocs[0]
-    const fromBranchPendingReqDoc = pendingReqDocs[1]
-
-    if (!toBranchPendingReqDoc.exists || !fromBranchPendingReqDoc.exists) {
-        const error = new Error('No pending requests to reject')
+    const toBranchTransferReqRef = toBranchRef.collection(constants.TRANSFER_REQUESTS).doc(transferRequestsId)
+    const fromBranchTransferReqRef = fromBranchRef.collection(constants.TRANSFER_REQUESTS).doc(transferRequestsId)
+    const transferReqDocs = await db.getAll(toBranchTransferReqRef, fromBranchTransferReqRef)
+    const toBranchTransferReqDoc = transferReqDocs[0]
+    const fromBranchTransferReqDoc = transferReqDocs[1]
+    if (!toBranchTransferReqDoc.exists || !fromBranchTransferReqDoc.exists) {
+        const error = new Error('No transfer requests to reject')
         error.statusCode = 404
         next(error)
         return
     }
-    await toBranchPendingReqRef.delete()
-    await fromBranchPendingReqRef.delete()
-    console.log('Deleting pending requests', pendingRequestsId )
+    const toBranchData = {
+        ...toBranchTransferReqDoc.data(),
+        date: new Date(),
+        state: 'REJECTED'
+    }
+    const fromBranchData = {
+        ...fromBranchTransferReqDoc.data(),
+        date: new Date(),
+        state: 'REJECTED'
+    } 
+    //update state in transferRequests collection
+    await toBranchTransferReqRef.set(toBranchData, {merge: true})
+    await fromBranchTransferReqRef.set(fromBranchData, {merge: true})
+    console.log('Updated transfer request state to REJECTED')
     // Fire and forget audit log
     const eventMessage = `User ${req.user.name} rejected request from ${fromBranchName} for ${productName}`
     audit.logEvent(eventMessage, req)
 
-    res.status(200).send({ message: 'Rejected successfully'})
+    res.status(200).send({ message: 'Rejected successfully' })
 })
 
 function validateParams(body, type) {
@@ -370,7 +397,7 @@ function validateParams(body, type) {
                 productName: joi.string().min(1).max(30).required(),
                 operationalQuantity: joi.number().integer().strict().required(),
                 note: joi.string(),
-                pendingRequestsId: joi.string().alphanum().length(20).required(),
+                transferRequestsId: joi.string().alphanum().length(20).required(),
                 user: joi.string().email({ minDomainSegments: 2 }).required()
             })
             break
@@ -382,7 +409,7 @@ function validateParams(body, type) {
                 toBranchName: joi.string().min(1).max(30).required(),
                 product: joi.string().alphanum().length(20).required(),
                 productName: joi.string().min(1).max(30).required(),
-                pendingRequestsId: joi.string().alphanum().length(20).required(),
+                transferRequestsId: joi.string().alphanum().length(20).required(),
             })
             break
     }
@@ -444,22 +471,20 @@ function getClosingQuantity(operation, initialQuantity, operationalQuantity) {
             return initialQuantity + operationalQuantity
         case constants.ISSUE_PRODUCT:
         case constants.TRANSFER_OUT:
-            if(operationalQuantity > initialQuantity) {
+            if (operationalQuantity > initialQuantity) {
                 const error = new Error(`Requested quantity ${operationalQuantity} is greater than the available quantity ${initialQuantity}`)
                 error.statusCode = 400
                 console.error(error)
-                throw  error
+                throw error
             }
             return initialQuantity - operationalQuantity
         case constants.ADJUSTMENT:
-            if(operationalQuantity < 0) {
+            if (operationalQuantity < 0) {
                 const error = new Error(`Quantity cannot be set to negative value: ${operationalQuantity}`)
                 error.statusCode = 400
                 console.error(error)
-                throw  error
+                throw error
             }
             return operationalQuantity
     }
 }
-
-
