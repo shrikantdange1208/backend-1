@@ -1,9 +1,9 @@
 # Getting pending requests for a branch (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/pendingTransactions/branches/MxoS2K8t8jT7MATniD4x
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/pendingTransactions/branches/MxoS2K8t8jT7MATniD4x?state=PENDING
 
 #Response 200
 {
-    "pendingRequests": [
+    "transferRequests": [
       {
         "id": "GDzC2DEs9IFxAkxy1hXk",
         "date": "2020-07-22T10:28:21.139Z",
@@ -13,7 +13,8 @@
         "operationalQuantity": 2,
         "operation": "transferIn",
         "product": "ycCZuwUTxgYk63RnVHG6",
-        "productName": "Englishbooks"
+        "productName": "Englishbooks",
+        "state": "PENDING"
       },
       {
         "id": "LDskryk4uGECniQNwK98",
@@ -24,7 +25,8 @@
         "operationalQuantity": 10,
         "operation": "transferOut",
         "product": "iG7jYzzQpWaQ0wvKvEVw",
-        "productName": "Mathsbooks"
+        "productName": "Mathsbooks",
+        "state": "PENDING"
       },
       {
         "id": "g7jrTCokPOymvOzWZR73",
@@ -35,8 +37,9 @@
         "operationalQuantity": 5,
         "operation": "transferIn",
         "product": "iG7jYzzQpWaQ0wvKvEVw",
-        "productName": "Mathsbooks"
+        "productName": "Mathsbooks",
+        "state": "PENDING"
       }
     ],
-    "totalPendingRequests": 3
+    "totaltransferRequests": 3
 }

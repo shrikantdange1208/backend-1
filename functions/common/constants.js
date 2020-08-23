@@ -64,6 +64,7 @@ define("AFTER", "after");
 
 //Transaction constants
 define("TRANSACTIONS", "transactions");
+define("TRANSFER_REQUESTS", "transferRequests");
 define("PENDING_REQUESTS", "pendingRequests");
 define("NEXT_PAGE_TOKEN","nextPageToken");
 define("PREV_PAGE_TOKEN","prevPageToken");
