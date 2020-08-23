@@ -39,6 +39,69 @@ router.post('/addProduct', async (request, response, next) => {
 });
 
 /**
+ * Route to perform addProduct transaction
+ * @returns 201 Created
+ */
+router.post('/addProducts', async (request, response, next) => {
+    console.info('Adding multiple products to inventory....');
+
+    const productsToAdd = request.body
+    const userEmail = request.user.email
+    const productPromises = []
+    productsToAdd.forEach(product => {
+        const p = addProduct(product, userEmail)
+        productPromises.push(p)
+    })
+
+    Promise.all(p).then(promise => {
+
+    }).catch
+    // Validate parameters
+    console.debug('Validating params.')
+    const { error } = validateParams(request.body, constants.ADD_PRODUCT)
+    if (error) {
+        const err = new Error(error.details[0].message)
+        err.statusCode = 400
+        next(err)
+        return;
+    }
+
+    const data = request.body
+    data[constants.OPERATION] = constants.ADD_PRODUCT
+    data[constants.USER] = request.user.email
+    data[constants.DATE] = new Date()
+
+    var transactionId = ""
+    try {
+        transactionId = await createTransaction(data)
+    } catch(error) {
+        next(error)
+        return;
+    }
+    response.status(201).json({ 'transactionId': transactionId })
+});
+
+async function addProduct(product, userEmail) {
+    
+    try {
+        const { error } = validateParams(request.body, constants.ADD_PRODUCT)
+        if (error) {
+            const err = new Error(error.details[0].message)
+            err.statusCode = 400
+            throw err
+        }
+
+        data[constants.OPERATION] = constants.ADD_PRODUCT
+        data[constants.USER] = userEmail
+        data[constants.DATE] = new Date()
+        return createTransaction(data)
+
+    } catch(err) {
+        throw err
+    }
+}
+
+/**
  * Route to perform issueProduct transaction
  * @returns 201 Created
  */
