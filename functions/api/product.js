@@ -414,34 +414,14 @@ module.exports.addOrUpdateProduct = functions.firestore
     .document(`/${constants.PRODUCTS}/{productId}`)
     .onWrite(async (change, context) => {
         const productId = context.params.productId
-        if (!change.before._fieldsProto) {
-            console.debug(`New product ${change.after.data()[(constants.NAME)]} has been created`)
-            addProductToCategory(change.after)
-        } else if (!change.after._fieldsProto) {
-            console.debug(`Product ${change.before.data()[(constants.NAME)]} has been deleted`)
-            deleteProductFromCategory(change.before)
-        } else {
+        if(change.before._fieldsProto && change.after._fieldsProto) {
             var oldData = change.before.data()
             var newData = change.after.data()
             console.debug(`Product ${oldData[constants.NAME]} has been updated`)
-            if (oldData.category !== newData.category) {
-                console.debug(`Category of product ${oldData[constants.NAME]} changed from ${oldData.category} to ${newData.category}`)
-                deleteProductFromCategory(change.before)
-                addProductToCategory(change.after)
-                await updateCategoryOrUnitInInventory(productId, newData.category)
-            }
+            
             if (oldData.unit !== newData.unit) {
                 console.debug(`Unit of product ${oldData[constants.NAME]} changed from ${oldData.unit} to ${newData.unit}`)
                 await updateCategoryOrUnitInInventory(productId, null, newData.unit)
-            }
-
-            if (oldData.isActive !== newData.isActive) {
-                console.debug(`Status of product ${oldData[constants.NAME]} changed from ${oldData.isActive} to ${newData.isActive}`)
-                if (newData.isActive) {
-                    addProductToCategory(change.after)
-                } else {
-                    deleteProductFromCategory(change.after)
-                }
             }
 
             if (Object.entries(oldData.thresholds).toString() !== Object.entries(newData.thresholds).toString()) {
@@ -450,45 +430,6 @@ module.exports.addOrUpdateProduct = functions.firestore
             }
         }
     });
-
-/**
- * Method to add product in a category
- * @param {*} newProduct 
- */
-async function addProductToCategory(newProduct) {
-    var productId = newProduct.id
-    var categoryId = newProduct.data().category;
-    const categoryRef = db.doc(`${constants.CATEGORIES}/${categoryId}`);
-    const categorySnapshot = await categoryRef.get()
-    // Check if category is present in the collection
-    if (!categorySnapshot.exists) {
-        console.error(`Category ${categoryId} is not present in firestore!!!!`)
-        throw new Error(`Category ${categoryId} is not present in firestore!!!!`)
-    }
-    const products = categorySnapshot.data().products;
-    products.push(productId);
-    await categoryRef.update({ 'products': products })
-}
-
-/**
- * Method to delete product from a category
- * @param {*} newProduct 
- */
-async function deleteProductFromCategory(deletedProduct) {
-    var productId = deletedProduct.id
-    var categoryId = deletedProduct.data().category;
-    const categoryRef = db.doc(`${constants.CATEGORIES}/${categoryId}`);
-    const categorySnapshot = await categoryRef.get()
-    // Check if category is present in the collection
-    if (!categorySnapshot.exists) {
-        console.error(`Category ${categoryId} is not present in firestore!!!!`)
-        throw new Error(`Category ${categoryId} is not present in firestore!!!!`)
-    }
-    const products = categorySnapshot.data().products;
-    var index = products.indexOf(productId)
-    products.splice(index, 1);
-    await categoryRef.update({ 'products': products })
-}
 
 /**
  * Method to update threshold in inventory of a branch

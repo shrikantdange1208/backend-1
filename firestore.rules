@@ -2,16 +2,100 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // This rule allows anyone on the internet to view, edit, and delete
-    // all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // your app will lose access to your Firestore database
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2020, 7, 30);
+    function isAdminOrSuperAdmin() {
+      return isAdmin() || isSuperAdmin()
+    }
+
+    function isAdmin() {
+      return request.auth.token.role == 'admin'
+    }
+
+    function isSuperAdmin() {
+      return request.auth.token.role == 'superadmin'
+    }
+
+    function isUserFromSameBranch(branchId) {
+      return (branchId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.branch)
+    }
+
+    function isUserAuthenticated() {
+        return request.auth != null
+    }
+    
+    match /branches/{branchId} {
+
+      allow read: if isUserAuthenticated()
+      allow create: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow update: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow delete: if (isUserAuthenticated() && isSuperAdmin())
+    
+      match /inventory/{recordId} {
+        allow read: if (isUserAuthenticated() && ((isAdminOrSuperAdmin() || isUserFromSameBranch(branchId))))
+        allow write: if isUserAuthenticated()
+      }
+
+      match /transactions/{transactionId} {
+        allow read: if (isUserAuthenticated() && ((isAdminOrSuperAdmin() || isUserFromSameBranch(branchId))))
+        allow write: if isUserAuthenticated()
+      }
+
+      match /transferRequests/{transferId} {
+        allow read: if (isUserAuthenticated() && ((isAdminOrSuperAdmin() || isUserFromSameBranch(branchId))))
+        allow write: if isUserAuthenticated()
+      }
+    }
+
+    match /categories/{categoryId} {
+      allow read: if (isUserAuthenticated())
+      allow create: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow update: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow delete: if (isUserAuthenticated() && isSuperAdmin())
+    }
+
+    match /operation/{operationId} {
+      allow read: if (isUserAuthenticated())
+      allow create: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow update: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow delete: if (isUserAuthenticated() && isSuperAdmin())
+    }
+
+    match /permissions/{permissionId} {
+      allow read: if (isUserAuthenticated())
+      allow create: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow update: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow delete: if (isUserAuthenticated() && isSuperAdmin())
+    }
+
+    match /products/{productId} {
+      allow read: if (isUserAuthenticated())
+      allow create: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow update: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow delete: if (isUserAuthenticated() && isSuperAdmin())
+    }
+
+    match /roles/{roleId} {
+      allow read: if (isUserAuthenticated())
+      allow create: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow update: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow delete: if (isUserAuthenticated() && isSuperAdmin())
+    }
+
+    match /units/{unitId} {
+      allow read: if (isUserAuthenticated())
+      allow create: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow update: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow delete: if (isUserAuthenticated() && isSuperAdmin())
+    }
+
+    match /users/{userId} {
+      allow read: if (isUserAuthenticated())
+      allow create: if (isUserAuthenticated() && isAdminOrSuperAdmin())
+      allow update: if (isUserAuthenticated() && (request.auth.uid == userId) || isAdminOrSuperAdmin())
+      allow delete: if (isUserAuthenticated() && isSuperAdmin())
+    }
+
+    match /audit/{auditId} {
+      allow read, write: if isUserAuthenticated();
     }
   }
 }
