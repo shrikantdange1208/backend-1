@@ -137,7 +137,7 @@ router.post('/requestProduct', async (req, res, next) => {
         note,
         date: new Date(),
         user: req.user.email,
-        state: 'PENDING'
+        state: constants.PENDING
     })
     const id = branchDocRef.id
     await db.collection(constants.BRANCHES).doc(fromBranch).collection(constants.TRANSFER_REQUESTS).doc(id).set({
@@ -150,7 +150,7 @@ router.post('/requestProduct', async (req, res, next) => {
         operation: constants.TRANSFER_OUT,
         date: new Date(),
         user: req.user.email,
-        state: 'PENDING'
+        state: constants.PENDING
     })
     console.info(`Created transfer request ${id} with state: PENDING`);
     res.status(201).send({ transferRequestsId: id })
@@ -231,7 +231,7 @@ router.post('/transferProduct', async (req, res, next) => {
         const toBranchData = {
             ...toBranchTransferReqDoc.data(),
             date: new Date(),
-            state: 'ACCEPTED'
+            state: constants.ACCEPTED
         }
         await toBranchTransferReqRef.set(toBranchData, {merge: true})
     }
@@ -239,7 +239,7 @@ router.post('/transferProduct', async (req, res, next) => {
         const fromBranchData = {
             ...fromBranchTransferReqDoc.data(),
             date: new Date(),
-            state: 'ACCEPTED'
+            state: constants.ACCEPTED
         }
         await fromBranchTransferReqRef.set(fromBranchData, {merge: true})
     }
@@ -342,12 +342,12 @@ router.post('/rejectRequest', async (req, res, next) => {
     const toBranchData = {
         ...toBranchTransferReqDoc.data(),
         date: new Date(),
-        state: 'REJECTED'
+        state: constants.REJECTED
     }
     const fromBranchData = {
         ...fromBranchTransferReqDoc.data(),
         date: new Date(),
-        state: 'REJECTED'
+        state: constants.REJECTED
     } 
     //update state in transferRequests collection
     await toBranchTransferReqRef.set(toBranchData, {merge: true})

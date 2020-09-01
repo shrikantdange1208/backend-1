@@ -43,7 +43,7 @@ async function getDashboardDataForAdminUser(adminBranchId) {
     const branchRef = db.collection(constants.BRANCHES).doc(adminBranchId);
 
     // Get pendingRequests for Admin/SuperAdmin's branch
-    const pendingRequests = await getPendingRequests(branchRef)
+    const pendingRequests = await getTransferRequests(branchRef)
     dashboardData[adminBranchId]['pendingRequests'] = pendingRequests
 
     // Get recentTransactions for Admin/SuperAdmin's branch
@@ -159,8 +159,9 @@ async function getRecentTransactions(branchRef) {
 async function getTransferRequests(branchRef) {
     let transferRequestsnapshot = await branchRef
         .collection(constants.TRANSFER_REQUESTS)
-        .where('state', '==', 'PENDING')
-        .orderBy(constants.DATE)
+        .where('state', '==', constants.PENDING)
+        .orderBy(constants.DATE, 'desc')
+        .limit(10)
         .get()
 
     const transferRequests = []

@@ -1,5 +1,5 @@
 # Getting pending requests for a branch (GET)
-# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/pendingTransactions/branches/MxoS2K8t8jT7MATniD4x?state=PENDING
+# Endpoint: http://localhost:5001/local-parikrama/us-central1/api/api/transferRequests/branches/MxoS2K8t8jT7MATniD4x?state=PENDING
 
 #Response 200
 {
@@ -43,3 +43,11 @@
     ],
     "totaltransferRequests": 3
 }
+
+
+// default state is PENDING
+// http://localhost:5001/local-parikrama/us-central1/api/api/transferRequests/branches/MxoS2K8t8jT7MATniD4x
+
+// http://localhost:5001/local-parikrama/us-central1/api/api/transferRequests/branches/MxoS2K8t8jT7MATniD4x?state=ACCEPTED
+// http://localhost:5001/local-parikrama/us-central1/api/api/transferRequests/branches/MxoS2K8t8jT7MATniD4x?state=REJECTED
+// http://localhost:5001/local-parikrama/us-central1/api/api/transferRequests/branches/MxoS2K8t8jT7MATniD4x?state=REJECTED&fromDate=2020-07-12&toDate=2020-07-13

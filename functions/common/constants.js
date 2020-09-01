@@ -95,6 +95,10 @@ define("REQUEST", "request");
 define("ACCEPT", "accept");
 define("MOVE", "move");
 define("REJECT", "reject");
+define("STATE", "state");
+define("ACCEPTED", "ACCEPTED");
+define("REJECTED", "REJECTED");
+define("PENDING", "PENDING");
 
 define("METADATA", "metadata");
 define("DASHBOARD", "dashboard");
